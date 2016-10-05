@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <iostream>
 
-
 int main(int argc, char *argv[])
 {
     // enable debug memory checks

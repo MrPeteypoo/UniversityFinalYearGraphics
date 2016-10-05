@@ -344,7 +344,7 @@ void MyView::buildMaterialData()
         const auto& material = materials[id];
 
         // Check which texture ID to use. If it can't be determined then -1 indicates none.
-        const auto& texture   = ""s;
+        const auto& texture   = "resource:///hex.png"s;
         auto        textureID = -1.f;
 
         if (!texture.empty())
@@ -459,7 +459,7 @@ void MyView::prepareTextureData (const GLsizei textureWidth, const GLsizei textu
 
     // Enable the 2D texture array and prepare its storage. Use 4 mipmap levels.
     glBindTexture (GL_TEXTURE_2D_ARRAY, m_textureArray);
-    //glTexStorage3D (GL_TEXTURE_2D_ARRAY, 4, GL_RGBA32F, textureWidth, textureHeight, textureCount);
+    glTexStorage3D (GL_TEXTURE_2D_ARRAY, 4, GL_RGBA32F, textureWidth, textureHeight, textureCount);
 
     // Enable standard filters.
     glTexParameteri (GL_TEXTURE_2D_ARRAY,   GL_TEXTURE_MAG_FILTER,  GL_LINEAR);

@@ -80,7 +80,7 @@ namespace util
         for (const auto& material : materials)
         {
             // Attempt to load each image.
-			auto filename = ""s; // material.getAmbientMap();
+			auto filename = "resource:///hex.png"s; // material.getAmbientMap();
             auto image    = tygra::createImageFromPngFile (filename);
 
             if (image.doesContainData())
