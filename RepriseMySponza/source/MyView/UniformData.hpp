@@ -49,7 +49,7 @@ struct Light final
 
     float           aConstant       { 1.f };    //!< The constant co-efficient for the attenutation formula.
     float           aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
-    float           aQuadratic      { 1.f };    //!< The quadratic co-efficient for the attenuation formula.
+    float           aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
     unsigned int    emitWireframe   { 0 };      //!< Indicates whether the light should emit a wireframe onto surfaces.
 
     Light()                                 = default;

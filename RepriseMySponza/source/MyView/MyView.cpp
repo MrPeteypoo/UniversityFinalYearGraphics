@@ -177,7 +177,7 @@ bool MyView::buildProgram()
     
     const auto vertexShader                         = util::compileShaderFromFile (vertexShaderLocation, GL_VERTEX_SHADER);
     const auto fragmentShader                       = util::compileShaderFromFile (fragmentShaderLocation, GL_FRAGMENT_SHADER);
-    
+
     // Attach the shaders to the program we created.
     const std::vector<GLchar*> vertexAttributes     = { "position", "normal", "textureCoord", "model", "pvm" };
     const std::vector<GLchar*> fragmentAttributes   = {  };
@@ -277,7 +277,7 @@ void MyView::allocateExtraBuffers()
     /// Use STREAM for the instancing buffers because they will be updated once per mesh and only used for that mesh.
 
     // We'll need to keep track of the highest number of instances in the scene.
-    m_instancePoolSize          = highestInstanceCount();
+    m_instancePoolSize = highestInstanceCount();
 
     // We need to store two matrices per instance and we need to ensure the materialID pool aligns to a glm::vec4, otherwise we end up with missing data.
     const auto transformSize    = m_instancePoolSize * sizeof (glm::mat4) * 2;
@@ -727,7 +727,6 @@ void MyView::setUniforms (const void* const projectionMatrix, const void* const 
 
     data.setCameraPosition (util::toGLM(m_scene->getCamera().getPosition()));
     data.setAmbientColour (util::toGLM(m_scene->getAmbientLightIntensity()));
-
 
     // Add all lights to the scene.
     auto lightCount = 0;
