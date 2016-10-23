@@ -17,9 +17,9 @@
 
 // Personal headers.
 #include <Misc/Vertex.hpp>
-#include <MyView/Material.hpp>
-#include <MyView/Mesh.hpp>
-#include <MyView/UniformData.hpp>
+#include <MyView/Internals/Material.hpp>
+#include <MyView/Internals/Mesh.hpp>
+#include <MyView/Internals/UniformData.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/OpenGL.hpp>
 #include <Utility/Scene.hpp>
@@ -29,86 +29,11 @@
 using namespace std::string_literals;
 
 
-#pragma region Constructors and destructor
-
-MyView::MyView (MyView&& move)
-{
-    *this = std::move (move);
-}
-
-
 MyView::~MyView()
 {
     // Never leave a byte of data behind!
     windowViewDidStop ({ nullptr });
 }
-
-
-MyView& MyView::operator= (MyView&& move)
-{
-    if (this != &move)
-    {
-        m_program               = move.m_program;
-
-        m_sceneVAO              = move.m_sceneVAO;
-        m_vertexVBO             = move.m_vertexVBO;
-        m_elementVBO            = move.m_elementVBO;
-        m_uniformUBO            = move.m_uniformUBO;
-        m_textureArray          = move.m_textureArray;
-        m_materials             = std::move (move.m_materials);
-        
-        m_instancePoolSize      = move.m_instancePoolSize;
-        m_poolTransforms        = move.m_poolTransforms;
-        m_poolMaterialIDs       = std::move (move.m_poolMaterialIDs);
-        
-        m_aspectRatio           = move.m_aspectRatio;
-
-        m_scene                 = std::move (move.m_scene);
-        m_meshes                = std::move (move.m_meshes);
-        m_materials             = std::move (move.m_materials);
-
-        // Reset primitives.
-        move.m_program          = 0;
-
-        move.m_sceneVAO         = 0;
-        move.m_vertexVBO        = 0;
-        move.m_elementVBO       = 0;
-        move.m_uniformUBO       = 0;
-        move.m_textureArray     = 0;
-
-        move.m_instancePoolSize = 0;
-        move.m_poolTransforms   = 0;
-
-        move.m_aspectRatio      = 0.f;
-    }
-
-    return *this;
-}
-
-
-MyView::SamplerBuffer::SamplerBuffer (SamplerBuffer&& move)
-{
-    *this = std::move (move);
-}
-
-
-MyView::SamplerBuffer& MyView::SamplerBuffer::operator= (SamplerBuffer&& move)
-{
-    if (this != &move)
-    {
-        vbo = move.vbo;
-        tbo = move.tbo;
-
-        // Reset primitives.
-        move.vbo = 0;
-        move.tbo = 0;
-    }
-
-    return *this;
-}
-
-
-#pragma endregion
 
 
 #pragma region Public interface
@@ -223,7 +148,8 @@ void MyView::buildMeshData()
     m_meshes.resize (meshes.size());
 
     // Start by allocating enough memory in the VBOs to contain the scene.
-    size_t vertexSize { 0 }, elementSize { 0 };
+    auto vertexSize     = size_t { 0 }, 
+         elementSize    = size_t { 0 };
     util::calculateVBOSize (meshes, vertexSize, elementSize);
     
     util::allocateBuffer (m_vertexVBO, vertexSize, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
@@ -234,24 +160,25 @@ void MyView::buildMeshData()
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, m_elementVBO);
 
     // Iterate through each mesh adding them to the mesh container.
-    GLint vertexIndex   { 0 }; 
-    GLint elementOffset { 0 };
+    auto vertexIndex    = GLintptr { 0 };
+    auto elementOffset  = GLintptr { 0 };
     
-    for (unsigned int i = 0; i < meshes.size(); ++i)
+    for (size_t i { 0 }; i < meshes.size(); ++i)
     {
-        // Cache the current mesh.
-        const auto& mesh        = meshes[i];
-        const auto& elements    = mesh.getElementArray();
+        // Cache the required mesh data.
+        const auto& sceneMesh   = meshes[i];
+        const auto& elements    = sceneMesh.getElementArray();
+        auto&       localMesh   = m_meshes[i].second;
         
-        // Initialise a rendering-ready mesh.
-        Mesh* newMesh { new Mesh() };
-        newMesh->verticesIndex   = vertexIndex;
-        newMesh->elementsOffset  = elementOffset;
-        newMesh->elementCount    = elements.size();
+        // Assign the local mesh an ID.
+        m_meshes[i].first = sceneMesh.getId();
+
+        localMesh.verticesIndex     = vertexIndex;
+        localMesh.elementsOffset    = elementOffset;
+        localMesh.elementCount      = elements.size();
         
         // Obtain the required vertex information.
-        std::vector<Vertex> vertices { };
-        util::assembleVertices (vertices, mesh);
+        auto vertices = util::assembleVertices (sceneMesh);
 
         // Fill the vertex buffer objects with data.
         glBufferSubData (GL_ARRAY_BUFFER,           vertexIndex * sizeof (Vertex),  vertices.size() * sizeof (Vertex),          vertices.data());
@@ -260,9 +187,6 @@ void MyView::buildMeshData()
         // The vertexIndex needs an actual index value whereas elementOffset needs to be in bytes.
         vertexIndex += vertices.size();
         elementOffset += elements.size() * sizeof (unsigned int);
-
-        // Finally create the pair and add the mesh to the vector.
-        m_meshes[i] = { mesh.getId(), std::move (newMesh) };
     }
 
     // Unbind the buffers.
@@ -306,7 +230,7 @@ void MyView::bindUniformBufferObject()
     glBindBuffer (GL_UNIFORM_BUFFER, m_uniformUBO);
 
     // Determine the UBO indices.
-    const auto scene = glGetUniformBlockIndex (m_program, "scene");
+    const auto scene    = glGetUniformBlockIndex (m_program, "scene");
     const auto lighting = glGetUniformBlockIndex (m_program, "lighting");
 
     // Bind each part of the UBO to the correct block.
@@ -332,11 +256,11 @@ void MyView::buildMaterialData()
     const auto& materials = m_scene->getAllMaterials();
 
     // Load all of the images in the scen
-    std::vector<std::pair<std::string, tygra::Image>> images { };
+    auto images = std::vector<std::pair<std::string, tygra::Image>> { };
     util::loadImagesFromScene (images, materials);
 
     // Iterate through them creating a buffer-ready material for each ID.
-    std::vector<Material> bufferMaterials (materials.size());
+    auto bufferMaterials = std::vector<Material> (materials.size());
 
     for (size_t id = 0; id < materials.size(); ++id)
     {
@@ -437,8 +361,8 @@ void MyView::constructVAO()
     glBindBuffer (GL_ARRAY_BUFFER, m_poolTransforms);
 
     // We'll combine our matrices into a single VBO so we need the stride to be double.
-    util::createInstancedMatrix4 (modelTransform, sizeof (glm::mat4) * 2);
-    util::createInstancedMatrix4 (pvmTransform,   sizeof (glm::mat4) * 2, sizeof (glm::mat4));
+    util::createMatrix4Attribute (modelTransform, sizeof (glm::mat4) * 2);
+    util::createMatrix4Attribute (pvmTransform,   sizeof (glm::mat4) * 2, sizeof (glm::mat4));
 
     // Unbind all buffers.
     glBindVertexArray (0);
@@ -552,16 +476,6 @@ void MyView::windowViewDidStop (tygra::Window* window)
 
 void MyView::cleanMeshMaterials()
 {
-    // Clean the mesh vector.
-    for (auto& pair : m_meshes)
-    {
-        if (pair.second)
-        {
-            delete pair.second;
-            pair.second = nullptr;
-        }
-    }
-
     m_meshes.clear();
     m_materialIDs.clear();
 }
@@ -682,7 +596,7 @@ void MyView::windowViewRender (tygra::Window* window)
             const auto& mesh = pair.second;
 
             // Finally draw all instances at the same time.
-            glDrawElementsInstancedBaseVertex (GL_TRIANGLES, mesh->elementCount, GL_UNSIGNED_INT, (void*) mesh->elementsOffset, size, mesh->verticesIndex);
+            glDrawElementsInstancedBaseVertex (GL_TRIANGLES, mesh.elementCount, GL_UNSIGNED_INT, (void*) mesh.elementsOffset, size, mesh.verticesIndex);
         }
     }
 
@@ -721,8 +635,8 @@ void MyView::setUniforms (const void* const projectionMatrix, const void* const 
     // or including GLM in the MyView header.
     if (projectionMatrix && viewMatrix)
     {
-        data.setProjectionMatrix (*(glm::mat4*) projectionMatrix);
-        data.setViewMatrix (*(glm::mat4*) viewMatrix);
+        data.setProjectionMatrix (*(const glm::mat4* const) projectionMatrix);
+        data.setViewMatrix (*(const glm::mat4* const) viewMatrix);
     }
 
     data.setCameraPosition (util::toGLM(m_scene->getCamera().getPosition()));

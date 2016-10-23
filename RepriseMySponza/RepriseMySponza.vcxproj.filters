@@ -24,25 +24,16 @@
     <ClCompile Include="source\Misc\MyController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Misc\Vertex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\MyView\Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\MyView\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\MyView\MyView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\MyView\UniformData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Utility\OpenGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Utility\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\MyView\Internals\UniformData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,16 +61,7 @@
     <ClInclude Include="source\Misc\Vertex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\MyView\Material.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\MyView\Mesh.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\MyView\MyView.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\MyView\UniformData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Utility\Maths.hpp">
@@ -92,6 +74,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Utility\Algorithm.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\Material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\Mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\UniformData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

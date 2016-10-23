@@ -10,11 +10,14 @@
 
 
 // Engine headers.
+#include <glm/fwd.hpp>
 #include <scene/scene_fwd.hpp>
 #include <tygra/WindowViewDelegate.hpp>
 
 
 // Personal headers.
+#include <MyView/Internals/Material.hpp>
+#include <MyView/Internals/Mesh.hpp>
 #include <Utility/OpenGL.hpp>
 
 
@@ -30,19 +33,15 @@ struct Vertex;
 class MyView final : public tygra::WindowViewDelegate
 {
     public:
-    
-        #pragma region Constructors and destructor
 
         MyView()                                = default;
-        ~MyView();
-
-        MyView (MyView&& move);
-        MyView& operator= (MyView&& move);
-
+        MyView (MyView&& move)                  = default;
+        MyView& operator= (MyView&& move)       = default;
+        
         MyView (const MyView& copy)             = delete;
         MyView& operator= (const MyView& copy)  = delete;
 
-        #pragma endregion
+        ~MyView();
 
         #pragma region Public interface
 
@@ -139,10 +138,6 @@ class MyView final : public tygra::WindowViewDelegate
 
         #pragma region Implementation data
 
-        struct Material;
-        struct Mesh;
-        class UniformData;
-
         // Using declarations.
         using MaterialID = int;
 
@@ -153,15 +148,7 @@ class MyView final : public tygra::WindowViewDelegate
         {
             GLuint  vbo { 0 };  //!< The buffer to contain shader accessible information.
             GLuint  tbo { 0 };  //!< The texture buffer which points to the VBO, linking them together.
-
-            SamplerBuffer()                                         = default;
-            SamplerBuffer (const SamplerBuffer& copy)               = default;
-            SamplerBuffer& operator= (const SamplerBuffer& copy)    = default;
-            ~SamplerBuffer()                                        = default;
-
-            SamplerBuffer (SamplerBuffer&& move);
-            SamplerBuffer& operator= (SamplerBuffer&& move);
-        };        
+        };
 
         GLuint                                              m_program           { 0 };          //!< The ID of the OpenGL program created and used to draw the scene.
 
@@ -181,7 +168,7 @@ class MyView final : public tygra::WindowViewDelegate
         float                                               m_aspectRatio       { 0.f };        //!< The calculated aspect ratio of the foreground resolution for the application.
 
         scene::Context*                                     m_scene             { nullptr };    //!< The sponza scene containing instance and camera information.
-        std::vector<std::pair<scene::MeshId, Mesh*>>        m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
+        std::vector<std::pair<scene::MeshId, Mesh>>         m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
         std::unordered_map<scene::MaterialId, MaterialID>   m_materialIDs       { };            //!< A map containing each material used for rendering.
 
         bool                                                m_wireframeMode     { false };      //!< Causes the camera to show a wireframe around meshes nearby.

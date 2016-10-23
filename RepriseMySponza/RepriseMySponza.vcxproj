@@ -167,11 +167,8 @@
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Misc\MyController.cpp" />
-    <ClCompile Include="source\Misc\Vertex.cpp" />
-    <ClCompile Include="source\MyView\Material.cpp" />
-    <ClCompile Include="source\MyView\Mesh.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
-    <ClCompile Include="source\MyView\UniformData.cpp" />
+    <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
     <ClCompile Include="source\Utility\OpenGL.cpp" />
     <ClCompile Include="source\Utility\Scene.cpp" />
   </ItemGroup>
@@ -187,10 +184,11 @@
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
     <ClInclude Include="source\Misc\Vertex.hpp" />
-    <ClInclude Include="source\MyView\Material.hpp" />
-    <ClInclude Include="source\MyView\Mesh.hpp" />
+    <ClInclude Include="source\MyView\Internals\Material.hpp" />
+    <ClInclude Include="source\MyView\Internals\Mesh.hpp" />
     <ClInclude Include="source\MyView\MyView.hpp" />
-    <ClInclude Include="source\MyView\UniformData.hpp" />
+    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
+    <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL.hpp" />

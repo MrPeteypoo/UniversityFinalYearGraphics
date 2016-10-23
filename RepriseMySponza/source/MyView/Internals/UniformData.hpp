@@ -2,7 +2,7 @@
 
 #if !defined    MY_VIEW_UNIFORM_DATA_
 #define         MY_VIEW_UNIFORM_DATA_
-#define         MAX_LIGHTS 20
+#define MAX_LIGHTS 20
 
 
 // Engine headers.
@@ -20,6 +20,8 @@ using GLuint = unsigned int;
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
 #pragma pack (push, 4)
+
+
 
 
 /// <summary>
@@ -68,7 +70,7 @@ struct Light final
 /// <summary> 
 /// A basic class used for writing to a Uniform Buffer Object which represents shader information.
 /// </summary>
-class MyView::UniformData final
+class UniformData final
 {
     public:
 

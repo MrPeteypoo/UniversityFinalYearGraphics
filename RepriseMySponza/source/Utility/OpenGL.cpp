@@ -1,57 +1,47 @@
 #include "OpenGL.hpp"
 
 
-
 // STL headers.
 #include <iostream>
 
 
-
 // Engine headers.
+#include <glm/vec4.hpp>
 #include <tgl/tgl.h>
 #include <tygra/FileHelper.hpp>
 
 
-
 // Personal headers.
-#include <MyView/Material.hpp>
-
+#include <MyView/Internals/Material.hpp>
 
 
 namespace util
-{
-    #pragma region Template instantiations
-    
-    // Instant the different required templates to avoid including OpenGL in the header.
-    template void fillBuffer (GLuint& vbo, const std::vector<MyView::Material>& data, const GLenum target, const GLenum usage);
-
-    #pragma endregion
+{    
+    // Instantiate the different required templates to avoid including OpenGL in the header.
+    template void fillBuffer (GLuint& vbo, const std::vector<Material>& data, const GLenum target, const GLenum usage);
 
 
-    #pragma region Compilation
-    
     GLuint compileShaderFromFile (const std::string& fileLocation, const GLenum shader)
     {
-        // Read in the shader into a const char*.
-        const auto shaderString = tygra::createStringFromFile (fileLocation);
-        auto       shaderCode   = shaderString.c_str();
+        // For some reason calling .c_str() on the returned string causes garbage data to appear, hence two separate steps.
+        const auto  shaderString    = tygra::createStringFromFile (fileLocation);
+        auto        shaderCode      = shaderString.c_str();
     
         // Attempt to compile the shader.
-        GLuint shaderID { };
-        shaderID = glCreateShader (shader);
+        auto shaderID = glCreateShader (shader);
 
-        glShaderSource (shaderID, 1, static_cast<const GLchar**> (&shaderCode), NULL);
+        glShaderSource (shaderID, 1, &shaderCode, NULL);
         glCompileShader (shaderID);
 
         // Check whether compilation was successful.
-        GLint compileStatus { 0 };
+        auto compileStatus = GLint { 0 };
 
         glGetShaderiv (shaderID, GL_COMPILE_STATUS, &compileStatus);
     
         if (compileStatus != GL_TRUE)
         {
             // Output error information.
-            const unsigned int stringLength = 1024;
+            const auto stringLength = 1024U;
             GLchar log[stringLength] = "";
 
             glGetShaderInfoLog (shaderID, stringLength, NULL, log);
@@ -65,12 +55,12 @@ namespace util
     void attachShader (const GLuint program, const GLuint shader, const std::vector<GLchar*>& attributes)
     {
         // Check whether we have a valid shader ID before continuing.
-        if (shader != 0)
+        if (shader != 0U)
         {
             glAttachShader (program, shader);
 
             // Add the given attributes to the shader.
-            for (unsigned int i = 0; i < attributes.size(); ++i)
+            for (size_t i { 0 }; i < attributes.size(); ++i)
             {
                 if (attributes[i] != nullptr)
                 {
@@ -90,7 +80,7 @@ namespace util
         glLinkProgram (program);
 
         // Test the status for any errors.
-        GLint linkStatus  { 0 };
+        auto linkStatus = GLint { 0 };
         glGetProgramiv (program, GL_LINK_STATUS, &linkStatus);
 
         if (linkStatus != GL_TRUE) 
@@ -108,18 +98,14 @@ namespace util
         return true;
     }
 
-    #pragma endregion
-
-
-    #pragma region Allocation
 
     void allocateBuffer (GLuint& buffer, const size_t size, const GLenum target, const GLenum usage)
     {
-        if (buffer == 0)
+        if (buffer == 0U)
         {
             glGenBuffers (1, &buffer);
         }
-        
+
         glBindBuffer (target, buffer);
         glBufferData (target, size, nullptr, usage);
         glBindBuffer (target, 0);
@@ -138,21 +124,17 @@ namespace util
         glBindBuffer (target, 0);
     }
 
-    #pragma endregion
 
-
-    #pragma region Miscellaneous
-
-    void createInstancedMatrix4 (const int attribLocation, const GLsizei stride, const int extraOffset, const int divisor)
+    void createMatrix4Attribute (const int attribLocation, const GLsizei stride, const int extraOffset, const int divisor)
     {
         // Pre-condition: A valid attribute location has been given.
         if (attribLocation >= 0)
         {
             // We need to go through each column of the matrices creating attribute pointers.
-            const int matrixColumns { 4 };
-            for (int i = 0; i < matrixColumns; ++i)
+            const auto matrixColumns = GLint { 4 };
+            for (GLint i { 0 }; i < matrixColumns; ++i)
             {
-                const int current   { attribLocation + i };
+                const int current { attribLocation + i };
 
                 // Enable each column and set the divisor.
                 glEnableVertexAttribArray (current);
@@ -162,7 +144,7 @@ namespace util
                 const auto offset = TGL_BUFFER_OFFSET (sizeof (glm::vec4) * i + extraOffset);
 
                 // Create the columns attribute pointer.
-                glVertexAttribPointer (current,  4, GL_FLOAT, GL_FALSE, stride, offset);
+                glVertexAttribPointer (current, 4, GL_FLOAT, GL_FALSE, stride, offset);
             }
         }
     }
@@ -171,12 +153,12 @@ namespace util
     void generateTexture2D (GLuint& textureBuffer, const std::string& fileLocation)
     {
         // Attempt to load the image.
-        tygra::Image image = tygra::createImageFromPngFile (fileLocation);
+        const auto image = tygra::createImageFromPngFile (fileLocation);
 
         if (image.doesContainData()) 
         {
             // Start by preparing the texture buffer.
-            if (textureBuffer == 0)
+            if (textureBuffer == 0U)
             {
                 glGenTextures (1, &textureBuffer);
             }
@@ -199,7 +181,7 @@ namespace util
                             image.width(), image.height(), 0,   
                       
                             // Format and type.
-                            pixel_formats[image.componentsPerPixel()], image.bytesPerComponent() == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+                            pixel_formats[image.componentsPerPixel()], image.bytesPerComponent() == 1U ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
                       
                             // Data.
                             image.pixelData());
@@ -209,6 +191,4 @@ namespace util
             glBindTexture (GL_TEXTURE_2D, 0);
         }
     }
-    
-    #pragma endregion
 }

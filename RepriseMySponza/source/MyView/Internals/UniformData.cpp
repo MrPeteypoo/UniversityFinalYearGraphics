@@ -17,12 +17,12 @@
 
 #pragma region Setters
 
-void MyView::UniformData::setLightCount (const int count)
+void UniformData::setLightCount (const int count)
 {
     m_numLights = util::clamp (count, 0, MAX_LIGHTS);
 }
 
-void MyView::UniformData::setLight (const int index, const scene::DirectionalLight& light)
+void UniformData::setLight (const int index, const scene::DirectionalLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -37,7 +37,7 @@ void MyView::UniformData::setLight (const int index, const scene::DirectionalLig
     }
 }
 
-void MyView::UniformData::setLight (const int index, const scene::PointLight& light)
+void UniformData::setLight (const int index, const scene::PointLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -52,7 +52,7 @@ void MyView::UniformData::setLight (const int index, const scene::PointLight& li
     }
 }
 
-void MyView::UniformData::setLight (const int index, const scene::SpotLight& light)
+void UniformData::setLight (const int index, const scene::SpotLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -69,7 +69,7 @@ void MyView::UniformData::setLight (const int index, const scene::SpotLight& lig
     }
 }
 
-void MyView::UniformData::setLight (const int index, const Light& light)
+void UniformData::setLight (const int index, const Light& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)

@@ -8,7 +8,7 @@
 #include <vector>
 
 
-// Using declarations.
+// Aliases.
 using GLchar    = char;
 using GLenum    = unsigned int;
 using GLsizei   = int;
@@ -17,8 +17,6 @@ using GLuint    = unsigned int;
 
 namespace util
 {
-    #pragma region Compilation
-
     /// <summary> Compiles a shader from a file located on the machine. </summary>
     /// <returns> Returns the OpenGL ID of the compiled shader, 0 means an error occurred. </returns>
     /// <param name="fileLocation"> The location of the shader file. </param>
@@ -38,9 +36,6 @@ namespace util
     /// <param name="program"> The ID of the OpenGL program which we will be linking together. </param>
     bool linkProgram (const GLuint program);
 
-    #pragma endregion
-
-    #pragma region Allocation
 
     /// <summary> Allocates the desired amount of memory for a given buffer. </summary>
     /// <param name="buffer"> The buffer to be allocated the specified amount of memory. If this is invalid then the buffer will be generated. </param>
@@ -57,24 +52,19 @@ namespace util
     /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
     template <typename T> void fillBuffer (GLuint& buffer, const std::vector<T>& data, const GLenum target, const GLenum usage);
 
-    #pragma endregion
 
-    #pragma region Miscellaneous
-
-    /// <summary> Creates an instanced glm::mat4 attribute on the currently bound VAO. This loops through each column enabling each glm::vec4 pointer. </summary>
-    /// <param name="attribLocation"> The attribute location to start at, four locations will be used and invalid values will be ignore. </param>
+    /// <summary> Creates a glm::mat4 attribute on the currently bound VAO. This loops through each column enabling a glm::vec4 pointer. </summary>
+    /// <param name="attribLocation"> The attribute location to start at, four locations will be used and negative values will be ignored. </param>
     /// <param name="stride"> How many bytes are between consecutive attributes. </param>
     /// <param name="extraOffset"> Any additional offset which will be added to the matrix. </param>
     /// <param name="divisor"> How frequently the attribute should be updated between instances. </param>
-    void createInstancedMatrix4 (const int attribLocation, const GLsizei stride, const int extraOffset = 0, const int divisor = 1);
+    void createMatrix4Attribute (const int attribLocation, const GLsizei stride, const int extraOffset = 0, const int divisor = 1);
 
 
     /// <summary> Generates a texture buffer from the given file location. </summary>
     /// <param name="textureBuffer"> The buffer to fill with the texture data. </param>
     /// <param name="fileLocation"> The location of the texture file to load. </param>
     void generateTexture2D (GLuint& textureBuffer, const std::string& fileLocation);
-
-    #pragma endregion
 }
 
 #endif // _UTIL_OPEN_GL

@@ -5,7 +5,8 @@
 
 
 // Engine headers.
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 
 /// <summary> 
@@ -13,28 +14,20 @@
 /// </summary>
 struct Vertex final
 {
-    #pragma region Implementation data
-
     glm::vec3   position        { 0 },  //!< The position vector of the vertex.
                 normal          { 0 };  //!< The normal vector for the vertex.
     glm::vec2   texturePoint    { 0 };  //!< The texture co-ordinate of the vertex.
-
-    #pragma endregion
-
-    #pragma region Constructors and destructor
-
+    
+    
     Vertex()                                = default;
+    Vertex (Vertex&& move)                  = default;
     Vertex (const Vertex& copy)             = default;
+    Vertex& operator= (Vertex&& move)       = default;
     Vertex& operator= (const Vertex& copy)  = default;
     ~Vertex()                               = default;
 
     Vertex (const glm::vec3& pos, const glm::vec3& norm, const glm::vec2& texture)  
         : position (pos), normal (norm), texturePoint (texture) { }
-    
-    Vertex (Vertex&& move);
-    Vertex& operator= (Vertex&& move);
-
-    #pragma endregion
 };
 
 #endif // _VERTEX_

@@ -39,7 +39,7 @@ namespace util
     }
 
 
-    void assembleVertices (std::vector<Vertex>& vertices, const scene::Mesh& mesh)
+    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh)
     {
         // Obtain each attribute.
         const auto& positions       = mesh.getPositionArray();
@@ -51,10 +51,10 @@ namespace util
                    normSize = normals.size(),
                    texSize  = texturePoints.size();
 
-        vertices.resize (posSize);
+        auto vertices = std::vector<Vertex> { posSize };
 
         // Fill the actual data.
-        for (size_t i = 0U; i < posSize; ++i)
+        for (size_t i { 0 }; i < posSize; ++i)
         {
             auto& vertex    = vertices[i];
             vertex.position = toGLM (positions[i]);
@@ -69,6 +69,8 @@ namespace util
                 vertex.texturePoint = toGLM (texturePoints[i]);
             }
         }
+
+        return vertices;
     }
 
 
