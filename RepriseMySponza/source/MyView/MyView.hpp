@@ -46,7 +46,7 @@ class MyView final : public tygra::WindowViewDelegate
         #pragma region Public interface
 
         /// <summary> Sets the scene::Context to use for rendering. </summary>
-        void setScene (scene::Context* scene);
+        void setScene (scene::Context* scene) { m_scene = scene; }
 
         /// <summary> Causes the application to rebuild the shaders. </summary>
         void rebuildShaders();
@@ -126,9 +126,7 @@ class MyView final : public tygra::WindowViewDelegate
         void windowViewRender (tygra::Window* window) override final;
 
         /// <summary> Sets all uniform values for the scene. Avoid including GLM in MyView by passing void*. </summary>
-        /// <param name="projectionMatrix"> A pointer to a glm::mat4 projection matrix for the scene. </param>
-        /// <param name="viewMatrix"> A pointer to a glm::mat4 view matrix for the scene. </param>
-        void setUniforms (const void* const projectionMatrix, const void* const viewMatrix);
+        void setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
         /// <summary> Creates a wireframe light based on the cameras position. </summary>
         /// <returns> A light ready for adding to the UBO. </returns>

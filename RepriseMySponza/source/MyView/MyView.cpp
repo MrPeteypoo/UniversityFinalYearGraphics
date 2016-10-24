@@ -36,41 +36,29 @@ MyView::~MyView()
 }
 
 
-#pragma region Public interface
-
-void MyView::setScene (scene::Context* scene)
-{
-    m_scene = scene;
-}
-
-
 void MyView::rebuildShaders()
 {
     // We should be able to simply delete our current program, rebuild it and reset the VAO.
     glDeleteProgram (m_program);
-
+    // TODO: Update MyView::rebuildShaders().
     buildProgram();
     bindUniformBufferObject();
     constructVAO();
 }
 
-#pragma endregion
 
-
-#pragma region Scene construction
-
-void MyView::windowViewWillStart (tygra::Window* window)
+void MyView::windowViewWillStart (tygra::Window*)
 {
     assert (m_scene != nullptr);
-    
+    // TODO: Move OpenGL preparation into the main rendering loop.
     // Set up OpenGL as required by the application!
     glEnable (GL_DEPTH_TEST);
     glEnable (GL_CULL_FACE);
     glClearColor (0.f, 0.1f, 0.f, 0.f);
-    
+    // TODO: Create an object to store and manage all required programs.
     // Attempt to build the program, if it fails the user can reload after correcting any syntax errors.
     buildProgram();
-
+    // TODO: Some form of renderer component which stores and constructs buffers.
     // Generate the buffers.
     generateOpenGLObjects();
 
@@ -92,25 +80,25 @@ void MyView::windowViewWillStart (tygra::Window* window)
 
 
 bool MyView::buildProgram()
-{
+{ // TODO: Move into a program generation class/struct.
     // Create the program to attach shaders to.
-    m_program                                       = glCreateProgram();
+    m_program = glCreateProgram();
 
     // Attempt to compile the shaders.
-    const auto vertexShaderLocation                 = "content:///sponza_vs.glsl";
-    const auto fragmentShaderLocation               = "content:///sponza_fs.glsl";
+    const auto vertexShaderLocation     = "content:///sponza_vs.glsl"s;
+    const auto fragmentShaderLocation   = "content:///sponza_fs.glsl"s;
     
-    const auto vertexShader                         = util::compileShaderFromFile (vertexShaderLocation, GL_VERTEX_SHADER);
-    const auto fragmentShader                       = util::compileShaderFromFile (fragmentShaderLocation, GL_FRAGMENT_SHADER);
+    const auto vertexShader     = util::compileShaderFromFile (vertexShaderLocation,    GL_VERTEX_SHADER);
+    const auto fragmentShader   = util::compileShaderFromFile (fragmentShaderLocation,  GL_FRAGMENT_SHADER);
 
     // Attach the shaders to the program we created.
     const std::vector<GLchar*> vertexAttributes     = { "position", "normal", "textureCoord", "model", "pvm" };
     const std::vector<GLchar*> fragmentAttributes   = {  };
 
-    util::attachShader (m_program, vertexShader, vertexAttributes);
-    util::attachShader (m_program, fragmentShader, fragmentAttributes);
+    util::attachShader (m_program,  vertexShader,   vertexAttributes);
+    util::attachShader (m_program,  fragmentShader, fragmentAttributes);
 
-    // Link the program
+    // Link the program.
     if (util::linkProgram (m_program))
     {
         std::cout << "OpenGL application built successfully." << std::endl;
@@ -122,7 +110,7 @@ bool MyView::buildProgram()
 
 
 void MyView::generateOpenGLObjects()
-{
+{ // TODO: Move into a buffer management class/struct.
     glGenVertexArrays (1, &m_sceneVAO);
 
     glGenBuffers (1, &m_vertexVBO);
@@ -139,7 +127,7 @@ void MyView::generateOpenGLObjects()
 
 
 void MyView::buildMeshData()
-{
+{ // TODO: Move into buffer management class/struct.
     // Begin to construct sponza.
     const auto& builder = scene::GeometryBuilder();
     const auto& meshes  = builder.getAllMeshes();
@@ -148,12 +136,11 @@ void MyView::buildMeshData()
     m_meshes.resize (meshes.size());
 
     // Start by allocating enough memory in the VBOs to contain the scene.
-    auto vertexSize     = size_t { 0 }, 
-         elementSize    = size_t { 0 };
+    size_t vertexSize { 0 }, elementSize { 0 };
     util::calculateVBOSize (meshes, vertexSize, elementSize);
-    
-    util::allocateBuffer (m_vertexVBO, vertexSize, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    util::allocateBuffer (m_elementVBO, elementSize, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+    util::allocateBuffer (m_vertexVBO,  vertexSize,     GL_ARRAY_BUFFER,            GL_STATIC_DRAW);
+    util::allocateBuffer (m_elementVBO, elementSize,    GL_ELEMENT_ARRAY_BUFFER,    GL_STATIC_DRAW);
     
     // Bind our VBOs.
     glBindBuffer (GL_ARRAY_BUFFER, m_vertexVBO);
@@ -196,13 +183,10 @@ void MyView::buildMeshData()
 
 
 void MyView::allocateExtraBuffers()
-{
-    /// Use DYNAMIC for the UBO because we'll only be updating once per frame but using for every instance in the scene.
-    /// Use STREAM for the instancing buffers because they will be updated once per mesh and only used for that mesh.
-
+{ // TODO: Move to buffer management class/struct.
     // We'll need to keep track of the highest number of instances in the scene.
     m_instancePoolSize = highestInstanceCount();
-
+    // TODO: Perhaps MyView::allocateExtraBuffers() this can be made less brittle?
     // We need to store two matrices per instance and we need to ensure the materialID pool aligns to a glm::vec4, otherwise we end up with missing data.
     const auto transformSize    = m_instancePoolSize * sizeof (glm::mat4) * 2;
     const auto materialIDSize   = (m_instancePoolSize + m_instancePoolSize % 4) * sizeof (MaterialID);
@@ -219,14 +203,7 @@ void MyView::allocateExtraBuffers()
 
 
 void MyView::bindUniformBufferObject()
-{
-    /// This part here may be confusing. There is only one Uniform Buffer Object in MyView and we use the UniformData class to manage how that 
-    /// data is managed by the shaders. Although all of the data is maintained in the class itself, we split it into "scene" and "lighting"
-    /// segments. We point the binding blocks to the correct parts of the UBO using the information UniformData gives us.
-    ///
-    /// I would rather UniformData had a Scene and Lighting class which meant the size and offset calculations were less brittle but that's for
-    /// another day.
-
+{// TODO: Move into buffer management class/struct?
     glBindBuffer (GL_UNIFORM_BUFFER, m_uniformUBO);
 
     // Determine the UBO indices.
@@ -234,7 +211,7 @@ void MyView::bindUniformBufferObject()
     const auto lighting = glGetUniformBlockIndex (m_program, "lighting");
 
     // Bind each part of the UBO to the correct block.
-    glUniformBlockBinding (m_program, scene, UniformData::sceneBlock());
+    glUniformBlockBinding (m_program, scene,    UniformData::sceneBlock());
     glUniformBlockBinding (m_program, lighting, UniformData::lightingBlock());
 
     // Use the magic data contained in UniformData to separate the UBO into segments.
@@ -247,11 +224,7 @@ void MyView::bindUniformBufferObject()
 
 
 void MyView::buildMaterialData()
-{
-    /// We preload the materials into the GPU at the start of the scene because we know they will never change. Using this approach means that
-    /// each material can be linked with preloaded textures and therefore we only need to give an instance an ID so that it can choose the correct
-    /// material and texture for lighting calculations.
-
+{// TODO: Consider large refactoring of the entire MyView::buildMaterialData() function.
     // Obtain every material in the scene.
     const auto& materials = m_scene->getAllMaterials();
 
@@ -285,12 +258,12 @@ void MyView::buildMaterialData()
                 }
             }
         }
-
+        // TODO: Material struct will need to be rewritten to feature physics-based rendering techniques.
         // Create a buffer-ready material and fill it with correct data.
-        Material bufferMaterial { };
-        bufferMaterial.diffuseColour    = util::toGLM(material.getDiffuseColour());
+        auto bufferMaterial = Material { };
+        bufferMaterial.diffuseColour    = util::toGLM (material.getDiffuseColour());
         bufferMaterial.textureID        = textureID;
-        bufferMaterial.specularColour   = util::toGLM(material.getSpecularColour());
+        bufferMaterial.specularColour   = util::toGLM (material.getSpecularColour());
         bufferMaterial.shininess        = material.getShininess();
 
         // Prepare to add it to the GPU and add the ID to the map. We need to remember that a material takes up two columns so the ID must be multiplied by two.
@@ -318,7 +291,8 @@ void MyView::buildMaterialData()
 
 
 void MyView::constructVAO()
-{
+{ // TODO: Remove justifications at some point. 
+    // TODO: Move into buffer management class.
     /// Here we combine all vertex attributes into a 32-byte aligned interleaved VBO. The reason for this is that being a power of two maps
     /// perfectly with the memory bus width of many GPUs, in this particular case a 256-bit wide memory bus could load a vertex in a single segment.
     /// It also allows us to consolidate vertex-specific information into a unique buffer so we know where everything is.
@@ -331,12 +305,11 @@ void MyView::constructVAO()
     /// separated the scene into static and dynamic objects with a different VAO for each there would be some benefit but in this case we don't.
 
     // Obtain the attribute pointer locations we'll be using to construct the VAO.
-    int position        { glGetAttribLocation (m_program, "position") };
-    int normal          { glGetAttribLocation (m_program, "normal") };
-    int textureCoord    { glGetAttribLocation (m_program, "textureCoord") };
-
-    int modelTransform  { glGetAttribLocation (m_program, "model") };
-    int pvmTransform    { glGetAttribLocation (m_program, "pvm") };
+    auto position       = glGetAttribLocation (m_program, "position");
+    auto normal         = glGetAttribLocation (m_program, "normal");
+    auto textureCoord   = glGetAttribLocation (m_program, "textureCoord");
+    auto modelTransform = glGetAttribLocation (m_program, "model");
+    auto pvmTransform   = glGetAttribLocation (m_program, "pvm");
 
     // Initialise the VAO.
     glBindVertexArray (m_sceneVAO);
@@ -359,7 +332,7 @@ void MyView::constructVAO()
 
     // Now we need to create the instanced matrices attribute pointers.
     glBindBuffer (GL_ARRAY_BUFFER, m_poolTransforms);
-
+    // TODO: Make significantly less brittle.
     // We'll combine our matrices into a single VBO so we need the stride to be double.
     util::createMatrix4Attribute (modelTransform, sizeof (glm::mat4) * 2);
     util::createMatrix4Attribute (pvmTransform,   sizeof (glm::mat4) * 2, sizeof (glm::mat4));
@@ -372,7 +345,7 @@ void MyView::constructVAO()
 
 
 void MyView::prepareTextureData (const GLsizei textureWidth, const GLsizei textureHeight, const GLsizei textureCount)
-{
+{ // TODO: Perhaps this should move into a texture management class?
     // Activate the material TBO by pointing it to the material VBO.
     glBindTexture (GL_TEXTURE_BUFFER, m_materials.tbo);
     glTexBuffer (GL_TEXTURE_BUFFER, GL_RGBA32F, m_materials.vbo);
@@ -398,7 +371,7 @@ void MyView::prepareTextureData (const GLsizei textureWidth, const GLsizei textu
 
 
 void MyView::loadTexturesIntoArray (const std::vector<std::pair<std::string, tygra::Image>>& images)
-{
+{ // TODO: Move into texture management class?
     /// Here we load a container of images into the GPU using a 2D texture array. The reason I've chosen this route is that it means that I can avoid binding
     /// a different texture every time the material changes. Instead of binding the correct texture we just provide an ID in each material which links to the
     /// texture in the array. Therefore we avoid binding calls, we store the materials in the GPU so the information is easily accessible and if a shader
@@ -406,7 +379,7 @@ void MyView::loadTexturesIntoArray (const std::vector<std::pair<std::string, tyg
 
     glBindTexture (GL_TEXTURE_2D_ARRAY, m_textureArray); 
 
-    for (size_t i = 0; i < images.size(); ++i)
+    for (size_t i { 0 }; i < images.size(); ++i)
     {
         // Cache the image.
         const auto& image = images[i].second;
@@ -459,13 +432,9 @@ size_t MyView::highestInstanceCount() const
     return highest;
 }
 
-#pragma endregion
 
-
-#pragma region Clean up
-
-void MyView::windowViewDidStop (tygra::Window* window)
-{    
+void MyView::windowViewDidStop (tygra::Window*)
+{ // TODO: Correct MyView::windowViewDidStop() once refactoring has completed.
     // Clean up after ourselves by getting rid of the stored meshes/materials.
     cleanMeshMaterials();
 
@@ -475,14 +444,14 @@ void MyView::windowViewDidStop (tygra::Window* window)
 
 
 void MyView::cleanMeshMaterials()
-{
+{ // TODO: Move into other class.
     m_meshes.clear();
     m_materialIDs.clear();
 }
 
 
 void MyView::deleteOpenGLObjects()
-{
+{ // TODO: Call delete on each refactored child object.
     // Delete the program.
     glDeleteProgram (m_program);
     
@@ -508,7 +477,7 @@ void MyView::deleteOpenGLObjects()
 
 #pragma region Rendering
 
-void MyView::windowViewDidReset (tygra::Window* window, int width, int height)
+void MyView::windowViewDidReset (tygra::Window*, int width, int height)
 {
     // Reset the viewport and recalculate the aspect ratio.
     glViewport (0, 0, width, height);
@@ -516,7 +485,7 @@ void MyView::windowViewDidReset (tygra::Window* window, int width, int height)
 }
 
 
-void MyView::windowViewRender (tygra::Window* window)
+void MyView::windowViewRender (tygra::Window*)
 {
     /// For the rendering of the scene I have chosen to implement instancing. A traditional approach of rendering would be looping through each instance,
     /// assigning the correct model and PVM transforms, then drawing that one mesh before repeating the process. I don't use that method here, instead
@@ -537,7 +506,7 @@ void MyView::windowViewRender (tygra::Window* window)
                 view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
     
     // Set the uniforms.
-    setUniforms (&projection, &view);
+    setUniforms (projection, view);
     
     // Specify the VAO to use.
     glBindVertexArray (m_sceneVAO);
@@ -613,7 +582,7 @@ void MyView::windowViewRender (tygra::Window* window)
 }
 
 
-void MyView::setUniforms (const void* const projectionMatrix, const void* const viewMatrix)
+void MyView::setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
 {
     // Fix the stupid lab computers not liking how I don't specify the texture unit and how I like using both on texture unit 0.
     const auto textures     = glGetUniformLocation (m_program, "textures");
@@ -629,18 +598,12 @@ void MyView::setUniforms (const void* const projectionMatrix, const void* const 
     glUniform1i (materialIDs, 2);
 
     // Create data to fill. Avoid creating it every time by using static.
-    static UniformData data { };
-
-    // Obtain the correct data for the uniforms. We'll need to cast the pointers, this is dirty but it prevents calculating the matrices twice
-    // or including GLM in the MyView header.
-    if (projectionMatrix && viewMatrix)
-    {
-        data.setProjectionMatrix (*(const glm::mat4* const) projectionMatrix);
-        data.setViewMatrix (*(const glm::mat4* const) viewMatrix);
-    }
-
-    data.setCameraPosition (util::toGLM(m_scene->getCamera().getPosition()));
-    data.setAmbientColour (util::toGLM(m_scene->getAmbientLightIntensity()));
+    static auto data = UniformData { };
+    
+    data.setProjectionMatrix (projectionMatrix);
+    data.setViewMatrix (viewMatrix);
+    data.setCameraPosition (util::toGLM (m_scene->getCamera().getPosition()));
+    data.setAmbientColour (util::toGLM (m_scene->getAmbientLightIntensity()));
 
     // Add all lights to the scene.
     auto lightCount = 0;
