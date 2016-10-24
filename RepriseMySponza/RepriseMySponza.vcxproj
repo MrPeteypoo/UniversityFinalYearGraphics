@@ -173,6 +173,11 @@
     <ClCompile Include="source\Misc\MyController.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
     <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp" />
     <ClCompile Include="source\Utility\OpenGL.cpp" />
     <ClCompile Include="source\Utility\Scene.cpp" />
   </ItemGroup>
@@ -193,7 +198,12 @@
     <ClInclude Include="source\MyView\MyView.hpp" />
     <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
     <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
-    <ClInclude Include="source\Rendering\Programs.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL.hpp" />

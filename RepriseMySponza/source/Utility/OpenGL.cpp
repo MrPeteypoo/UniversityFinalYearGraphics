@@ -22,7 +22,7 @@ namespace util
 
 
     GLuint compileShaderFromFile (const std::string& fileLocation, const GLenum shader)
-    {
+    { // TODO: Delete after program refactoring.
         // For some reason calling .c_str() on the returned string causes garbage data to appear, hence two separate steps.
         const auto  shaderString    = tygra::createStringFromFile (fileLocation);
         auto        shaderCode      = shaderString.c_str();
@@ -53,7 +53,7 @@ namespace util
 
 
     void attachShader (const GLuint program, const GLuint shader, const std::vector<GLchar*>& attributes)
-    {
+    {// TODO: Delete after program refactoring.
         // Check whether we have a valid shader ID before continuing.
         if (shader != 0U)
         {
@@ -75,7 +75,7 @@ namespace util
 
 
     bool linkProgram (const GLuint program)
-    {
+    {// TODO: Delete after program refactoring.
         // Attempt to link the program.
         glLinkProgram (program);
 

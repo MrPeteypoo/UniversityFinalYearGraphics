@@ -52,12 +52,14 @@ void MyView::windowViewWillStart (tygra::Window*)
     assert (m_scene != nullptr);
     // TODO: Move OpenGL preparation into the main rendering loop.
     // Set up OpenGL as required by the application!
-    glEnable (GL_DEPTH_TEST);
-    glEnable (GL_CULL_FACE);
-    glClearColor (0.f, 0.1f, 0.f, 0.f);
+    //glEnable (GL_DEPTH_TEST);
+    //glEnable (GL_CULL_FACE);
+    //glClearColor (0.f, 0.1f, 0.f, 0.f);
     // TODO: Create an object to store and manage all required programs.
     // Attempt to build the program, if it fails the user can reload after correcting any syntax errors.
-    buildProgram();
+    //buildProgram();
+    m_configurator.initialise();
+    m_program = m_configurator.get();
     // TODO: Some form of renderer component which stores and constructs buffers.
     // Generate the buffers.
     generateOpenGLObjects();
@@ -305,11 +307,11 @@ void MyView::constructVAO()
     /// separated the scene into static and dynamic objects with a different VAO for each there would be some benefit but in this case we don't.
 
     // Obtain the attribute pointer locations we'll be using to construct the VAO.
-    auto position       = glGetAttribLocation (m_program, "position");
-    auto normal         = glGetAttribLocation (m_program, "normal");
-    auto textureCoord   = glGetAttribLocation (m_program, "textureCoord");
-    auto modelTransform = glGetAttribLocation (m_program, "model");
-    auto pvmTransform   = glGetAttribLocation (m_program, "pvm");
+    const auto position         = GLint { 0 };
+    const auto normal           = GLint { 1 };
+    const auto textureCoord     = GLint { 2 };
+    const auto modelTransform   = GLint { 3 };
+    const auto pvmTransform     = GLint { 7 };
 
     // Initialise the VAO.
     glBindVertexArray (m_sceneVAO);
@@ -490,12 +492,10 @@ void MyView::windowViewRender (tygra::Window*)
     /// large-scale mesh duplication and such would really benefit from reducing the overhead that bindings, uniform specification and draw calls cost.
     assert (m_scene != nullptr);
 
-    // Specify shader program to use.
-    glUseProgram (m_program);
+    // Prepare the draw.
+    m_configurator.prepareDraw();
+    m_configurator.switchToSceneConstructionMode();
 
-    // Prepare the screen.
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
     // Define matrices.
     const auto& camera      = m_scene->getCamera();
     const auto  projection	= glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
@@ -523,7 +523,7 @@ void MyView::windowViewRender (tygra::Window*)
 
     // Use vectors for storing instancing data> This requires a material ID, a model transform and a PVM transform.
 	static auto materialIDs = std::vector<MaterialID> (m_instancePoolSize);
-    static auto matrices = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
+    static auto matrices    = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
 
     // Iterate through each mesh using instancing to reduce GL calls.
     for (const auto& pair : m_meshes)
@@ -533,10 +533,10 @@ void MyView::windowViewRender (tygra::Window*)
         const auto size         = instances.size();
 
         // Check if we need to do any rendering at all.
-        if (size != 0)
+        if (size != 0U)
         {
             // Update the instance-specific information.
-            for (unsigned int i = 0; i < size; ++i)
+            for (size_t i { 0 }; i < size; ++i)
             {
                 // Cache the current instance.
                 const auto& instance = m_scene->getInstanceById (instances[i]);

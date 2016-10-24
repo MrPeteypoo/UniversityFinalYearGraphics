@@ -18,6 +18,7 @@
 // Personal headers.
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
+#include <Rendering/PassConfigurator.hpp>
 #include <Utility/OpenGL.hpp>
 
 
@@ -134,6 +135,7 @@ class MyView final : public tygra::WindowViewDelegate
             GLuint  tbo { 0 };  //!< The texture buffer which points to the VBO, linking them together.
         };
 
+        PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
         GLuint                                              m_program           { 0 };          //!< The ID of the OpenGL program created and used to draw the scene.
 
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.

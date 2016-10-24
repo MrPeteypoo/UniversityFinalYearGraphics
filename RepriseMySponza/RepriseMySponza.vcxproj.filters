@@ -36,6 +36,21 @@
     <ClCompile Include="source\MyView\Internals\UniformData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\reprise_vs.glsl">
@@ -88,7 +103,22 @@
     <ClInclude Include="source\MyView\Internals\UniformData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Programs.hpp">
+    <ClInclude Include="source\Rendering\PassConfigurator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
