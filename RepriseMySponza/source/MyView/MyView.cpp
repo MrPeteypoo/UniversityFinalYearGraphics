@@ -150,7 +150,7 @@ void MyView::buildMeshData()
     auto vertexIndex    = GLintptr { 0 };
     auto elementOffset  = GLintptr { 0 };
     
-    for (size_t i { 0 }; i < meshes.size(); ++i)
+	for (size_t i { 0 }; i < meshes.size(); ++i)
     {
         // Cache the required mesh data.
         const auto& sceneMesh   = meshes[i];
@@ -413,8 +413,8 @@ void MyView::loadTexturesIntoArray (const std::vector<std::pair<std::string, tyg
 
 
 size_t MyView::highestInstanceCount() const
-{
-    // We'll need a temporary variable to keep track.
+{ // TODO: Perhaps a utility function?
+	// We'll need a temporary variable to keep track.
     size_t highest  { 0 };
    
     // Iterate through each mesh ID.
@@ -472,10 +472,6 @@ void MyView::deleteOpenGLObjects()
     glDeleteTextures (1, &m_poolMaterialIDs.tbo);
 }
 
-#pragma endregion
-
-
-#pragma region Rendering
 
 void MyView::windowViewDidReset (tygra::Window*, int width, int height)
 {
@@ -486,7 +482,7 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
 
 
 void MyView::windowViewRender (tygra::Window*)
-{
+{ // TODO: Split into a Renderer class of some kind.
     /// For the rendering of the scene I have chosen to implement instancing. A traditional approach of rendering would be looping through each instance,
     /// assigning the correct model and PVM transforms, then drawing that one mesh before repeating the process. I don't use that method here, instead
     /// I loop through mesh, obtain the number of instances, load in the data specific to those instances and draw them all at once, letting the shaders
@@ -502,7 +498,7 @@ void MyView::windowViewRender (tygra::Window*)
     
     // Define matrices.
     const auto& camera      = m_scene->getCamera();
-    const auto  projection  = glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
+    const auto  projection	= glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
                 view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
     
     // Set the uniforms.
@@ -526,14 +522,14 @@ void MyView::windowViewRender (tygra::Window*)
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
 
     // Use vectors for storing instancing data> This requires a material ID, a model transform and a PVM transform.
-    static std::vector<MaterialID> materialIDs (m_instancePoolSize);
-    static std::vector<glm::mat4> matrices (m_instancePoolSize * 2);
+	static auto materialIDs = std::vector<MaterialID> (m_instancePoolSize);
+    static auto matrices = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
 
     // Iterate through each mesh using instancing to reduce GL calls.
     for (const auto& pair : m_meshes)
     {
         // Obtain the instances to draw for the current mesh.
-        const auto& instances   = m_scene->getInstancesByMeshId (pair.first);
+        const auto& instances	= m_scene->getInstancesByMeshId (pair.first);
         const auto size         = instances.size();
 
         // Check if we need to do any rendering at all.
@@ -546,7 +542,7 @@ void MyView::windowViewRender (tygra::Window*)
                 const auto& instance = m_scene->getInstanceById (instances[i]);
 
                 // Obtain the current instances model transformation.
-                const auto model = glm::mat4(util::toGLM (instance.getTransformationMatrix()));
+                const auto model = glm::mat4 (util::toGLM (instance.getTransformationMatrix()));
 
                 // We have both the model and pvm matrices in the buffer so we need an offset.
                 const auto offset    = i * 2;
@@ -556,7 +552,7 @@ void MyView::windowViewRender (tygra::Window*)
                 // Now deal with the materials.
                 materialIDs[i] = m_materialIDs.at (instance.getMaterialId());
             }
-
+			// TODO: Make this less brittle.
             // Only overwrite the required data to speed up the buffering process. Avoid glMapBuffer because it's ridiculously slow in this case.
             glBufferSubData (GL_ARRAY_BUFFER,   0,  sizeof (glm::mat4) * 2 * size,  matrices.data());
             glBufferSubData (GL_TEXTURE_BUFFER, 0,  sizeof (MaterialID) * size,     materialIDs.data());
@@ -583,7 +579,7 @@ void MyView::windowViewRender (tygra::Window*)
 
 
 void MyView::setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
-{
+{ // TODO: Move into some form of Renderer class, also needs significant refactoring once UniformData has been refactored.
     // Fix the stupid lab computers not liking how I don't specify the texture unit and how I like using both on texture unit 0.
     const auto textures     = glGetUniformLocation (m_program, "textures");
     const auto materials    = glGetUniformLocation (m_program, "materials");
@@ -638,20 +634,18 @@ Light MyView::createWireframeLight() const
     // Fill it with the correct information.
     const auto& camera  = m_scene->getCamera();
     wireframe.position  = util::toGLM (camera.getPosition());
-    wireframe.direction = util::toGLM (camera.getDirection());
+    wireframe.direction	= util::toGLM (camera.getDirection());
 
     // Set suitable attenuation values.
-    wireframe.aConstant     = 1.0f;
+    wireframe.aConstant		= 1.0f;
     wireframe.aLinear       = 0.0f;
     wireframe.aQuadratic    = 0.002f;
 
     // Enable the wireframe and we're done! We only have three modes so use the currently selected.
-    const LightType type    = static_cast<LightType> (m_wireframeType);
+    const LightType type = static_cast<LightType> (m_wireframeType);
 
     wireframe.emitWireframe = 1;
     wireframe.setType (type);
 
     return wireframe;
 }
-
-#pragma endregion

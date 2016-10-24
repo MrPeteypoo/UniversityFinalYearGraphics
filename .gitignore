@@ -3,3 +3,4 @@ demo
 *.VC.db
 *.VC.opendb
 *.user
+*.suo

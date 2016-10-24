@@ -47,8 +47,11 @@ void UniformData::setLight (const int index, const scene::PointLight& light)
 
         // Move the data across.
         shaderLight.setType (LightType::Point);
-        shaderLight.position = util::toGLM(light.getPosition());
-        shaderLight.colour   = util::toGLM(light.getIntensity());
+        shaderLight.position	= util::toGLM(light.getPosition());
+        shaderLight.colour		= util::toGLM(light.getIntensity());
+		shaderLight.aConstant	= 0.f;
+		shaderLight.aLinear		= 0.f;
+		shaderLight.aQuadratic	= 0.001f;
     }
 }
 
@@ -62,10 +65,13 @@ void UniformData::setLight (const int index, const scene::SpotLight& light)
 
         // Move the data across.
         shaderLight.setType (LightType::Spot);
-        shaderLight.position  = util::toGLM(light.getPosition());
-        shaderLight.direction = util::toGLM(light.getDirection());
-        shaderLight.coneAngle = light.getConeAngleDegrees();
-        shaderLight.colour    = util::toGLM(light.getIntensity());
+        shaderLight.position	= util::toGLM(light.getPosition());
+        shaderLight.direction	= util::toGLM(light.getDirection());
+        shaderLight.coneAngle	= light.getConeAngleDegrees();
+        shaderLight.colour		= util::toGLM(light.getIntensity());
+		shaderLight.aConstant	= 0.f;
+		shaderLight.aLinear		= 0.f;
+		shaderLight.aQuadratic	= 0.0001f;
     }
 }
 

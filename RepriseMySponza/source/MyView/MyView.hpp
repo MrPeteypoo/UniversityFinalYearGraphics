@@ -43,7 +43,6 @@ class MyView final : public tygra::WindowViewDelegate
 
         ~MyView();
 
-        #pragma region Public interface
 
         /// <summary> Sets the scene::Context to use for rendering. </summary>
         void setScene (scene::Context* scene) { m_scene = scene; }
@@ -56,13 +55,9 @@ class MyView final : public tygra::WindowViewDelegate
 
         /// <summary> Cycles through point, spot and directional wireframe mode. </summary>
         void toggleWireframeType()  { m_wireframeType = ++m_wireframeType % 3; }
-
-        #pragma endregion
-
+		
     private:
-
-        #pragma region Scene construction
-
+		
         /// <summary> Causes the object to initialise; loading and preparing all data. </summary>
         void windowViewWillStart (tygra::Window* window) override final;
 
@@ -101,10 +96,7 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Obtains each group of instances for each scene::MeshId and determines the maximum number of instances we'll encounter. </summary>
         /// <returns> The highest instance count of each scene::MeshId in the scene. </returns>
         size_t highestInstanceCount() const;
-        
-        #pragma endregion
 
-        #pragma region Clean up
 
         /// <summary> Causes the object to free up any resources being held. </summary>
         void windowViewDidStop (tygra::Window* window) override final;
@@ -115,9 +107,6 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Deletes all VAOs, VBOs, TBOs, etc. owned by the MyView class. </summary>
         void deleteOpenGLObjects();
 
-        #pragma endregion
-
-        #pragma region Rendering
 
         /// <summary> Changes the viewport, updating the aspect ratio, etc. </summary>
         void windowViewDidReset (tygra::Window* window, int width, int height) override final;
@@ -132,9 +121,6 @@ class MyView final : public tygra::WindowViewDelegate
         /// <returns> A light ready for adding to the UBO. </returns>
         Light createWireframeLight() const;
 
-        #pragma endregion
-
-        #pragma region Implementation data
 
         // Using declarations.
         using MaterialID = int;
@@ -171,8 +157,6 @@ class MyView final : public tygra::WindowViewDelegate
 
         bool                                                m_wireframeMode     { false };      //!< Causes the camera to show a wireframe around meshes nearby.
         unsigned int                                        m_wireframeType     { 0 };          //!< Allows the user to cycle through point, spot and directional mode.
-
-        #pragma endregion
 };
 
 #endif // _MY_VIEW_
