@@ -19,7 +19,7 @@
 #include <Misc/Vertex.hpp>
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
-#include <MyView/Internals/UniformData.hpp>
+#include <Rendering/Uniforms/UniformData.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/OpenGL.hpp>
 #include <Utility/Scene.hpp>
@@ -455,7 +455,7 @@ void MyView::cleanMeshMaterials()
 void MyView::deleteOpenGLObjects()
 { // TODO: Call delete on each refactored child object.
     // Delete the program.
-    glDeleteProgram (m_program);
+    //glDeleteProgram (m_program);
     
     // Delete the VAO.
     glDeleteVertexArrays (1, &m_sceneVAO);
@@ -512,13 +512,13 @@ void MyView::windowViewRender (tygra::Window*)
     glBindBuffer (GL_TEXTURE_BUFFER, m_poolMaterialIDs.vbo);
 
     // Specify the textures to use.
-    glActiveTexture (GL_TEXTURE0);
+    glActiveTexture (GL_TEXTURE0 + m_textureArray);
     glBindTexture (GL_TEXTURE_2D_ARRAY, m_textureArray);
 
-    glActiveTexture (GL_TEXTURE1);
+    glActiveTexture (GL_TEXTURE0 + m_materials.tbo);
     glBindTexture (GL_TEXTURE_BUFFER, m_materials.tbo);
 
-    glActiveTexture (GL_TEXTURE2);
+    glActiveTexture (GL_TEXTURE0 + m_poolMaterialIDs.tbo);
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
 
     // Use vectors for storing instancing data> This requires a material ID, a model transform and a PVM transform.
@@ -580,18 +580,13 @@ void MyView::windowViewRender (tygra::Window*)
 
 void MyView::setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
 { // TODO: Move into some form of Renderer class, also needs significant refactoring once UniformData has been refactored.
-    // Fix the stupid lab computers not liking how I don't specify the texture unit and how I like using both on texture unit 0.
     const auto textures     = glGetUniformLocation (m_program, "textures");
     const auto materials    = glGetUniformLocation (m_program, "materials");
     const auto materialIDs  = glGetUniformLocation (m_program, "materialIDs");
-    //
-    //glUniform1i (textures, m_textureArray);
-    //glUniform1i (materials, m_materials.tbo);
-    //glUniform1i (materialIDs, m_poolMaterialIDs.tbo);
-    //
-    glUniform1i (textures, 0);
-    glUniform1i (materials, 1);
-    glUniform1i (materialIDs, 2);
+
+    glUniform1i (textures, m_textureArray);
+    glUniform1i (materials, m_materials.tbo);
+    glUniform1i (materialIDs, m_poolMaterialIDs.tbo);
 
     // Create data to fill. Avoid creating it every time by using static.
     static auto data = UniformData { };

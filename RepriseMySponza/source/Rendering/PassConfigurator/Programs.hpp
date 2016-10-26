@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_PROGRAMS_
 #define	        _RENDERING_PROGRAMS_
 
-
 // Personal headers.
 #include <Rendering/PassConfigurator/Program.hpp>
 
@@ -23,12 +22,17 @@ struct Programs final
     Program spotlighting        {}; //!< Provides spot light shading.
         
 
-    Programs() = default;
+
+    Programs() noexcept                         = default;
+    
+    Programs (Programs&&) noexcept              = default;
+    Programs& operator= (Programs&&) noexcept   = default;
+
+    Programs (const Programs&)                  = delete;
+    Programs& operator= (const Programs&)       = delete;
 
     ~Programs() { unbind(); }
 
-    Programs (const Programs&)              = delete;
-    Programs& operator= (const Programs&)   = delete;
 
 
     /// <summary> Checks whether the core programs have been loaded. </summary>
@@ -37,6 +41,7 @@ struct Programs final
         return sceneConstruction.isInitialised() || directionalLighting.isInitialised() || 
             pointLighting.isInitialised() || spotlighting.isInitialised();
     }
+
 
 
     /// <summary> 

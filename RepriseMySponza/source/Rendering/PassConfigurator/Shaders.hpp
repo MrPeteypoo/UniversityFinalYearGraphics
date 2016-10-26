@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_SHADERS_
 #define	        _RENDERING_SHADERS_
 
-
 // STL headers.
 #include <string>
 #include <unordered_map>
@@ -23,14 +22,18 @@ using GLenum = unsigned int;
 struct Shaders final
 {
     std::unordered_map<std::string, Shader> compiled {}; //!< A collection of successfully compiled shaders mapped by their filename.
-        
+
+
+
     Shaders()                           = default;
+
     Shaders (Shaders&&)                 = default;
     Shaders& operator= (Shaders&&)      = default;
-    ~Shaders()                          = default;
 
     Shaders (const Shaders&)            = delete;
     Shaders& operator= (const Shaders&) = delete;
+
+    ~Shaders()                          = default;
     
 
 
@@ -41,6 +44,7 @@ struct Shaders final
     }
 
 
+
     /// <summary> 
     /// Initialise available shaders. This is currently loaded using hard coded filenames.
     /// </summary>
@@ -49,6 +53,7 @@ struct Shaders final
 
     /// <summary> Discards and marks all shaders for deletion. They won't be deleted until detached from all programs. </summary>
     inline void clean() noexcept { compiled.clear(); }
+
 
 
     /// <summary> Attempts to compile a shader from the given file location, if successful it'll be added. </summary>

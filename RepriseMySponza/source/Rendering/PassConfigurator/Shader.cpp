@@ -1,13 +1,14 @@
 #include "Shader.hpp"
 
 
+// STL headers.
+#include <iostream>
+#include <utility>
+
+
 // Engine headers.
 #include <tgl/tgl.h>
 #include <tygra/FileHelper.hpp>
-
-
-// STL headers.
-#include <iostream>
 
 
 Shader::Shader (Shader&& move) noexcept
@@ -37,8 +38,14 @@ Shader& Shader::operator= (Shader&& move) noexcept
 }
 
 
-bool Shader::compileFromFile (const std::string& file, const GLenum type) noexcept
+bool Shader::initialise (const std::string& file, const GLenum type) noexcept
 {
+    // Delete any previously compiled shader.
+    if (isInitialised())
+    {
+        clean();
+    }
+
     // Ensure we separate the .c_str() call as daisy chaining the function causes garbage data.
     const auto  string  = tygra::createStringFromFile (file);
     auto        code    = string.c_str();

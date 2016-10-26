@@ -3,6 +3,7 @@
 
 // STL headers.
 #include <iostream>
+#include <utility>
 
 
 // Engine headers.
@@ -29,8 +30,8 @@ Program& Program::operator= (Program&& move) noexcept
             clean();
         }
 
-        m_program = move.m_program;
-        move.m_program = 0U;
+        m_program       = move.m_program;
+        move.m_program  = 0U;
     }
 
     return *this;
@@ -46,6 +47,11 @@ void Program::clean() noexcept
 
 bool Program::initialise() noexcept
 {
+    if (isInitialised())
+    {
+        clean();
+    }
+    
     m_program = glCreateProgram();
 
     // Non-zero values indicate glCreateProgram succeeded.

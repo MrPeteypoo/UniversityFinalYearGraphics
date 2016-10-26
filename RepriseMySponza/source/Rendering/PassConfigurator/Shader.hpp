@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_SHADER_
 #define         _RENDERING_SHADER_
 
-
 // STL headers.
 #include <string>
 
@@ -20,7 +19,7 @@ class Shader final
 {
     public:
 
-        Shader() noexcept = default;
+        Shader() noexcept                   = default;
 
         Shader (Shader&&) noexcept;
         Shader& operator= (Shader&&) noexcept;
@@ -31,14 +30,16 @@ class Shader final
         ~Shader() { if (isInitialised()) clean(); }
         
 
-        /// <summary> Check if the Shader has been successfully compiled. </summary>
-        inline bool isInitialised() const noexcept  { return m_shader != 0; }
+
+        /// <summary> Check if the shader has been successfully compiled. </summary>
+        inline bool isInitialised() const noexcept  { return m_shader != 0U; }
         
         /// <summary> Gets the OpenGL ID of the stored shader. </summary>
         inline GLuint getID() const noexcept        { return m_shader; }
 
         /// <summary> Gets the GLenum representing the type of the shader. </summary>
         inline GLenum getType() const noexcept      { return m_type; }
+
 
 
         /// <summary>
@@ -48,7 +49,7 @@ class Shader final
         /// <param name="file"> The file location of the shader to be compiled. </param>
         /// <param name="type"> Describes the type of shader, e.g. GL_VERTEX_SHADER, GL_FRAGMENT_SHADER. </param>
         /// <returns> The result of the compilation. </returns>
-        bool compileFromFile (const std::string& file, const GLenum type) noexcept;
+        bool initialise (const std::string& file, const GLenum type) noexcept;
 
         /// <summary> Detaches all shaders and deletes each program. </summary>
         void clean() noexcept;

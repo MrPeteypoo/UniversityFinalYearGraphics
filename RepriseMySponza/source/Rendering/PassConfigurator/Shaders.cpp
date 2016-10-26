@@ -26,7 +26,7 @@ bool Shaders::compileShader (const std::string& fileLocation, const GLenum type)
 
     // Make sure the shader compiles before adding it to the map.
     auto shader = Shader {};
-    if (shader.compileFromFile (fileLocation, type))
+    if (shader.initialise (fileLocation, type))
     {
         compiled.emplace (fileLocation, std::move (shader));
         return true;

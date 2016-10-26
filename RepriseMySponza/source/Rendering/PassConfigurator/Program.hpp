@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_PROGRAM_
 #define         _RENDERING_PROGRAM_
 
-
 // Forward declarations.
 using GLuint = unsigned int;
 class Shader;
@@ -16,24 +15,31 @@ class Program final
 {
     public:
 
-        Program() noexcept = default;
+        Program() noexcept                  = default;
+
         Program (Program&& move) noexcept;
         Program& operator= (Program&& move) noexcept;
-        ~Program() { if (isInitialised()) clean(); }
 
         Program (const Program&)            = delete;
         Program& operator= (const Program&) = delete;
 
+        ~Program() { if (isInitialised()) clean(); }
 
-        /// <summary> Check if the Shader has been successfully compiled. </summary>
-        inline bool isInitialised() const noexcept  { return m_program != 0; }
+
+
+        /// <summary> Check if the program has been successfully compiled. </summary>
+        inline bool isInitialised() const noexcept  { return m_program != 0U; }
         
-        /// <summary> Gets the OpenGL ID of the stored shader. </summary>
+        /// <summary> Gets the OpenGL ID of the stored program. </summary>
         inline GLuint getID() const noexcept        { return m_program; }
 
 
-        /// <summary> Attempt to initialise the program. </summary>
-        /// <returns> Whether the program was successful or not. </returns>
+
+        /// <summary> 
+        /// Attempt to initialise the program. If already initialised then the stored program will be deleted and a fresh
+        /// program will be created.
+        /// </summary>
+        /// <returns> Whether the program was successfully created or not. </returns>
         bool initialise() noexcept;
 
         /// <summary> Detaches all shaders and deletes each program. </summary>
