@@ -19,7 +19,8 @@
 #include <Misc/Vertex.hpp>
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
-#include <Rendering/Uniforms/UniformData.hpp>
+#include <MyView/Internals/UniformData.hpp>
+#include <Rendering/Uniforms.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/OpenGL.hpp>
 #include <Utility/Scene.hpp>

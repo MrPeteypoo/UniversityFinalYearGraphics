@@ -48,10 +48,16 @@
     <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\Uniforms\UniformData.cpp">
+    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp">
+    <ClCompile Include="source\Utility\OpenGL\Buffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\MyView\Internals\UniformData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Uniforms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,16 +127,34 @@
     <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\UniformData.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Uniforms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Rendering\Buffers\Buffer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Utility\OpenGL\UnifiedBufferObject.hpp">
+    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Buffers\Binder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\DirectionalLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Spotlight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\PointLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\UniformBlocks.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\UniformData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

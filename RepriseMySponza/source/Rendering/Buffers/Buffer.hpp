@@ -70,10 +70,10 @@ class Buffer
         /// This function will bind and unbind itself to the given target.
         /// <summary>
         /// <param name="data"> The data to place inside the buffer. </param>
-        /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         /// <param name="target"> The binding target of the buffer, e.g. GL_ARRAY_BUFFER. </param>
+        /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         template <typename Data>
-        void placeInside (const Data& data, const GLintptr offset, const GLenum target) const noexcept;
+        void placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept;
 
     private:
 
@@ -84,14 +84,14 @@ class Buffer
 template <typename Data, template <typename, typename...> typename Container, typename... Args>
 void Buffer::fillWith (const Container<Data, Args...>& data, const GLenum target, const GLenum usage) const noexcept
 {
-    glBindBuffer (target, buffer);
-    glBufferData (target, data.size() * sizeof (T), data.data(), usage);
+    glBindBuffer (target, m_buffer);
+    glBufferData (target, data.size() * sizeof (Data), data.data(), usage);
     glBindBuffer (target, 0);
 }
 
 
 template <typename Data>
-void Buffer::placeInside (const Data& data, const GLintptr offset, const GLenum target) const noexcept
+void Buffer::placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept
 {
     glBindBuffer (target, m_buffer);
     glBufferSubData (target, offset, sizeof (Data), &data);

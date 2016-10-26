@@ -125,7 +125,7 @@ class UniformData final
 
         #pragma endregion
 
-        #pragma region Binding/offset information        
+        #pragma region Binding/offset information
 
         /// <summary> Gets the binding block index for the scene UBO. </summary>
         static GLuint sceneBlock()      { return 0; }

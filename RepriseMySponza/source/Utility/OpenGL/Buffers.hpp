@@ -1,11 +1,7 @@
 #pragma once
 
-#if !defined    _UTILITY_OPENGL_UNIFIED_BUFFERS_
-#define         _UTILITY_OPENGL_UNIFIED_BUFFERS_
-
-// STL headers.
-#include <string>
-
+#if !defined    _UTILITY_OPENGL_BUFFERS_
+#define         _UTILITY_OPENGL_BUFFERS_
 
 // Personal headers.
 #include <Rendering/Buffers/Buffer.hpp>
@@ -22,8 +18,9 @@ namespace util
     /// <param name="bindingPoint"> Which uniform binding on the GPU should be used. </param>
     /// <param name="offsetIntoBuffer"> How many bytes exist before the data you wish to be used by the program. </param>
     /// <param name="blockSize"> How many bytes the block should be. </param>
-    bool bindBlockToProgram (const Buffer& buffer, const GLuint program, const std::string& name, const GLuint bindingPoint,
+    /// <returns> Whether the block was successfully bound to the program. </returns>
+    bool bindBlockToProgram (const Buffer& buffer, const GLuint program, const GLchar* name, const GLuint bindingPoint,
         const GLintptr offsetIntoBuffer, const GLsizeiptr blockSize) noexcept;
 }
 
-#endif // _UTILITY_OPENGL_UNIFIED_BUFFERS_
+#endif // _UTILITY_OPENGL_BUFFERS_
