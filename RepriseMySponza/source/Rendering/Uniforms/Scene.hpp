@@ -23,10 +23,12 @@ struct Scene final
     glm::vec4 cameraPosition    { 0.f };    //!< The world-space position of the camera. The 'w' component is alignment padding.
     glm::vec4 ambience          { 1.f };    //!< The ambient colour of the scene. The 'w' component is alignment padding.
 
-    /// <summary>
-    /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
-    /// </summary>
-    float unused[24];
+    private:
+
+        /// <summary>
+        /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
+        /// </summary>
+        float unused[24];
 };
 
 

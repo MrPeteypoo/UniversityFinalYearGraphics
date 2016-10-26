@@ -59,8 +59,36 @@ void MyView::windowViewWillStart (tygra::Window*)
     // TODO: Create an object to store and manage all required programs.
     // Attempt to build the program, if it fails the user can reload after correcting any syntax errors.
     //buildProgram();
-    m_configurator.initialise();
-    m_program = m_configurator.get();
+    if (!m_configurator.initialise())
+    {
+        std::cerr << "PassConfigurator couldn't initialise." << std::endl;
+    }
+
+    if (!m_uniforms.initialise())
+    {
+        throw std::runtime_error ("Unable to initialise uniform buffers.");
+    }
+
+    const auto& programs = m_configurator.getPrograms();
+    
+    if (!m_uniforms.bindToProgram (programs.sceneConstruction.getID()))
+    {
+        std::cerr << "Failed to bind all uniform blocks to the scene construction program." << std::endl;
+    }
+    if (!m_uniforms.bindToProgram (programs.directionalLighting.getID()))
+    {
+        std::cerr << "Failed to bind all uniform blocks to the directional lighting program." << std::endl;
+    }
+    if (!m_uniforms.bindToProgram (programs.pointLighting.getID()))
+    {
+        std::cerr << "Failed to bind all uniform blocks to the point lighting program." << std::endl;
+    }
+    if (!m_uniforms.bindToProgram (programs.spotlighting.getID()))
+    {
+        std::cerr << "Failed to bind all uniform blocks to the spotlighting program." << std::endl;
+    }
+    
+    m_program = m_configurator.getPrograms().sceneConstruction.getID();
     // TODO: Some form of renderer component which stores and constructs buffers.
     // Generate the buffers.
     generateOpenGLObjects();
@@ -495,7 +523,6 @@ void MyView::windowViewRender (tygra::Window*)
 
     // Prepare the draw.
     m_configurator.prepareDraw();
-    m_configurator.switchToSceneConstructionMode();
 
     // Define matrices.
     const auto& camera      = m_scene->getCamera();
@@ -521,7 +548,25 @@ void MyView::windowViewRender (tygra::Window*)
 
     glActiveTexture (GL_TEXTURE0 + m_poolMaterialIDs.tbo);
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
+    
+    m_configurator.switchToSceneConstructionMode();
+    renderGeometry (projection, view);
 
+    // UNBIND IT ALL CAPTAIN!
+    glBindVertexArray (0);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
+    glBindBuffer (GL_TEXTURE_BUFFER, 0);
+
+    glActiveTexture (GL_TEXTURE1);
+    glBindTexture (GL_TEXTURE_BUFFER, 0);
+
+    glActiveTexture (GL_TEXTURE0);
+    //glBindTexture (GL_TEXTURE_2D_ARRAY, 0);
+}
+
+
+void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept
+{
     // Use vectors for storing instancing data> This requires a material ID, a model transform and a PVM transform.
 	static auto materialIDs = std::vector<MaterialID> (m_instancePoolSize);
     static auto matrices    = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
@@ -543,12 +588,12 @@ void MyView::windowViewRender (tygra::Window*)
                 const auto& instance = m_scene->getInstanceById (instances[i]);
 
                 // Obtain the current instances model transformation.
-                const auto model = glm::mat4 (util::toGLM (instance.getTransformationMatrix()));
+                const auto modelMatrix = glm::mat4 (util::toGLM (instance.getTransformationMatrix()));
 
                 // We have both the model and pvm matrices in the buffer so we need an offset.
                 const auto offset    = i * 2;
-                matrices[offset]     = model;
-                matrices[offset + 1] = projection * view * model;
+                matrices[offset]     = modelMatrix;
+                matrices[offset + 1] = projectionMatrix * viewMatrix * modelMatrix;
 
                 // Now deal with the materials.
                 materialIDs[i] = m_materialIDs.at (instance.getMaterialId());
@@ -564,18 +609,7 @@ void MyView::windowViewRender (tygra::Window*)
             // Finally draw all instances at the same time.
             glDrawElementsInstancedBaseVertex (GL_TRIANGLES, mesh.elementCount, GL_UNSIGNED_INT, (void*) mesh.elementsOffset, size, mesh.verticesIndex);
         }
-    }
-
-    // UNBIND IT ALL CAPTAIN!
-    glBindVertexArray (0);
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
-    glBindBuffer (GL_TEXTURE_BUFFER, 0);
-
-    glActiveTexture (GL_TEXTURE1);
-    glBindTexture (GL_TEXTURE_BUFFER, 0);
-
-    glActiveTexture (GL_TEXTURE0);
-    //glBindTexture (GL_TEXTURE_2D_ARRAY, 0);
+    }   
 }
 
 

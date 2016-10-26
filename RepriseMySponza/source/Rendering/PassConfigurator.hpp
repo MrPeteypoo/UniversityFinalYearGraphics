@@ -22,19 +22,29 @@
 /// </summary>
 class PassConfigurator final
 {
-    public:        
-        GLuint get() const noexcept { return m_programs.sceneConstruction.getID(); }
+    public:
+
         PassConfigurator()                                      = default;
+
         PassConfigurator (PassConfigurator&&)                   = default;
         PassConfigurator& operator= (PassConfigurator&&)        = default;
-        ~PassConfigurator()                                     = default;
 
         PassConfigurator (const PassConfigurator&)              = delete;
         PassConfigurator& operator= (const PassConfigurator&)   = delete;
 
+        ~PassConfigurator()                                     = default;
+
+
 
         /// <summary> Checks if the programs and shaders have been loaded correctly. </summary>
-        inline bool isInitialised() const noexcept { return m_programs.isInitialised() && m_shaders.isInitialised(); }
+        inline bool isInitialised() const noexcept          { return m_programs.isInitialised() && m_shaders.isInitialised(); }
+
+        /// <summary> Retrieves the collection of programs loaded by the configurator. </summary>
+        inline const Programs& getPrograms() const noexcept { return m_programs; }
+
+        /// <summary> Retrieves the collection of shaders loaded by the configurator. </summary>
+        inline const Shaders& getShaders() const noexcept   { return m_shaders; }
+
 
 
         /// <summary> Initialise the shaders and programs required for rendering. </summary>
@@ -46,6 +56,7 @@ class PassConfigurator final
 
         /// <summary> Unbind the current program. </summary>
         inline void unbind() const noexcept { m_programs.unbind(); }
+
 
 
         /// <summary> Initialises the OpenGL context, independent of any enabled mode. </summary>
@@ -71,9 +82,10 @@ class PassConfigurator final
         /// <summary> Disables writing to the depth buffer, enables blending and uses equality for depth testing. </summary>
         void useLightingConfiguration (const GLuint program) const noexcept;
         
+
+
         Programs    m_programs  { };    //!< Stores the programs used in different rendering passes.
         Shaders     m_shaders   { };    //!< Stores the shaders available to programs.
-        //Uniforms    m_uniforms  { };    //!< Stores the uniform data
 };
 
 

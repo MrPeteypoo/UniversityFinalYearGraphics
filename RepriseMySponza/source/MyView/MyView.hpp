@@ -19,6 +19,7 @@
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
 #include <Rendering/PassConfigurator.hpp>
+#include <Rendering/Uniforms.hpp>
 #include <Utility/OpenGL.hpp>
 
 
@@ -115,6 +116,8 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Renders the given scene, the object should be initialised before calling this. </summary>
         void windowViewRender (tygra::Window* window) override final;
 
+        void renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept;
+
         /// <summary> Sets all uniform values for the scene. Avoid including GLM in MyView by passing void*. </summary>
         void setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
@@ -136,6 +139,7 @@ class MyView final : public tygra::WindowViewDelegate
         };
 
         PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
+        Uniforms                                            m_uniforms          { };            //!< Stores and updates uniforms used by the scene.
         GLuint                                              m_program           { 0 };          //!< The ID of the OpenGL program created and used to draw the scene.
 
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.

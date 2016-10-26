@@ -4,6 +4,7 @@
 #define         _RENDERING_UNIFORMS_
 
 // Engine headers.
+#include <glm/mat4x4.hpp>
 #include <scene/scene_fwd.hpp>
 
 
@@ -23,23 +24,40 @@ class Uniforms final
 {
     public:
 
-        Uniforms (const Uniforms& uniforms)             = delete;
-        Uniforms& operator= (const Uniforms& uniforms)  = delete;
+        /// <summary>
+        /// Cannot be noexcept due to the underlying usage of glm types.
+        /// </summary>
+        Uniforms()                                  = default;
+    
+        Uniforms (Uniforms&&) noexcept              = default;
+        Uniforms& operator= (Uniforms&&) noexcept   = default;
+
+        Uniforms (const Uniforms&)                  = delete;
+        Uniforms& operator= (const Uniforms&)       = delete;
+
+        ~Uniforms()                                 = default;
 
 
-
-        bool initialise (const Programs& programs) noexcept;
+        bool initialise() noexcept;
 
         void clean() noexcept;
 
-        void update (const scene::Context* const context) noexcept;
+
+        
+        bool bindToProgram (const GLuint program) const noexcept;
+
+        void updateScene (const scene::Context* const scene, const glm::mat4& projection, const glm::mat4& view) noexcept;
+
+        void updateDirectionalLight (const scene::DirectionalLight& light) noexcept;
+
+        void updatePointLight (const scene::PointLight& light) noexcept;
+
+        void updateSpotlight (const scene::SpotLight& light) noexcept;
 
     private:
 
         Buffer          m_ubo   { };    //!< The uniform buffer object containing all uniform block data.
         UniformBlocks   m_data  { };    //!< Contains the raw uniform data that will be updated multiple times per frame.
-
-        bool bindToProgram (const GLuint program) const noexcept;
 };
 
 #endif // _RENDERING_UNIFORMS_
