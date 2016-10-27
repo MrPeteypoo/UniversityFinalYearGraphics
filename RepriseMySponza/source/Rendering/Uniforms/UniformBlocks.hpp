@@ -15,10 +15,6 @@
 #include <Rendering/Uniforms/Spotlight.hpp>
 
 
-// We'll manage the data alignment by enforcing 4-byte alignment for all types.
-#pragma pack (push, 4)
-
-
 /// <summary>
 /// A collection of each uniform block used in the application.
 /// </summary>
@@ -35,8 +31,7 @@ struct UniformBlocks final
                             directionalLightName    { "directionalLight" },
                             pointLightName          { "pointLight" },
                             spotlightName           { "spotlight" };
-
-
+    
     constexpr static GLuint sceneBlock              { 0U }, //!< Where the scene data should be bound on the GPU.
                             directionalLightBlock   { 1U }, //!< Where the directional light data should be bound on the GPU.
                             pointLightBlock         { 2U }, //!< Where the point light data should be bound on the GPU.
@@ -51,9 +46,5 @@ struct UniformBlocks final
                                 pointLightOffset        { pointLightBlock * blockAlignment },
                                 spotlightOffset         { spotlightBlock * blockAlignment };
 };
-
-
-// Undo the alignment.
-#pragma pack (pop)
 
 #endif // _RENDERING_UNIFORMS_UNIFORM_BLOCKS_

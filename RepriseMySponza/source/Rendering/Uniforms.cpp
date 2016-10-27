@@ -30,46 +30,6 @@ void Uniforms::clean() noexcept
 }
 
 
-void Uniforms::updateScene (const scene::Context* const scene, const glm::mat4& projection, const glm::mat4& view) noexcept
-{
-    m_data.scene.projection = projection;
-    m_data.scene.view = view;
-    m_data.scene.cameraPosition = glm::vec4 (util::toGLM (scene->getCamera().getPosition()), 0.f);
-    m_data.scene.ambience = glm::vec4 (util::toGLM (scene->getAmbientLightIntensity()), 0.f);
-
-    m_ubo.placeInside (m_data.scene, GL_UNIFORM_BUFFER, 0);
-}
-
-
-void Uniforms::updateDirectionalLight (const scene::DirectionalLight& light) noexcept
-{
-    m_data.directionalLight.direction = glm::vec4 (util::toGLM (light.getDirection()), 0.f);
-    m_data.directionalLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
-
-    m_ubo.placeInside (m_data.directionalLight, GL_UNIFORM_BUFFER, m_data.directionalLightOffset);
-}
-
-
-void Uniforms::updatePointLight (const scene::PointLight& light) noexcept
-{
-    m_data.pointLight.position  = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
-    m_data.pointLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
-
-    m_ubo.placeInside (m_data.pointLight, GL_UNIFORM_BUFFER, m_data.pointLightOffset);
-}
-
-
-void Uniforms::updateSpotlight (const scene::SpotLight& light) noexcept
-{
-    m_data.spotlight.position   = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
-    m_data.spotlight.direction  = util::toGLM (light.getDirection());
-    m_data.spotlight.coneAngle  = light.getConeAngleDegrees();
-    m_data.spotlight.intensity  = util::toGLM (light.getIntensity());
-
-    m_ubo.placeInside (m_data.spotlight, GL_UNIFORM_BUFFER, m_data.spotlightOffset);
-}
-
-
 bool Uniforms::bindToProgram (const GLuint program) const noexcept
 {
     auto success = util::bindBlockToProgram 
@@ -113,4 +73,54 @@ bool Uniforms::bindToProgram (const GLuint program) const noexcept
     );
     
     return success;
+}
+
+
+void Uniforms::updateScene (const scene::Context* const scene, const glm::mat4& projection, const glm::mat4& view) noexcept
+{
+    m_data.scene.projection = projection;
+    m_data.scene.view = view;
+    m_data.scene.cameraPosition = glm::vec4 (util::toGLM (scene->getCamera().getPosition()), 0.f);
+    m_data.scene.ambience = glm::vec4 (util::toGLM (scene->getAmbientLightIntensity()), 0.f);
+
+    m_ubo.placeInside (m_data.scene, GL_UNIFORM_BUFFER, 0);
+    //updateBuffer();
+}
+
+
+void Uniforms::updateDirectionalLight (const scene::DirectionalLight& light) noexcept
+{
+    m_data.directionalLight.direction = glm::vec4 (util::toGLM (light.getDirection()), 0.f);
+    m_data.directionalLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
+
+    m_ubo.placeInside (m_data.directionalLight, GL_UNIFORM_BUFFER, m_data.directionalLightOffset);
+    //updateBuffer();
+}
+
+
+void Uniforms::updatePointLight (const scene::PointLight& light) noexcept
+{
+    m_data.pointLight.position  = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
+    m_data.pointLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
+
+    m_ubo.placeInside (m_data.pointLight, GL_UNIFORM_BUFFER, m_data.pointLightOffset);
+    //updateBuffer();
+}
+
+
+void Uniforms::updateSpotlight (const scene::SpotLight& light) noexcept
+{
+    m_data.spotlight.position   = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
+    m_data.spotlight.direction  = util::toGLM (light.getDirection());
+    m_data.spotlight.coneAngle  = light.getConeAngleDegrees();
+    m_data.spotlight.intensity  = util::toGLM (light.getIntensity());
+
+    m_ubo.placeInside (m_data.spotlight, GL_UNIFORM_BUFFER, m_data.spotlightOffset);
+    //updateBuffer();
+}
+
+
+void Uniforms::updateBuffer() const noexcept
+{
+    m_ubo.placeInside (m_data, GL_UNIFORM_BUFFER, 0);
 }

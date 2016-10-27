@@ -21,6 +21,7 @@ void PassConfigurator::clean() noexcept
 
 void PassConfigurator::prepareDraw() const noexcept
 {
+    glEnable (GL_CULL_FACE);
     glClearColor (0.f, 0.f, 0.25f, 0.f);
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -30,7 +31,6 @@ void PassConfigurator::useConstructionConfiguration (const GLuint program) const
 {
     // Switch to the given program.
     glUseProgram (program);
-    glEnable (GL_CULL_FACE);
 
     // Ensure the depth test writes to the depth buffer.
     glEnable (GL_DEPTH_TEST);
@@ -47,7 +47,6 @@ void PassConfigurator::useLightingConfiguration (const GLuint program) const noe
 {
     // Switch to the given program.
     glUseProgram (program);
-    glDisable (GL_CULL_FACE);
 
     // Ensure the depth test is enabled but we only need to confirm what has already been computed.
     glEnable (GL_DEPTH_TEST);

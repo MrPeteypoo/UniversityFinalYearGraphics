@@ -21,17 +21,17 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     pointLighting.initialise();
     spotlighting.initialise();
 
-    sceneConstruction.attachShader (shaders.compiled.find (sponzaVS)->second);
-    sceneConstruction.attachShader (shaders.compiled.find (sponzaFS)->second);
+    sceneConstruction.attachShader (shaders.compiled.find (geometryVS)->second);
+    sceneConstruction.attachShader (shaders.compiled.find (geometryFS)->second);
     
-    directionalLighting.attachShader (shaders.compiled.find (sponzaVS)->second);
-    directionalLighting.attachShader (shaders.compiled.find (sponzaFS)->second);
+    directionalLighting.attachShader (shaders.compiled.find (geometryVS)->second);
+    directionalLighting.attachShader (shaders.compiled.find (directionalLightFS)->second);
     
-    pointLighting.attachShader (shaders.compiled.find (sponzaVS)->second);
-    pointLighting.attachShader (shaders.compiled.find (sponzaFS)->second);
+    pointLighting.attachShader (shaders.compiled.find (geometryVS)->second);
+    pointLighting.attachShader (shaders.compiled.find (pointLightFS)->second);
     
-    spotlighting.attachShader (shaders.compiled.find (sponzaVS)->second);
-    spotlighting.attachShader (shaders.compiled.find (sponzaFS)->second);
+    spotlighting.attachShader (shaders.compiled.find (geometryVS)->second);
+    spotlighting.attachShader (shaders.compiled.find (spotlightFS)->second);
 
     return sceneConstruction.link() && directionalLighting.link() && pointLighting.link() && spotlighting.link();
 }

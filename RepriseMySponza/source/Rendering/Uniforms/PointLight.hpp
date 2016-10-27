@@ -28,7 +28,7 @@ struct PointLight final
         /// <summary>
         /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
         /// </summary>
-        float unused[53];
+        //float unused[53];
 };
 
 

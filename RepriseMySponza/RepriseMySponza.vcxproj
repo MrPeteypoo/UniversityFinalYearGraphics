@@ -185,10 +185,13 @@
     <ClCompile Include="source\Utility\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\reprise_fs.glsl" />
-    <None Include="shaders\reprise_vs.glsl" />
-    <None Include="shaders\sponza_fs.glsl" />
-    <None Include="shaders\sponza_vs.glsl" />
+    <None Include="shaders\directionalLight.fs.glsl" />
+    <None Include="shaders\geometry.fs.glsl" />
+    <None Include="shaders\pointLight.fs.glsl" />
+    <None Include="shaders\sponza.fs.glsl" />
+    <None Include="shaders\sponza.vs.glsl" />
+    <None Include="shaders\spotlight.fs.glsl" />
+    <None Include="shaders\geometry.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="doc\readme.txt" />

@@ -51,21 +51,11 @@ class MyView final : public tygra::WindowViewDelegate
 
         /// <summary> Causes the application to rebuild the shaders. </summary>
         void rebuildShaders();
-
-        /// <summary> Enables a wireframe view near the camera. </summary>
-        void toggleWireframeMode()  { m_wireframeMode = !m_wireframeMode; }
-
-        /// <summary> Cycles through point, spot and directional wireframe mode. </summary>
-        void toggleWireframeType()  { m_wireframeType = ++m_wireframeType % 3; }
 		
     private:
 		
         /// <summary> Causes the object to initialise; loading and preparing all data. </summary>
         void windowViewWillStart (tygra::Window* window) override final;
-
-        /// <summary> Will create the program then compile, attach and link all required shaders together. </summary>
-        /// <returns> Whether the program was compiled properly. </returns>
-        bool buildProgram();
 
         /// <summary> Generates the VAO and buffers owned by the MyView class. </summary>
         void generateOpenGLObjects();
@@ -81,9 +71,6 @@ class MyView final : public tygra::WindowViewDelegate
 
         /// <summary> This will allocate enough memory in m_uniformVBO, m_materialPool and m_matricesPool for modification at run-time. </summary>
         void allocateExtraBuffers();
-
-        /// <summary> Sets up the binding of the Uniform Buffer Object used for the scene and lighting. </summary>
-        void bindUniformBufferObject();
 
         /// <summary> Prepares the material TBO and allocates storage for the texture array. </summary>
         /// <param name="textureWidth"> The width each texture should be in the array. </param>
@@ -118,12 +105,7 @@ class MyView final : public tygra::WindowViewDelegate
 
         void renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept;
 
-        /// <summary> Sets all uniform values for the scene. Avoid including GLM in MyView by passing void*. </summary>
-        void setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
-
-        /// <summary> Creates a wireframe light based on the cameras position. </summary>
-        /// <returns> A light ready for adding to the UBO. </returns>
-        Light createWireframeLight() const;
+        void mapTexturesToProgram (const GLuint program) const noexcept;
 
 
         // Using declarations.
@@ -140,7 +122,6 @@ class MyView final : public tygra::WindowViewDelegate
 
         PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
         Uniforms                                            m_uniforms          { };            //!< Stores and updates uniforms used by the scene.
-        GLuint                                              m_program           { 0 };          //!< The ID of the OpenGL program created and used to draw the scene.
 
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.
         GLuint                                              m_vertexVBO         { 0 };          //!< A Vertex Buffer Object which contains the interleaved vertex data of every mesh in the scene.
@@ -160,9 +141,6 @@ class MyView final : public tygra::WindowViewDelegate
         scene::Context*                                     m_scene             { nullptr };    //!< The sponza scene containing instance and camera information.
         std::vector<std::pair<scene::MeshId, Mesh>>         m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
         std::unordered_map<scene::MaterialId, MaterialID>   m_materialIDs       { };            //!< A map containing each material used for rendering.
-
-        bool                                                m_wireframeMode     { false };      //!< Causes the camera to show a wireframe around meshes nearby.
-        unsigned int                                        m_wireframeType     { 0 };          //!< Allows the user to cycle through point, spot and directional mode.
 };
 
 #endif // _MY_VIEW_

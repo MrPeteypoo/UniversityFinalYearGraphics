@@ -54,6 +54,8 @@ class Uniforms final
 
         void updateSpotlight (const scene::SpotLight& light) noexcept;
 
+        void updateBuffer() const noexcept;
+
     private:
 
         Buffer          m_ubo   { };    //!< The uniform buffer object containing all uniform block data.

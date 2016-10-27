@@ -19,7 +19,7 @@ struct Spotlight final
     glm::vec4   position        { 0.f };    //!< The position of the light in world-space. The 'w' component is alignment padding.
     
     glm::vec3   direction       { 0.f };    //!< The direction of the light in world-space.
-    float       coneAngle       { 90.f };    //!< The angle of the cone.
+    float       coneAngle       { 90.f };   //!< The angle of the cone.
 
     glm::vec3   intensity       { 0.f };    //!< The colour/intensity of the light.
     float       concentration   { 2.f };    //!< How concentrated the beam of a spot light is.
@@ -33,7 +33,7 @@ struct Spotlight final
         /// <summary>
         /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
         /// </summary>
-        float unused[49];
+        //float unused[49];
 };
 
 
