@@ -10,11 +10,16 @@
 
 
 // Engine headers.
+#include <glm/fwd.hpp>
 #include <scene/scene_fwd.hpp>
 #include <tygra/WindowViewDelegate.hpp>
 
 
 // Personal headers.
+#include <MyView/Internals/Material.hpp>
+#include <MyView/Internals/Mesh.hpp>
+#include <Rendering/PassConfigurator.hpp>
+#include <Rendering/Uniforms.hpp>
 #include <Utility/OpenGL.hpp>
 
 
@@ -30,46 +35,27 @@ struct Vertex;
 class MyView final : public tygra::WindowViewDelegate
 {
     public:
-    
-        #pragma region Constructors and destructor
 
         MyView()                                = default;
-        ~MyView();
-
-        MyView (MyView&& move);
-        MyView& operator= (MyView&& move);
-
+        MyView (MyView&& move)                  = default;
+        MyView& operator= (MyView&& move)       = default;
+        
         MyView (const MyView& copy)             = delete;
         MyView& operator= (const MyView& copy)  = delete;
 
-        #pragma endregion
+        ~MyView();
 
-        #pragma region Public interface
 
         /// <summary> Sets the scene::Context to use for rendering. </summary>
-        void setScene (scene::Context* scene);
+        void setScene (scene::Context* scene) { m_scene = scene; }
 
         /// <summary> Causes the application to rebuild the shaders. </summary>
         void rebuildShaders();
-
-        /// <summary> Enables a wireframe view near the camera. </summary>
-        void toggleWireframeMode()  { m_wireframeMode = !m_wireframeMode; }
-
-        /// <summary> Cycles through point, spot and directional wireframe mode. </summary>
-        void toggleWireframeType()  { m_wireframeType = ++m_wireframeType % 3; }
-
-        #pragma endregion
-
+		
     private:
-
-        #pragma region Scene construction
-
+		
         /// <summary> Causes the object to initialise; loading and preparing all data. </summary>
         void windowViewWillStart (tygra::Window* window) override final;
-
-        /// <summary> Will create the program then compile, attach and link all required shaders together. </summary>
-        /// <returns> Whether the program was compiled properly. </returns>
-        bool buildProgram();
 
         /// <summary> Generates the VAO and buffers owned by the MyView class. </summary>
         void generateOpenGLObjects();
@@ -86,9 +72,6 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> This will allocate enough memory in m_uniformVBO, m_materialPool and m_matricesPool for modification at run-time. </summary>
         void allocateExtraBuffers();
 
-        /// <summary> Sets up the binding of the Uniform Buffer Object used for the scene and lighting. </summary>
-        void bindUniformBufferObject();
-
         /// <summary> Prepares the material TBO and allocates storage for the texture array. </summary>
         /// <param name="textureWidth"> The width each texture should be in the array. </param>
         /// <param name="textureHeight"> The height each texture should be in the array. </param>
@@ -102,10 +85,7 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Obtains each group of instances for each scene::MeshId and determines the maximum number of instances we'll encounter. </summary>
         /// <returns> The highest instance count of each scene::MeshId in the scene. </returns>
         size_t highestInstanceCount() const;
-        
-        #pragma endregion
 
-        #pragma region Clean up
 
         /// <summary> Causes the object to free up any resources being held. </summary>
         void windowViewDidStop (tygra::Window* window) override final;
@@ -116,9 +96,6 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Deletes all VAOs, VBOs, TBOs, etc. owned by the MyView class. </summary>
         void deleteOpenGLObjects();
 
-        #pragma endregion
-
-        #pragma region Rendering
 
         /// <summary> Changes the viewport, updating the aspect ratio, etc. </summary>
         void windowViewDidReset (tygra::Window* window, int width, int height) override final;
@@ -126,22 +103,10 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Renders the given scene, the object should be initialised before calling this. </summary>
         void windowViewRender (tygra::Window* window) override final;
 
-        /// <summary> Sets all uniform values for the scene. Avoid including GLM in MyView by passing void*. </summary>
-        /// <param name="projectionMatrix"> A pointer to a glm::mat4 projection matrix for the scene. </param>
-        /// <param name="viewMatrix"> A pointer to a glm::mat4 view matrix for the scene. </param>
-        void setUniforms (const void* const projectionMatrix, const void* const viewMatrix);
+        void renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept;
 
-        /// <summary> Creates a wireframe light based on the cameras position. </summary>
-        /// <returns> A light ready for adding to the UBO. </returns>
-        Light createWireframeLight() const;
+        void mapTexturesToProgram (const GLuint program) const noexcept;
 
-        #pragma endregion
-
-        #pragma region Implementation data
-
-        struct Material;
-        struct Mesh;
-        class UniformData;
 
         // Using declarations.
         using MaterialID = int;
@@ -153,17 +118,10 @@ class MyView final : public tygra::WindowViewDelegate
         {
             GLuint  vbo { 0 };  //!< The buffer to contain shader accessible information.
             GLuint  tbo { 0 };  //!< The texture buffer which points to the VBO, linking them together.
+        };
 
-            SamplerBuffer()                                         = default;
-            SamplerBuffer (const SamplerBuffer& copy)               = default;
-            SamplerBuffer& operator= (const SamplerBuffer& copy)    = default;
-            ~SamplerBuffer()                                        = default;
-
-            SamplerBuffer (SamplerBuffer&& move);
-            SamplerBuffer& operator= (SamplerBuffer&& move);
-        };        
-
-        GLuint                                              m_program           { 0 };          //!< The ID of the OpenGL program created and used to draw the scene.
+        PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
+        Uniforms                                            m_uniforms          { };            //!< Stores and updates uniforms used by the scene.
 
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.
         GLuint                                              m_vertexVBO         { 0 };          //!< A Vertex Buffer Object which contains the interleaved vertex data of every mesh in the scene.
@@ -181,13 +139,8 @@ class MyView final : public tygra::WindowViewDelegate
         float                                               m_aspectRatio       { 0.f };        //!< The calculated aspect ratio of the foreground resolution for the application.
 
         scene::Context*                                     m_scene             { nullptr };    //!< The sponza scene containing instance and camera information.
-        std::vector<std::pair<scene::MeshId, Mesh*>>        m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
+        std::vector<std::pair<scene::MeshId, Mesh>>         m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
         std::unordered_map<scene::MaterialId, MaterialID>   m_materialIDs       { };            //!< A map containing each material used for rendering.
-
-        bool                                                m_wireframeMode     { false };      //!< Causes the camera to show a wireframe around meshes nearby.
-        unsigned int                                        m_wireframeType     { 0 };          //!< Allows the user to cycle through point, spot and directional mode.
-
-        #pragma endregion
 };
 
 #endif // _MY_VIEW_

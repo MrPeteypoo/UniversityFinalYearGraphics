@@ -11,8 +11,6 @@
 
 namespace util
 {
-    #pragma region Miscellaneous
-
     /// <summary> Checks if two float values are relatively equal to each other. </summary>
     /// <param name="margin"> The absolute margin of error between the two floats. Must be a positive value. </param>
     inline bool roughlyEquals (const float lhs, const float rhs, const float margin = 0.1f)
@@ -21,9 +19,6 @@ namespace util
         return std::abs (lhs - rhs) <= margin;
     }
 
-    #pragma endregion
-
-    #pragma region Comparison functions
 
     /// <summary> Returns the minimum value, passed by value for arithmetic types. </summary>
     template <typename T> typename std::enable_if<std::is_arithmetic<T>::value, T>::type min (const T a, const T b)
@@ -87,8 +82,6 @@ namespace util
 
         return value;
     }
-
-    #pragma endregion
 }
 
 #endif // _UTIL_MATHS_

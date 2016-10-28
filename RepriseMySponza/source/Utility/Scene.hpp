@@ -25,9 +25,9 @@ struct Vertex;
 namespace util
 {
     /// <summary> Fills a given vector with vertex information which is obtained from the given mesh. </summary>
-    /// <param name="vertices"> An array to be filled with Vertex information. </param>
     /// <param name="mesh"> The mesh to retrieve Vertex data from. </param>
-    void assembleVertices (std::vector<Vertex>& vertices, const scene::Mesh& mesh);
+    /// <returns> An array to be filled with Vertex information. </returns>
+    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh);
     
 
     /// <summary> Iterates through each SceneMode::Mesh in meshes calculating the total buffer size required for a vertex VBO and element VBO. </summary>

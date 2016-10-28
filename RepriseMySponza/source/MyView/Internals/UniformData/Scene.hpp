@@ -1,0 +1,6 @@
+#pragma once
+
+#if !defined    _MY_VIEW_INTERNALS_UNIFORM_DATA_SCENE_
+#define         _MY_VIEW_INTERNALS_UNIFORM_DATA_SCENE_
+
+#endif // !defined  _MY_VIEW_INTERNALS_UNIFORM_DATA_SCENE_

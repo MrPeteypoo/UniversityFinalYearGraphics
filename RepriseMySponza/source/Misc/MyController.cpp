@@ -105,20 +105,6 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
             view_->rebuildShaders();
         }
         break;
-    case tygra::kWindowKeySpace:
-        if (down)
-        {
-            view_->toggleWireframeMode();
-        }
-
-        break;
-    case 'E':
-        if (down)
-        {
-            view_->toggleWireframeType();
-        }
-
-        break;
     }
 
     updateCameraTranslation();
@@ -202,15 +188,6 @@ void MyController::windowControlGamepadButtonChanged(tygra::Window * window,
                                                      int button_index,
                                                      bool down)
 {
-    if (button_index == 0 && down)
-    {
-        view_->toggleWireframeMode();
-    }
-
-    if (button_index == 1 && down)
-    {
-        view_->toggleWireframeType();
-    }
 }
 
 void MyController::updateCameraTranslation()

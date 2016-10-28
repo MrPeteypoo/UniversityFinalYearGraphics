@@ -106,10 +106,11 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../tygra/include;../tgl/include;../pugixml/include;../scene/include;source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4201;4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,9 +121,10 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4201;4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,14 +133,15 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../tygra/include;../tgl/include;../pugixml/include;../scene/include;source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4201;4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,13 +152,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4201;4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,19 +171,27 @@
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Misc\MyController.cpp" />
-    <ClCompile Include="source\Misc\Vertex.cpp" />
-    <ClCompile Include="source\MyView\Material.cpp" />
-    <ClCompile Include="source\MyView\Mesh.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
-    <ClCompile Include="source\MyView\UniformData.cpp" />
+    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp" />
+    <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp" />
+    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp" />
+    <ClCompile Include="source\Rendering\Uniforms.cpp" />
     <ClCompile Include="source\Utility\OpenGL.cpp" />
+    <ClCompile Include="source\Utility\OpenGL\Buffers.cpp" />
     <ClCompile Include="source\Utility\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\reprise_fs.glsl" />
-    <None Include="shaders\reprise_vs.glsl" />
-    <None Include="shaders\sponza_fs.glsl" />
-    <None Include="shaders\sponza_vs.glsl" />
+    <None Include="shaders\directionalLight.fs.glsl" />
+    <None Include="shaders\geometry.fs.glsl" />
+    <None Include="shaders\pointLight.fs.glsl" />
+    <None Include="shaders\sponza.fs.glsl" />
+    <None Include="shaders\sponza.vs.glsl" />
+    <None Include="shaders\spotlight.fs.glsl" />
+    <None Include="shaders\geometry.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="doc\readme.txt" />
@@ -187,10 +199,26 @@
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
     <ClInclude Include="source\Misc\Vertex.hpp" />
-    <ClInclude Include="source\MyView\Material.hpp" />
-    <ClInclude Include="source\MyView\Mesh.hpp" />
+    <ClInclude Include="source\MyView\Internals\Material.hpp" />
+    <ClInclude Include="source\MyView\Internals\Mesh.hpp" />
     <ClInclude Include="source\MyView\MyView.hpp" />
-    <ClInclude Include="source\MyView\UniformData.hpp" />
+    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Buffers\Binder.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms\DirectionalLight.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms\PointLight.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms\Spotlight.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms\UniformBlocks.hpp" />
+    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp" />
+    <ClInclude Include="source\Rendering\Uniforms.hpp" />
+    <ClInclude Include="source\Rendering\Buffers\Buffer.hpp" />
+    <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp" />
+    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL.hpp" />

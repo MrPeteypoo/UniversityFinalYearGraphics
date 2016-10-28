@@ -2,7 +2,7 @@
 
 #if !defined    MY_VIEW_UNIFORM_DATA_
 #define         MY_VIEW_UNIFORM_DATA_
-#define         MAX_LIGHTS 20
+#define MAX_LIGHTS 20
 
 
 // Engine headers.
@@ -20,6 +20,8 @@ using GLuint = unsigned int;
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
 #pragma pack (push, 4)
+
+
 
 
 /// <summary>
@@ -49,7 +51,7 @@ struct Light final
 
     float           aConstant       { 1.f };    //!< The constant co-efficient for the attenutation formula.
     float           aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
-    float           aQuadratic      { 1.f };    //!< The quadratic co-efficient for the attenuation formula.
+    float           aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
     unsigned int    emitWireframe   { 0 };      //!< Indicates whether the light should emit a wireframe onto surfaces.
 
     Light()                                 = default;
@@ -68,7 +70,7 @@ struct Light final
 /// <summary> 
 /// A basic class used for writing to a Uniform Buffer Object which represents shader information.
 /// </summary>
-class MyView::UniformData final
+class UniformData final
 {
     public:
 
@@ -123,7 +125,7 @@ class MyView::UniformData final
 
         #pragma endregion
 
-        #pragma region Binding/offset information        
+        #pragma region Binding/offset information
 
         /// <summary> Gets the binding block index for the scene UBO. </summary>
         static GLuint sceneBlock()      { return 0; }

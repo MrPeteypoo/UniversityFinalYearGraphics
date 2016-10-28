@@ -17,12 +17,12 @@
 
 #pragma region Setters
 
-void MyView::UniformData::setLightCount (const int count)
+void UniformData::setLightCount (const int count)
 {
     m_numLights = util::clamp (count, 0, MAX_LIGHTS);
 }
 
-void MyView::UniformData::setLight (const int index, const scene::DirectionalLight& light)
+void UniformData::setLight (const int index, const scene::DirectionalLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -37,7 +37,7 @@ void MyView::UniformData::setLight (const int index, const scene::DirectionalLig
     }
 }
 
-void MyView::UniformData::setLight (const int index, const scene::PointLight& light)
+void UniformData::setLight (const int index, const scene::PointLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -47,12 +47,15 @@ void MyView::UniformData::setLight (const int index, const scene::PointLight& li
 
         // Move the data across.
         shaderLight.setType (LightType::Point);
-        shaderLight.position = util::toGLM(light.getPosition());
-        shaderLight.colour   = util::toGLM(light.getIntensity());
+        shaderLight.position	= util::toGLM(light.getPosition());
+        shaderLight.colour		= util::toGLM(light.getIntensity());
+		shaderLight.aConstant	= 0.f;
+		shaderLight.aLinear		= 0.f;
+		shaderLight.aQuadratic	= 0.001f;
     }
 }
 
-void MyView::UniformData::setLight (const int index, const scene::SpotLight& light)
+void UniformData::setLight (const int index, const scene::SpotLight& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
@@ -62,14 +65,17 @@ void MyView::UniformData::setLight (const int index, const scene::SpotLight& lig
 
         // Move the data across.
         shaderLight.setType (LightType::Spot);
-        shaderLight.position  = util::toGLM(light.getPosition());
-        shaderLight.direction = util::toGLM(light.getDirection());
-        shaderLight.coneAngle = light.getConeAngleDegrees();
-        shaderLight.colour    = util::toGLM(light.getIntensity());
+        shaderLight.position	= util::toGLM(light.getPosition());
+        shaderLight.direction	= util::toGLM(light.getDirection());
+        shaderLight.coneAngle	= light.getConeAngleDegrees();
+        shaderLight.colour		= util::toGLM(light.getIntensity());
+		shaderLight.aConstant	= 0.f;
+		shaderLight.aLinear		= 0.f;
+		shaderLight.aQuadratic	= 0.0001f;
     }
 }
 
-void MyView::UniformData::setLight (const int index, const Light& light)
+void UniformData::setLight (const int index, const Light& light)
 {
     // Pre-condition: Index is valid.
     if (index < MAX_LIGHTS && index >= 0)
