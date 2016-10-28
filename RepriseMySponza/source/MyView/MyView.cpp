@@ -40,10 +40,7 @@ MyView::~MyView()
 void MyView::rebuildShaders()
 {
     // We should be able to simply delete our current program, rebuild it and reset the VAO.
-    glDeleteProgram (m_program);
     // TODO: Update MyView::rebuildShaders().
-    buildProgram();
-    bindUniformBufferObject();
     constructVAO();
 }
 
@@ -51,14 +48,7 @@ void MyView::rebuildShaders()
 void MyView::windowViewWillStart (tygra::Window*)
 {
     assert (m_scene != nullptr);
-    // TODO: Move OpenGL preparation into the main rendering loop.
-    // Set up OpenGL as required by the application!
-    //glEnable (GL_DEPTH_TEST);
-    //glEnable (GL_CULL_FACE);
-    //glClearColor (0.f, 0.1f, 0.f, 0.f);
-    // TODO: Create an object to store and manage all required programs.
-    // Attempt to build the program, if it fails the user can reload after correcting any syntax errors.
-    //buildProgram();
+
     if (!m_configurator.initialise())
     {
         std::cerr << "PassConfigurator couldn't initialise." << std::endl;
@@ -69,8 +59,7 @@ void MyView::windowViewWillStart (tygra::Window*)
         throw std::runtime_error ("Unable to initialise uniform buffers.");
     }
 
-    const auto& programs = m_configurator.getPrograms();
-    
+    const auto& programs = m_configurator.getPrograms();    
     if (!m_uniforms.bindToProgram (programs.sceneConstruction.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the scene construction program." << std::endl;
@@ -87,8 +76,7 @@ void MyView::windowViewWillStart (tygra::Window*)
     {
         std::cerr << "Failed to bind all uniform blocks to the spotlighting program." << std::endl;
     }
-    
-    m_program = m_configurator.getPrograms().sceneConstruction.getID();
+
     // TODO: Some form of renderer component which stores and constructs buffers.
     // Generate the buffers.
     generateOpenGLObjects();
@@ -102,41 +90,8 @@ void MyView::windowViewWillStart (tygra::Window*)
     // Ensure we have the required materials.
     buildMaterialData();
 
-    // Prepare the UBO for usage.
-    bindUniformBufferObject();
-
     // Now we can construct the VAO so we're reading for rendering.
     constructVAO();
-}
-
-
-bool MyView::buildProgram()
-{ // TODO: Move into a program generation class/struct.
-    // Create the program to attach shaders to.
-    m_program = glCreateProgram();
-
-    // Attempt to compile the shaders.
-    const auto vertexShaderLocation     = "content:///sponza_vs.glsl"s;
-    const auto fragmentShaderLocation   = "content:///sponza_fs.glsl"s;
-    
-    const auto vertexShader     = util::compileShaderFromFile (vertexShaderLocation,    GL_VERTEX_SHADER);
-    const auto fragmentShader   = util::compileShaderFromFile (fragmentShaderLocation,  GL_FRAGMENT_SHADER);
-
-    // Attach the shaders to the program we created.
-    const std::vector<GLchar*> vertexAttributes     = { "position", "normal", "textureCoord", "model", "pvm" };
-    const std::vector<GLchar*> fragmentAttributes   = {  };
-
-    util::attachShader (m_program,  vertexShader,   vertexAttributes);
-    util::attachShader (m_program,  fragmentShader, fragmentAttributes);
-
-    // Link the program.
-    if (util::linkProgram (m_program))
-    {
-        std::cout << "OpenGL application built successfully." << std::endl;
-        return true;
-    }
-
-    return false;
 }
 
 
@@ -232,28 +187,7 @@ void MyView::allocateExtraBuffers()
     util::allocateBuffer (m_poolMaterialIDs.vbo, materialIDSize, GL_TEXTURE_BUFFER, GL_STREAM_DRAW);
 }
 
-
-void MyView::bindUniformBufferObject()
-{// TODO: Move into buffer management class/struct?
-    glBindBuffer (GL_UNIFORM_BUFFER, m_uniformUBO);
-
-    // Determine the UBO indices.
-    const auto scene    = glGetUniformBlockIndex (m_program, "scene");
-    const auto lighting = glGetUniformBlockIndex (m_program, "lighting");
-
-    // Bind each part of the UBO to the correct block.
-    glUniformBlockBinding (m_program, scene,    UniformData::sceneBlock());
-    glUniformBlockBinding (m_program, lighting, UniformData::lightingBlock());
-
-    // Use the magic data contained in UniformData to separate the UBO into segments.
-    glBindBufferRange (GL_UNIFORM_BUFFER, UniformData::sceneBlock(),    m_uniformUBO, UniformData::sceneOffset(),    UniformData::sceneSize());
-    glBindBufferRange (GL_UNIFORM_BUFFER, UniformData::lightingBlock(), m_uniformUBO, UniformData::lightingOffset(), UniformData::lightingSize());
-
-    // Unbind the buffer.
-    glBindBuffer (GL_UNIFORM_BUFFER, 0);
-}
-
-
+#include <Utility/Maths.hpp>
 void MyView::buildMaterialData()
 {// TODO: Consider large refactoring of the entire MyView::buildMaterialData() function.
     // Obtain every material in the scene.
@@ -272,8 +206,12 @@ void MyView::buildMaterialData()
         const auto& material = materials[id];
 
         // Check which texture ID to use. If it can't be determined then -1 indicates none.
-        const auto& texture   = "resource:///hex.png"s;
-        auto        textureID = -1.f;
+        //const auto& texture   = "resource:///kappa.png"s;
+        const auto& texture =	util::roughlyEquals (material.getDiffuseColour().x, 0.8f, 0.0001f) &&
+								util::roughlyEquals (material.getDiffuseColour().y, 0.8f, 0.0001f) &&
+								util::roughlyEquals (material.getDiffuseColour().z, 0.8f, 0.0001f) ?
+								""s : "resource:///kappa.png"s;
+        auto textureID = -1.f;
 
         if (!texture.empty())
         {
@@ -529,8 +467,8 @@ void MyView::windowViewRender (tygra::Window*)
     const auto  projection	= glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
                 view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
     
-    // Set the uniforms.
-    setUniforms (projection, view);
+    // Update the scene uniforms.
+    m_uniforms.updateScene (m_scene, projection, view);
     
     // Specify the VAO to use.
     glBindVertexArray (m_sceneVAO);
@@ -549,8 +487,37 @@ void MyView::windowViewRender (tygra::Window*)
     glActiveTexture (GL_TEXTURE0 + m_poolMaterialIDs.tbo);
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
     
+    // Geometry pass.
     m_configurator.switchToSceneConstructionMode();
+    mapTexturesToProgram (m_configurator.getPrograms().sceneConstruction.getID());
     renderGeometry (projection, view);
+
+    // Directional lighting passes.
+	m_configurator.switchToDirectionalLightMode();
+    mapTexturesToProgram (m_configurator.getPrograms().directionalLighting.getID());
+    for (const auto& light : m_scene->getAllDirectionalLights())
+    {
+        m_uniforms.updateDirectionalLight (light);
+        renderGeometry (projection, view);
+    }
+
+    // Point lighting passes.
+    m_configurator.switchToPointLightMode();
+    mapTexturesToProgram (m_configurator.getPrograms().pointLighting.getID());
+    for (const auto& light : m_scene->getAllPointLights())
+    {
+        m_uniforms.updatePointLight (light);
+        renderGeometry (projection, view);
+    }
+
+    // Spotlighting passes.
+    m_configurator.switchToSpotlightMode();
+    mapTexturesToProgram (m_configurator.getPrograms().spotlighting.getID());
+    for (const auto& light : m_scene->getAllSpotLights())
+    {
+        m_uniforms.updateSpotlight (light);
+        renderGeometry (projection, view);
+    }
 
     // UNBIND IT ALL CAPTAIN!
     glBindVertexArray (0);
@@ -613,69 +580,13 @@ void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4&
 }
 
 
-void MyView::setUniforms (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
-{ // TODO: Move into some form of Renderer class, also needs significant refactoring once UniformData has been refactored.
-    const auto textures     = glGetUniformLocation (m_program, "textures");
-    const auto materials    = glGetUniformLocation (m_program, "materials");
-    const auto materialIDs  = glGetUniformLocation (m_program, "materialIDs");
+void MyView::mapTexturesToProgram (const GLuint program) const noexcept
+{
+    const auto textures     = glGetUniformLocation (program, "textures");
+    const auto materials    = glGetUniformLocation (program, "materials");
+    const auto materialIDs  = glGetUniformLocation (program, "materialIDs");
 
     glUniform1i (textures, m_textureArray);
     glUniform1i (materials, m_materials.tbo);
     glUniform1i (materialIDs, m_poolMaterialIDs.tbo);
-
-    // Create data to fill. Avoid creating it every time by using static.
-    static auto data = UniformData { };
-    
-    data.setProjectionMatrix (projectionMatrix);
-    data.setViewMatrix (viewMatrix);
-    data.setCameraPosition (util::toGLM (m_scene->getCamera().getPosition()));
-    data.setAmbientColour (util::toGLM (m_scene->getAmbientLightIntensity()));
-
-    // Add all lights to the scene.
-    auto lightCount = 0;
-    auto addLight = [&] (const auto& light) { data.setLight(lightCount++, light); };
-    
-    util::for_each (m_scene->getAllDirectionalLights(), addLight);
-    util::for_each (m_scene->getAllPointLights(), addLight);
-    util::for_each (m_scene->getAllSpotLights(), addLight);
-
-    // Enable the wireframe light if necessary.
-    if (m_wireframeMode)
-    {
-        addLight(createWireframeLight());
-    }
-
-    data.setLightCount (lightCount);
-
-    // Overwrite the current uniform data.
-    glBindBuffer (GL_UNIFORM_BUFFER, m_uniformUBO);
-    glBufferSubData (GL_UNIFORM_BUFFER, 0, sizeof (UniformData), &data);
-
-    // Unbind it since for safety.
-    glBindBuffer (GL_UNIFORM_BUFFER, 0);
-}
-
-
-Light MyView::createWireframeLight() const
-{
-    // Create the light.
-    Light wireframe { };
-
-    // Fill it with the correct information.
-    const auto& camera  = m_scene->getCamera();
-    wireframe.position  = util::toGLM (camera.getPosition());
-    wireframe.direction	= util::toGLM (camera.getDirection());
-
-    // Set suitable attenuation values.
-    wireframe.aConstant		= 1.0f;
-    wireframe.aLinear       = 0.0f;
-    wireframe.aQuadratic    = 0.002f;
-
-    // Enable the wireframe and we're done! We only have three modes so use the currently selected.
-    const LightType type = static_cast<LightType> (m_wireframeType);
-
-    wireframe.emitWireframe = 1;
-    wireframe.setType (type);
-
-    return wireframe;
 }

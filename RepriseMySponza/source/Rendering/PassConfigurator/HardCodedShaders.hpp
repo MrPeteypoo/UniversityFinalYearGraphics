@@ -12,10 +12,10 @@
 using namespace std::string_literals;
 
 
-const auto sponzaVS             = "content:///sponza_vs.glsl"s;
-const auto sponzaFS             = "content:///sponza_fs.glsl"s;
-const auto vertexVS             = "content:///vertex.vs.glsl"s;
-const auto ambientFS            = "content:///ambient.fs.glsl"s;
+const auto sponzaVS             = "content:///sponza.vs.glsl"s;
+const auto sponzaFS             = "content:///sponza.fs.glsl"s;
+const auto geometryVS           = "content:///geometry.vs.glsl"s;
+const auto geometryFS           = "content:///geometry.fs.glsl"s;
 const auto directionalLightFS   = "content:///directionalLight.fs.glsl"s;
 const auto pointLightFS         = "content:///pointLight.fs.glsl"s;
 const auto spotlightFS          = "content:///spotlight.fs.glsl"s;

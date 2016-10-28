@@ -62,19 +62,28 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\reprise_vs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\reprise_fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="doc\readme.txt">
       <Filter>Document Files</Filter>
     </None>
-    <None Include="shaders\sponza_fs.glsl">
+    <None Include="shaders\directionalLight.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\sponza_vs.glsl">
+    <None Include="shaders\geometry.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\pointLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\sponza.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\sponza.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\spotlight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\geometry.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

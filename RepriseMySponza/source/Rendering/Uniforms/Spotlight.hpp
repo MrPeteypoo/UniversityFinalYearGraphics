@@ -19,12 +19,12 @@ struct Spotlight final
     glm::vec4   position        { 0.f };    //!< The position of the light in world-space. The 'w' component is alignment padding.
     
     glm::vec3   direction       { 0.f };    //!< The direction of the light in world-space.
-    float       coneAngle       { 90.f };    //!< The angle of the cone.
+    float       coneAngle       { 90.f };   //!< The angle of the cone.
 
     glm::vec3   intensity       { 0.f };    //!< The colour/intensity of the light.
     float       concentration   { 2.f };    //!< How concentrated the beam of a spot light is.
 
-    float       aConstant       { 1.f };    //!< The constant co-efficient for the attenutation formula.
+    float       aConstant       { 0.75f };  //!< The constant co-efficient for the attenutation formula.
     float       aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
     float       aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
 

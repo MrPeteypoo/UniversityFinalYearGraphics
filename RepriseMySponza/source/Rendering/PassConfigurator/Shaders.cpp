@@ -11,8 +11,11 @@
 
 bool Shaders::initialise() noexcept
 {
-    return  compileShader (sponzaVS, GL_VERTEX_SHADER) &&
-            compileShader (sponzaFS, GL_FRAGMENT_SHADER);
+    return  compileShader (geometryVS, GL_VERTEX_SHADER) &&
+            compileShader (geometryFS, GL_FRAGMENT_SHADER) &&
+            compileShader (directionalLightFS, GL_FRAGMENT_SHADER) &&
+            compileShader (pointLightFS, GL_FRAGMENT_SHADER) &&
+            compileShader (spotlightFS, GL_FRAGMENT_SHADER);
 }
 
 
