@@ -130,8 +130,8 @@ void obtainMaterialProperties()
         //material.ambientMap = material.texture;
         const vec4 texture = texture (textures, vec3 (texturePoint, diffusePart.a));
         
-        material.shininess  = (texture.r + texture.g + texture.b) / 3.0 * texture.a;
-        material.specular   = vec3 (0.15);
+        material.shininess  = (texture.r + texture.g + texture.b) / 3.0 * texture.a * 16.0;
+        material.specular   = vec3 (1.0);
         material.texture    = vec3 (1.0);
         material.ambientMap = material.diffuse;
     }

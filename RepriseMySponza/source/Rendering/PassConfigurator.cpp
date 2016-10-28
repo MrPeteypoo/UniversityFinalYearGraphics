@@ -22,7 +22,10 @@ void PassConfigurator::clean() noexcept
 void PassConfigurator::prepareDraw() const noexcept
 {
     glEnable (GL_CULL_FACE);
-    glClearColor (0.f, 0.f, 0.25f, 0.f);
+    glDepthMask (GL_TRUE);
+    glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    glClearColor (0.f, 0.f, 0.25f, 0.f);    
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
