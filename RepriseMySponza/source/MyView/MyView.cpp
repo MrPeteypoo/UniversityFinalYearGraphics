@@ -187,7 +187,7 @@ void MyView::allocateExtraBuffers()
     util::allocateBuffer (m_poolMaterialIDs.vbo, materialIDSize, GL_TEXTURE_BUFFER, GL_STREAM_DRAW);
 }
 
-
+#include <Utility/Maths.hpp>
 void MyView::buildMaterialData()
 {// TODO: Consider large refactoring of the entire MyView::buildMaterialData() function.
     // Obtain every material in the scene.
@@ -206,8 +206,12 @@ void MyView::buildMaterialData()
         const auto& material = materials[id];
 
         // Check which texture ID to use. If it can't be determined then -1 indicates none.
-        const auto& texture   = "resource:///hex.png"s;
-        auto        textureID = -1.f;
+        //const auto& texture   = "resource:///kappa.png"s;
+        const auto& texture =	util::roughlyEquals (material.getDiffuseColour().x, 0.8f, 0.0001f) &&
+								util::roughlyEquals (material.getDiffuseColour().y, 0.8f, 0.0001f) &&
+								util::roughlyEquals (material.getDiffuseColour().z, 0.8f, 0.0001f) ?
+								""s : "resource:///kappa.png"s;
+        auto textureID = -1.f;
 
         if (!texture.empty())
         {
@@ -489,7 +493,7 @@ void MyView::windowViewRender (tygra::Window*)
     renderGeometry (projection, view);
 
     // Directional lighting passes.
-    m_configurator.switchToDirectionalLightMode();
+	m_configurator.switchToDirectionalLightMode();
     mapTexturesToProgram (m_configurator.getPrograms().directionalLighting.getID());
     for (const auto& light : m_scene->getAllDirectionalLights())
     {
@@ -498,22 +502,22 @@ void MyView::windowViewRender (tygra::Window*)
     }
 
     // Point lighting passes.
-    /*m_configurator.switchToPointLightMode();
+    m_configurator.switchToPointLightMode();
     mapTexturesToProgram (m_configurator.getPrograms().pointLighting.getID());
     for (const auto& light : m_scene->getAllPointLights())
     {
         m_uniforms.updatePointLight (light);
         renderGeometry (projection, view);
-    }*/
+    }
 
     // Spotlighting passes.
-    /*m_configurator.switchToSpotlightMode();
+    m_configurator.switchToSpotlightMode();
     mapTexturesToProgram (m_configurator.getPrograms().spotlighting.getID());
     for (const auto& light : m_scene->getAllSpotLights())
     {
         m_uniforms.updateSpotlight (light);
         renderGeometry (projection, view);
-    }*/
+    }
 
     // UNBIND IT ALL CAPTAIN!
     glBindVertexArray (0);

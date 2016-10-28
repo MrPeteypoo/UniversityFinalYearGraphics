@@ -26,7 +26,6 @@ layout (std140) uniform directionalLight
         in      vec2            texturePoint;   //!< The interpolated co-ordinate to use for the texture sampler.
 flat    in      int             instanceID;     //!< Used in fetching instance-specific data from the uniforms.
 
-
         out     vec4            fragmentColour; //!< The computed output colour of this particular pixel;
 
 
@@ -115,14 +114,26 @@ void obtainMaterialProperties()
     const vec4 diffusePart  = texelFetch (materials, materialID);
     const vec4 specularPart = texelFetch (materials, materialID + 1);
     
+    // The RGB values of the specular part is the specular colour.    
+    material.specular = specularPart.rgb;
+    
+    // The alpha value of the specular part is the shininess value.
+    material.shininess = specularPart.a;
+    
     // The RGB values of the diffuse part are the diffuse colour.
     material.diffuse = diffusePart.rgb;
 
     // The alpha of the diffuse part represents the texture to use for the ambient map. -1 == no texture.
     if (diffusePart.a >= 0.0)
     {
-        material.texture    = texture (textures, vec3 (texturePoint, diffusePart.a)).rgb;
-        material.ambientMap = material.texture;
+        //material.texture    = texture (textures, vec3 (texturePoint, diffusePart.a)).rgb;
+        //material.ambientMap = material.texture;
+        const vec4 texture = texture (textures, vec3 (texturePoint, diffusePart.a));
+        
+        material.shininess  = (texture.r + texture.g + texture.b) / 3.0 * texture.a;
+        material.specular   = vec3 (0.15);
+        material.texture    = vec3 (1.0);
+        material.ambientMap = material.diffuse;
     }
 
     // Use the diffuse colour for the ambient map and don't apply an extra texture colour.
@@ -133,10 +144,10 @@ void obtainMaterialProperties()
     }
     
     // The RGB values of the specular part is the specular colour.    
-    material.specular = specularPart.rgb;
+    //material.specular = specularPart.rgb;
     
     // The alpha value of the specular part is the shininess value.
-    material.shininess = specularPart.a;
+    //material.shininess = specularPart.a;
 }
 
 vec3 calculateContribution (in const vec3 L, in const vec3 N, in const vec3 V, in const float lambertian)

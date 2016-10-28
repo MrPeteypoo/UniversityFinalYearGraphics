@@ -18,7 +18,7 @@ bool Uniforms::initialise() noexcept
         return false;
     }
 
-    m_ubo.allocate (sizeof (UniformBlocks), GL_UNIFORM_BUFFER, GL_STREAM_DRAW);
+    m_ubo.allocate (sizeof (UniformBlocks), GL_UNIFORM_BUFFER, GL_DYNAMIC_DRAW);
     return true;
 }
 
@@ -42,7 +42,7 @@ bool Uniforms::bindToProgram (const GLuint program) const noexcept
         sizeof (Scene)
     );
      
-    success = success || util::bindBlockToProgram 
+    success |= util::bindBlockToProgram 
     ( 
         m_ubo, 
         program, 
@@ -52,7 +52,7 @@ bool Uniforms::bindToProgram (const GLuint program) const noexcept
         sizeof (DirectionalLight)
     );
      
-    success = success || util::bindBlockToProgram 
+    success |= util::bindBlockToProgram 
     ( 
         m_ubo, 
         program, 
@@ -62,7 +62,7 @@ bool Uniforms::bindToProgram (const GLuint program) const noexcept
         sizeof (PointLight)
     );
      
-    success = success || util::bindBlockToProgram 
+    success |= util::bindBlockToProgram 
     ( 
         m_ubo, 
         program, 

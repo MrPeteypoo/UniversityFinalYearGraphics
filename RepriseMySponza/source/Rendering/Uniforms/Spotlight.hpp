@@ -24,7 +24,7 @@ struct Spotlight final
     glm::vec3   intensity       { 0.f };    //!< The colour/intensity of the light.
     float       concentration   { 2.f };    //!< How concentrated the beam of a spot light is.
 
-    float       aConstant       { 1.f };    //!< The constant co-efficient for the attenutation formula.
+    float       aConstant       { 0.75f };  //!< The constant co-efficient for the attenutation formula.
     float       aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
     float       aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
 
@@ -33,7 +33,7 @@ struct Spotlight final
         /// <summary>
         /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
         /// </summary>
-        //float unused[49];
+        float unused[49];
 };
 
 

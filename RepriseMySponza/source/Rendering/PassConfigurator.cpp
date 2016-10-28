@@ -51,7 +51,7 @@ void PassConfigurator::useLightingConfiguration (const GLuint program) const noe
     // Ensure the depth test is enabled but we only need to confirm what has already been computed.
     glEnable (GL_DEPTH_TEST);
     glDepthFunc (GL_EQUAL);
-    glDepthMask (GL_FALSE);
+    glDepthMask (GL_TRUE);
 
     // Ensure blending occurs and lighting can be added.
     glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

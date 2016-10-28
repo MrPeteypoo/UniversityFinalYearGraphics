@@ -21,14 +21,14 @@ struct PointLight final
 
     float       aConstant   { 1.f };    //!< The constant co-efficient for the attenutation formula.
     float       aLinear     { 0.f };    //!< The linear co-efficient for the attenutation formula.
-    float       aQuadratic  { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
+    float       aQuadratic  { 0.1f };	//!< The quadratic co-efficient for the attenuation formula.
 
     private:
 
         /// <summary>
         /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
         /// </summary>
-        //float unused[53];
+        float unused[53];
 };
 
 
