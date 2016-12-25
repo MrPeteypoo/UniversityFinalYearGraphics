@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Document Files">
+      <UniqueIdentifier>{b239ec9f-db8a-40d2-9dcd-bb0313c2477f}</UniqueIdentifier>
+      <Extensions>txt</Extensions>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{5c5d9556-ec01-447d-97f1-12aa7f8cc756}</UniqueIdentifier>
+      <Extensions>glsl</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{bc35ca7f-970b-48eb-bc41-a7e521b79204}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utility\OpenGL">
+      <UniqueIdentifier>{ea6b36aa-a180-43c0-bc49-ec3a44a3543f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Misc">
+      <UniqueIdentifier>{76609d19-5bfc-4052-85e7-031ab887a7af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MyView">
+      <UniqueIdentifier>{8fd78fe5-4505-42ea-9ac7-4a812a4a8c54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MyView\Internals">
+      <UniqueIdentifier>{d74eb6ae-f521-4b6c-a03e-0a07dd51aa3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MyView\Internals\UniformData">
+      <UniqueIdentifier>{84f03d29-e149-4127-933d-ed48cffe0280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{ffd1054f-cf90-4c35-9abb-d79837f54e80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Buffers">
+      <UniqueIdentifier>{ed45fec0-8c60-47eb-af3e-d8232cdc426b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\PassConfigurator">
+      <UniqueIdentifier>{0072794d-c320-4e96-9304-402821a69000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Uniforms">
+      <UniqueIdentifier>{28781d7e-341e-4fbe-bb57-a3b208667160}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\MyView.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyController.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Misc\MyController.hpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Misc\Vertex.hpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp">
+      <Filter>Source Files\MyView\Internals\UniformData</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\Material.hpp">
+      <Filter>Source Files\MyView\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\Mesh.hpp">
+      <Filter>Source Files\MyView\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\Internals\UniformData.hpp">
+      <Filter>Source Files\MyView\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\MyView\MyView.hpp">
+      <Filter>Source Files\MyView</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Buffers\Binder.hpp">
+      <Filter>Source Files\Rendering\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Buffers\Buffer.hpp">
+      <Filter>Source Files\Rendering\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\DirectionalLight.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\PointLight.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Scene.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Spotlight.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\UniformBlocks.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator.hpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms.hpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\Algorithm.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\Maths.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\OpenGL.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\Scene.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp">
+      <Filter>Source Files\Utility\OpenGL</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\directionalLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\geometry.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\geometry.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\pointLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\sponza.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\sponza.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\spotlight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\Misc\MyController.cpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\MyView\Internals\UniformData.cpp">
+      <Filter>Source Files\MyView\Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="source\MyView\MyView.cpp">
+      <Filter>Source Files\MyView</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp">
+      <Filter>Source Files\Rendering\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Uniforms.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\OpenGL.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\Scene.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\OpenGL\Buffers.cpp">
+      <Filter>Source Files\Utility\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

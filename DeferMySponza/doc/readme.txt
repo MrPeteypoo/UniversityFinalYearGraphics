@@ -1,4 +1,4 @@
-Reprise My Sponza
+Defer My Sponza
 
 Original framework developed by Tyrone Davison <t.p.davison@tees.ac.uk>
 

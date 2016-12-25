@@ -1,5 +1,4 @@
 #include <Misc/MyController.hpp>
-
 #include <tygra/Window.hpp>
 
 #include <crtdbg.h>
@@ -19,7 +18,7 @@ int main(int argc, char *argv[])
 
         const int window_width = 1280;
         const int window_height = 720;
-        const int number_of_samples = 4;
+        const int number_of_samples = 1;
 
         if (window->open(window_width, window_height, number_of_samples, true, 4, 5))
         {
@@ -33,8 +32,9 @@ int main(int argc, char *argv[])
         delete controller;
 
     }
-    catch (...) {
-        std::cerr << "Opps ... something went badly wrong:" << std::endl;
+    catch (std::exception e) {
+        std::cerr << "Opps ... something went wrong:" << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     // pause to display any console debug messages

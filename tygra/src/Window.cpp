@@ -1,36 +1,36 @@
 /**
- * @file
- * @author    Tyrone Davison <t.p.davison@tees.ac.uk>
- * @date      September 2014
- * @version   1.16.1
- *
- *
- * @section LICENSE
- *
- * Copyright (c) 2016 Tyrone Davison <t.p.davison@tees.ac.uk>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- *
- * @note This implementation was originally written for GLFW 2 and has been
- * adapted for GLFW3.  Some of the implementation may not be ideal for GLFW3.
- */
+* @file
+* @author    Tyrone Davison <t.p.davison@tees.ac.uk>
+* @date      September 2014
+* @version   1.16.1
+*
+*
+* @section LICENSE
+*
+* Copyright (c) 2016 Tyrone Davison <t.p.davison@tees.ac.uk>
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+*
+*
+* @note This implementation was originally written for GLFW 2 and has been
+* adapted for GLFW3.  Some of the implementation may not be ideal for GLFW3.
+*/
 
 #include "tygra/Window.hpp"
 #include "tygra/WindowViewDelegate.hpp"
@@ -186,7 +186,7 @@ bool Window::open(int width,
 bool Window::isVisible() const
 {
     return glfw_handle_ ? glfwGetWindowAttrib(glfw_handle_, GLFW_VISIBLE) != 0
-                        : false;
+        : false;
 }
 
 void Window::update()
@@ -297,7 +297,7 @@ void Window::onMouseMove(GLFWwindow * handle,
     Window * window = main_window_;
     if (window != nullptr && window->controller_ != nullptr) {
         window->controller_->windowControlMouseMoved(window,
-                                                     (int)x,
+            (int)x,
                                                      (int)y);
     }
 }
@@ -373,11 +373,8 @@ void Window::pollGamepads()
                                                         newState.present);
             }
             // a few hacks to standardize results from a Microsoft Gamepad
-            newState.axis[1] = -newState.axis[1];
-            newState.axis[3] = -newState.axis[3];
-            newState.axis[7] = newState.axis[2] < 0.f ? -newState.axis[2] : 0.f;
-            newState.axis[2] = newState.axis[2] > 0.f ? newState.axis[2] : 0.f;
-            // TODO: dpad seems to be missing
+            newState.axis[4] = 0.5f + 0.5f * newState.axis[4];
+            newState.axis[5] = 0.5f + 0.5f * newState.axis[5];
             for (int j = 0; j < num_axes; ++j) {
                 if (newState.axis[j] != gamepad_state_[i].axis[j]) {
                     window->controller_->

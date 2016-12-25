@@ -28,8 +28,8 @@ MyController::~MyController()
 void MyController::windowControlWillStart(tygra::Window * window)
 {
     window->setView(view_);
-    window->setTitle("Real-Time Graphics :: RepriseMySponza");
-    std::cout << "Real-Time Graphics :: RepriseMySponza" << std::endl;
+    window->setTitle("Real-Time Graphics :: DeferMySponza");
+    std::cout << "Real-Time Graphics :: DeferMySponza" << std::endl;
     std::cout << "  Press F2 to toggle an animated camera" << std::endl;
 }
 
@@ -98,12 +98,6 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
     case tygra::kWindowKeyDown:
     case 'S':
         camera_move_speed_[3] = down ? 1.f : 0.f;
-        break;
-    case 'R':
-        if (down)
-        {
-            view_->rebuildShaders();
-        }
         break;
     }
 
