@@ -20,9 +20,9 @@
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
 #include <MyView/Internals/UniformData.hpp>
-#include <Rendering/Uniforms.hpp>
+#include <Rendering/Uniforms/Uniforms.hpp>
 #include <Utility/Algorithm.hpp>
-#include <Utility/OpenGL.hpp>
+#include <Utility/OpenGL/ToDelete.hpp>
 #include <Utility/Scene.hpp>
 
 

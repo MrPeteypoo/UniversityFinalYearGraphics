@@ -13,8 +13,8 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Programs.hpp>
-#include <Rendering/PassConfigurator/Shaders.hpp>
+#include <Rendering/PassConfigurator/Internals/Programs.hpp>
+#include <Rendering/PassConfigurator/Internals/Shaders.hpp>
 
 
 /// <summary>

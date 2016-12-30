@@ -4,7 +4,7 @@
 #define	        _RENDERING_PROGRAMS_
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Program.hpp>
+#include <Rendering/Objects/Program.hpp>
 
 
 // Forward declarations.

@@ -9,10 +9,10 @@
 
 
 // Personal headers.
-#include <Rendering/Uniforms/Scene.hpp>
-#include <Rendering/Uniforms/DirectionalLight.hpp>
-#include <Rendering/Uniforms/PointLight.hpp>
-#include <Rendering/Uniforms/Spotlight.hpp>
+#include <Rendering/Uniforms/Internals/Scene.hpp>
+#include <Rendering/Uniforms/Internals/DirectionalLight.hpp>
+#include <Rendering/Uniforms/Internals/PointLight.hpp>
+#include <Rendering/Uniforms/Internals/Spotlight.hpp>
 
 
 /// <summary>

@@ -2,7 +2,7 @@
 
 
 // Personal headers.
-#include <Rendering/Buffers/Binder.hpp>
+#include <Rendering/Objects/Binders/BufferBinder.hpp>
 
 
 namespace util
@@ -11,7 +11,7 @@ namespace util
         const GLintptr offsetIntoBuffer, const GLsizeiptr blockSize) noexcept
     {
         // Automatically bind and unbind the buffer.
-        const auto binder = Binder<GL_UNIFORM_BUFFER> (buffer);
+        const auto binder = BufferBinder<GL_UNIFORM_BUFFER> (buffer);
 
         // Determine the block index.
         const auto index = glGetUniformBlockIndex (program, name);

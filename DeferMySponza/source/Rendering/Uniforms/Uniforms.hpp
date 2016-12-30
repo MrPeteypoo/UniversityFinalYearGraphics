@@ -9,8 +9,8 @@
 
 
 // Personal headers.
-#include <Rendering/Buffers/Buffer.hpp>
-#include <Rendering/Uniforms/UniformBlocks.hpp>
+#include <Rendering/Objects/Buffer.hpp>
+#include <Rendering/Uniforms/Internals/UniformBlocks.hpp>
 
 
 // Forward declarations.

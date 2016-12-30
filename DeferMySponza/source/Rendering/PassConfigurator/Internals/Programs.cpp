@@ -10,8 +10,8 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/HardCodedShaders.hpp>
-#include <Rendering/PassConfigurator/Shaders.hpp>
+#include <Rendering/PassConfigurator/Internals/HardCodedShaders.hpp>
+#include <Rendering/PassConfigurator/Internals/Shaders.hpp>
 
 
 bool Programs::initialise (const Shaders& shaders) noexcept
@@ -20,7 +20,7 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     directionalLighting.initialise();
     pointLighting.initialise();
     spotlighting.initialise();
-
+    // TODO: Shader attachment is disgusting.
     sceneConstruction.attachShader (shaders.compiled.find (geometryVS)->second);
     sceneConstruction.attachShader (shaders.compiled.find (geometryFS)->second);
     

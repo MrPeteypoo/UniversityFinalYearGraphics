@@ -11,7 +11,7 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Shader.hpp>
+#include <Rendering/Objects/Shader.hpp>
 
 
 Program::Program (Program&& move) noexcept

@@ -4,7 +4,7 @@
 #define         _UTILITY_OPENGL_BUFFERS_
 
 // Personal headers.
-#include <Rendering/Buffers/Buffer.hpp>
+#include <Rendering/Objects/Buffer.hpp>
 
 
 namespace util

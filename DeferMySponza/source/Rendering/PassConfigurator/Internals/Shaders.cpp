@@ -6,11 +6,12 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/HardCodedShaders.hpp>
+#include <Rendering/PassConfigurator/Internals/HardCodedShaders.hpp>
 
 
 bool Shaders::initialise() noexcept
 {
+    // TODO: Load shaders from configuration file.
     return  compileShader (geometryVS, GL_VERTEX_SHADER) &&
             compileShader (geometryFS, GL_FRAGMENT_SHADER) &&
             compileShader (directionalLightFS, GL_FRAGMENT_SHADER) &&

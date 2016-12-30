@@ -38,14 +38,23 @@
     <Filter Include="Source Files\Rendering">
       <UniqueIdentifier>{ffd1054f-cf90-4c35-9abb-d79837f54e80}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Rendering\Buffers">
-      <UniqueIdentifier>{ed45fec0-8c60-47eb-af3e-d8232cdc426b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Rendering\PassConfigurator">
       <UniqueIdentifier>{0072794d-c320-4e96-9304-402821a69000}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Rendering\Uniforms">
       <UniqueIdentifier>{28781d7e-341e-4fbe-bb57-a3b208667160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Objects">
+      <UniqueIdentifier>{ed45fec0-8c60-47eb-af3e-d8232cdc426b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Objects\Binders">
+      <UniqueIdentifier>{1cd29ccf-b776-4200-a7eb-5a4c32ef0b89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Uniforms\Internals">
+      <UniqueIdentifier>{aae73427-eece-4531-a8f5-b8b03e2501b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\PassConfigurator\Internals">
+      <UniqueIdentifier>{d6e257a4-c8b4-4522-a70b-3d1c0f28fad5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,62 +85,80 @@
     <ClInclude Include="source\MyView\MyView.hpp">
       <Filter>Source Files\MyView</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Buffers\Binder.hpp">
-      <Filter>Source Files\Rendering\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Buffers\Buffer.hpp">
-      <Filter>Source Files\Rendering\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\DirectionalLight.hpp">
-      <Filter>Source Files\Rendering\Uniforms</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\PointLight.hpp">
-      <Filter>Source Files\Rendering\Uniforms</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\Scene.hpp">
-      <Filter>Source Files\Rendering\Uniforms</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\Spotlight.hpp">
-      <Filter>Source Files\Rendering\Uniforms</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms\UniformBlocks.hpp">
-      <Filter>Source Files\Rendering\Uniforms</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\PassConfigurator.hpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Uniforms.hpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="source\Utility\Algorithm.hpp">
       <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="source\Utility\Maths.hpp">
       <Filter>Source Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="source\Utility\OpenGL.hpp">
-      <Filter>Source Files\Utility</Filter>
+    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp">
+      <Filter>Source Files\Utility\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Binders\BufferBinder.hpp">
+      <Filter>Source Files\Rendering\Objects\Binders</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Buffer.hpp">
+      <Filter>Source Files\Rendering\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Texture.hpp">
+      <Filter>Source Files\Rendering\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Framebuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Renderbuffer.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Utility\Scene.hpp">
       <Filter>Source Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp">
-      <Filter>Source Files\Utility\OpenGL</Filter>
+    <ClInclude Include="source\Rendering\PassConfigurator\Internals\HardCodedShaders.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Internals\Programs.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\Internals\Shaders.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\PassConfigurator\PassConfigurator.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Internals\DirectionalLight.hpp">
+      <Filter>Source Files\Rendering\Uniforms\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Internals\PointLight.hpp">
+      <Filter>Source Files\Rendering\Uniforms\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Internals\Scene.hpp">
+      <Filter>Source Files\Rendering\Uniforms\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Internals\Spotlight.hpp">
+      <Filter>Source Files\Rendering\Uniforms\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Internals\UniformBlocks.hpp">
+      <Filter>Source Files\Rendering\Uniforms\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Uniforms\Uniforms.hpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\OpenGL\ToDelete.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Program.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Shader.hpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Internals\LightBuffer.hpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Internals\GeometryBuffer.hpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Renderer.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,30 +194,6 @@
     <ClCompile Include="source\MyView\MyView.cpp">
       <Filter>Source Files\MyView</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp">
-      <Filter>Source Files\Rendering\Buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp">
-      <Filter>Source Files\Rendering\PassConfigurator</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\PassConfigurator.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Rendering\Uniforms.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Utility\OpenGL.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="source\Utility\Scene.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
@@ -199,6 +202,30 @@
     </ClCompile>
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Buffer.cpp">
+      <Filter>Source Files\Rendering\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\PassConfigurator.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Internals\Programs.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\PassConfigurator\Internals\Shaders.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Uniforms\Uniforms.cpp">
+      <Filter>Source Files\Rendering\Uniforms</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\OpenGL\ToDelete.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Program.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Shader.cpp">
+      <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

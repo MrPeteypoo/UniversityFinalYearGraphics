@@ -6,7 +6,6 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Programs.hpp>
 #include <Utility/OpenGL/Buffers.hpp>
 #include <Utility/Scene.hpp>
 

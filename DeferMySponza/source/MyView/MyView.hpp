@@ -18,9 +18,9 @@
 // Personal headers.
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
-#include <Rendering/PassConfigurator.hpp>
-#include <Rendering/Uniforms.hpp>
-#include <Utility/OpenGL.hpp>
+#include <Rendering/PassConfigurator/PassConfigurator.hpp>
+#include <Rendering/Uniforms/Uniforms.hpp>
+#include <Utility/OpenGL/ToDelete.hpp>
 
 
 // Forward declarations.

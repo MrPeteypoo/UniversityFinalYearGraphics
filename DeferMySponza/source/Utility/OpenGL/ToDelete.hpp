@@ -39,12 +39,6 @@ namespace util
     /// <param name="extraOffset"> Any additional offset which will be added to the matrix. </param>
     /// <param name="divisor"> How frequently the attribute should be updated between instances. </param>
     void createMatrix4Attribute (const int attribLocation, const GLsizei stride, const int extraOffset = 0, const int divisor = 1);
-
-
-    /// <summary> Generates a texture buffer from the given file location. </summary>
-    /// <param name="textureBuffer"> The buffer to fill with the texture data. </param>
-    /// <param name="fileLocation"> The location of the texture file to load. </param>
-    void generateTexture2D (GLuint& textureBuffer, const std::string& fileLocation);
 }
 
 #endif // _UTIL_OPEN_GL
