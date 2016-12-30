@@ -374,6 +374,7 @@
     <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
     <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp" />
     <ClCompile Include="source\Rendering\PassConfigurator\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
     <ClCompile Include="source\Rendering\PassConfigurator\Internals\Programs.cpp" />

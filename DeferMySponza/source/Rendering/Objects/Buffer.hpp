@@ -23,7 +23,7 @@ class Buffer
         Buffer (const Buffer&)              = delete;
         Buffer& operator= (const Buffer&)   = delete;
 
-        ~Buffer() { if (isInitialised()) clean(); }
+        ~Buffer() { clean(); }
 
 
 

@@ -5,10 +5,6 @@
 #include <utility>
 
 
-// Engine headers.
-#include <tgl/tgl.h>
-
-
 Buffer::Buffer (Buffer&& move) noexcept
 {
     *this = std::move (move);
@@ -20,11 +16,8 @@ Buffer& Buffer::operator= (Buffer&& move) noexcept
     if (this != &move)
     {
         // Ensure we don't leak.
-        if (isInitialised())
-        {
-            clean();
-        }
-
+        clean();
+        
         m_buffer        = move.m_buffer;
         move.m_buffer   = 0U;
     }
@@ -35,21 +28,19 @@ Buffer& Buffer::operator= (Buffer&& move) noexcept
 
 bool Buffer::initialise() noexcept
 {
-    if (isInitialised())
-    {
-        clean();
-    }
-
+    clean();
     glGenBuffers (1, &m_buffer);
-    
     return m_buffer != 0U;
 }
 
 
 void Buffer::clean() noexcept
 {
-    glDeleteBuffers (1, &m_buffer);
-    m_buffer = 0U;
+    if (isInitialised())
+    {
+        glDeleteBuffers (1, &m_buffer);
+        m_buffer = 0U;
+    }
 }
 
 

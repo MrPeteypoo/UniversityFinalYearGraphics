@@ -227,5 +227,8 @@
     <ClCompile Include="source\Rendering\Objects\Shader.cpp">
       <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
     </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
