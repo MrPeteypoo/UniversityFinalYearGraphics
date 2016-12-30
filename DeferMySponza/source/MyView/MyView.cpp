@@ -148,7 +148,7 @@ void MyView::buildMeshData()
 
         localMesh.verticesIndex     = vertexIndex;
         localMesh.elementsOffset    = elementOffset;
-        localMesh.elementCount      = elements.size();
+        localMesh.elementCount      = static_cast<GLsizei> (elements.size());
         
         // Obtain the required vertex information.
         auto vertices = util::assembleVertices (sceneMesh);
@@ -245,7 +245,11 @@ void MyView::buildMaterialData()
 
     if (!images.empty())
     {
-        prepareTextureData (images[0].second.width(), images[0].second.height(), images.size());
+        prepareTextureData (
+            static_cast<GLsizei> (images[0].second.width()), 
+            static_cast<GLsizei> (images[0].second.height()), 
+            static_cast<GLsizei> (images.size())
+        );
     }
 
     // Just prepare the materials.
@@ -362,10 +366,10 @@ void MyView::loadTexturesIntoArray (const std::vector<std::pair<std::string, tyg
             glTexSubImage3D (   GL_TEXTURE_2D_ARRAY, 0, 
                 
                                 // Offsets.
-                                0, 0, i,
+                                0, 0, static_cast<GLint> (i),
                             
                                 // Dimensions and border.
-                                image.width(), image.height(), 1,   
+                                static_cast<GLsizei> (image.width()), static_cast<GLsizei> (image.height()), 1,   
                       
                                 // Format and type.
                                 pixel_formats[image.componentsPerPixel()], image.bytesPerComponent() == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
@@ -574,7 +578,14 @@ void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4&
             const auto& mesh = pair.second;
 
             // Finally draw all instances at the same time.
-            glDrawElementsInstancedBaseVertex (GL_TRIANGLES, mesh.elementCount, GL_UNSIGNED_INT, (void*) mesh.elementsOffset, size, mesh.verticesIndex);
+            glDrawElementsInstancedBaseVertex (
+                GL_TRIANGLES, 
+                mesh.elementCount, 
+                GL_UNSIGNED_INT, 
+                (void*) mesh.elementsOffset, 
+                static_cast<GLsizei> (size), 
+                static_cast<GLint> (mesh.verticesIndex)
+            );
         }
     }   
 }

@@ -9,8 +9,8 @@
 
 
 // Using declarations.
-using GLint  = int;
-using GLuint = unsigned int;
+using GLintptr  = ptrdiff_t;
+using GLsizei   = int;
 
 
 /// <summary> 
@@ -18,9 +18,9 @@ using GLuint = unsigned int;
 /// </summary>
 struct Mesh final
 {
-    GLint   verticesIndex   { 0 };  //!< The index of a VBO where the vertices for the mesh begin.
-    GLint   elementsOffset  { 0 };  //!< An offset in bytes used to draw the mesh in the scene.
-    size_t  elementCount    { 0 };  //!< Indicates how many elements there are.
+    GLintptr    verticesIndex   { 0 };  //!< The index of a VBO where the vertices for the mesh begin.
+    GLintptr    elementsOffset  { 0 };  //!< An offset in bytes used to draw the mesh in the scene.
+    GLsizei     elementCount    { 0 };  //!< Indicates how many elements there are.
 };
 
 #endif // _MY_VIEW_MESH_

@@ -17,26 +17,6 @@ using GLuint    = unsigned int;
 
 namespace util
 {
-    /// <summary> Compiles a shader from a file located on the machine. </summary>
-    /// <returns> Returns the OpenGL ID of the compiled shader, 0 means an error occurred. </returns>
-    /// <param name="fileLocation"> The location of the shader file. </param>
-    /// <param name="shader"> The type of shader to compile. </param>
-    GLuint compileShaderFromFile (const std::string& fileLocation, const GLenum shader);
-
-
-    /// <summary> Attaches a shader to the given program. It will also fill the shader with the attributes specified. </summary>
-    /// <param name="program"> The ID of the OpenGL program to attach the shader to. </param>
-    /// <param name="shader"> The ID of the OpenGL shader we will be attaching. </param>
-    /// <param name="attributes"> An array of attributes to bind to the shader. </param>
-    void attachShader (const GLuint program, const GLuint shader, const std::vector<GLchar*>& attributes);
-
-
-    /// <summary> Links all attached shaders together ready for use. </summary>
-    /// <returns> Returns whether the linking process was successful or not. </returns>
-    /// <param name="program"> The ID of the OpenGL program which we will be linking together. </param>
-    bool linkProgram (const GLuint program);
-
-
     /// <summary> Allocates the desired amount of memory for a given buffer. </summary>
     /// <param name="buffer"> The buffer to be allocated the specified amount of memory. If this is invalid then the buffer will be generated. </param>
     /// <param name="size"> The total size in bytes to allocate to the buffer. </param>

@@ -21,84 +21,6 @@ namespace util
     template void fillBuffer (GLuint& vbo, const std::vector<Material>& data, const GLenum target, const GLenum usage);
 
 
-    GLuint compileShaderFromFile (const std::string& fileLocation, const GLenum shader)
-    { // TODO: Delete after program refactoring.
-        // For some reason calling .c_str() on the returned string causes garbage data to appear, hence two separate steps.
-        const auto  shaderString    = tygra::createStringFromFile (fileLocation);
-        auto        shaderCode      = shaderString.c_str();
-    
-        // Attempt to compile the shader.
-        auto shaderID = glCreateShader (shader);
-
-        glShaderSource (shaderID, 1, &shaderCode, NULL);
-        glCompileShader (shaderID);
-
-        // Check whether compilation was successful.
-        auto compileStatus = GLint { 0 };
-
-        glGetShaderiv (shaderID, GL_COMPILE_STATUS, &compileStatus);
-    
-        if (compileStatus != GL_TRUE)
-        {
-            // Output error information.
-            const auto stringLength = 1024U;
-            GLchar log[stringLength] = "";
-
-            glGetShaderInfoLog (shaderID, stringLength, NULL, log);
-            std::cerr << log << std::endl;
-        }
-
-        return shaderID;
-    }
-
-
-    void attachShader (const GLuint program, const GLuint shader, const std::vector<GLchar*>& attributes)
-    {// TODO: Delete after program refactoring.
-        // Check whether we have a valid shader ID before continuing.
-        if (shader != 0U)
-        {
-            glAttachShader (program, shader);
-
-            // Add the given attributes to the shader.
-            for (size_t i { 0 }; i < attributes.size(); ++i)
-            {
-                if (attributes[i] != nullptr)
-                {
-                    glBindAttribLocation (program, i, attributes[i]);
-                }
-            }
-
-            // Flag the shader for deletion.
-            glDeleteShader (shader);
-        }    
-    }
-
-
-    bool linkProgram (const GLuint program)
-    {// TODO: Delete after program refactoring.
-        // Attempt to link the program.
-        glLinkProgram (program);
-
-        // Test the status for any errors.
-        auto linkStatus = GLint { 0 };
-        glGetProgramiv (program, GL_LINK_STATUS, &linkStatus);
-
-        if (linkStatus != GL_TRUE) 
-        {
-            // Output error information.
-            const unsigned int stringLength = 1024;
-            GLchar log[stringLength] = "";
-
-            glGetProgramInfoLog (program, stringLength, NULL, log);
-            std::cerr << log << std::endl;
-
-            return false;
-        }
-
-        return true;
-    }
-
-
     void allocateBuffer (GLuint& buffer, const size_t size, const GLenum target, const GLenum usage)
     {
         if (buffer == 0U)
@@ -178,7 +100,7 @@ namespace util
             glTexImage2D (  GL_TEXTURE_2D, 0, GL_RGBA,          
                       
                             // Dimensions and border.
-                            image.width(), image.height(), 0,   
+                            static_cast<GLsizei> (image.width()), static_cast<GLsizei> (image.height()), 0,   
                       
                             // Format and type.
                             pixel_formats[image.componentsPerPixel()], image.bytesPerComponent() == 1U ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
