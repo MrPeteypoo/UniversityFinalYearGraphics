@@ -94,9 +94,6 @@
     <ClInclude Include="source\Utility\OpenGL\Buffers.hpp">
       <Filter>Source Files\Utility\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Objects\Binders\BufferBinder.hpp">
-      <Filter>Source Files\Rendering\Objects\Binders</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Objects\Buffer.hpp">
       <Filter>Source Files\Rendering\Objects</Filter>
     </ClInclude>
@@ -160,11 +157,17 @@
     <ClInclude Include="source\Rendering\Renderer\Renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp">
+      <Filter>Source Files\Rendering\Objects\Binders</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Binders\RenderbufferBinder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\directionalLight.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\geometry.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
@@ -181,6 +184,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\spotlight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\directionalLight.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -228,6 +234,9 @@
       <Filter>Source Files\Rendering\PassConfigurator\Internals</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,7 +2,7 @@
 
 
 // Personal headers.
-#include <Rendering/Objects/Binders/BufferBinder.hpp>
+#include <Rendering/Binders/BufferBinder.hpp>
 
 
 namespace util

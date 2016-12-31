@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_BUFFERS_BUFFER_
-#define         _RENDERING_BUFFERS_BUFFER_
+#if !defined    _RENDERING_OBJECTS_BUFFER_
+#define         _RENDERING_OBJECTS_BUFFER_
 
 // Engine headers.
 #include <tgl/tgl.h>
@@ -24,7 +24,6 @@ class Buffer
         Buffer& operator= (const Buffer&)   = delete;
 
         ~Buffer() { clean(); }
-
 
 
         /// <summary> Check if the buffer has been initialised and is ready to be used. </summary>
@@ -98,4 +97,4 @@ void Buffer::placeInside (const Data& data, const GLenum target, const GLintptr 
     glBindBuffer (target, 0);
 }
 
-#endif // _RENDERING_BUFFERS_BUFFER_
+#endif // _RENDERING_OBJECTS_BUFFER_

@@ -31,21 +31,20 @@ struct BufferBinder final
         unbind();
     }
 
-    inline void bind (const Buffer& buffer) noexcept
+    inline void bind (const Buffer& buffer) const noexcept
     {
         glBindBuffer (target, buffer.getID());
     }
 
-    inline void bind (const GLuint buffer) noexcept
+    inline void bind (const GLuint buffer) const noexcept
     {
         glBindBuffer (target, buffer);
     }
 
-    inline void unbind() noexcept
+    inline void unbind() const noexcept
     {
         glBindBuffer (target, 0);
     }
 };
-
 
 #endif // _RENDERING_OBJECTS_BUFFER_BINDER_

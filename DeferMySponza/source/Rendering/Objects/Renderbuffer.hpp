@@ -25,7 +25,6 @@ class Renderbuffer
         ~Renderbuffer() { clean(); }
 
 
-
         /// <summary> Check if the buffer has been initialised and is ready to be used. </summary>
         inline bool isInitialised() const noexcept  { return m_buffer != 0U; }
         

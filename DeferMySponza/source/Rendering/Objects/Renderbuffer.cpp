@@ -5,6 +5,10 @@
 #include <utility>
 
 
+// Personal headers.
+#include <Rendering/Binders/RenderbufferBinder.hpp>
+
+
 Renderbuffer::Renderbuffer (Renderbuffer&& move) noexcept
 {
     *this = std::move (move);
@@ -40,7 +44,7 @@ bool Renderbuffer::initialise (GLenum internalFormat, GLsizei width, GLsizei hei
     }
 
     // Attempt to configure the buffer accordingly.
-    glBindRenderbuffer (GL_RENDERBUFFER, m_buffer);
+    const auto binder = RenderbufferBinder<GL_RENDERBUFFER> { m_buffer };
     glRenderbufferStorageMultisample (GL_RENDERBUFFER, samples, internalFormat, width, height);
 
     // Check for any errors.

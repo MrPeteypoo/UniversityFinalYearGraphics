@@ -333,7 +333,9 @@
     <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
     <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
     <ClInclude Include="source\MyView\MyView.hpp" />
-    <ClInclude Include="source\Rendering\Objects\Binders\BufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\RenderbufferBinder.hpp" />
     <ClInclude Include="source\Rendering\Objects\Buffer.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Internals\GeometryBuffer.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Internals\LightBuffer.hpp" />
@@ -374,6 +376,7 @@
     <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
     <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Framebuffer.cpp" />
     <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp" />
     <ClCompile Include="source\Rendering\PassConfigurator\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
