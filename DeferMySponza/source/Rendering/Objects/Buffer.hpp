@@ -11,7 +11,7 @@
 /// Manages an OpenGL buffer. This is a general purpose RAII encapsulation with the expectation of being used in
 /// the composition of more complex object types.
 /// </summary>
-class Buffer
+class Buffer final
 {
     public:
 
@@ -45,8 +45,8 @@ class Buffer
         
 
         /// <summary> 
-        /// Allocates the desired amount of memory to the buffer. 
-        /// This function will bind and unbind itself to the given target.
+        /// Allocates the desired amount of memory to the buffer. This function will bind and unbind itself to the
+        /// given target.
         /// </summary>
         /// <param name="size"> The total size in bytes to allocate. </param>
         /// <param name="target"> The target buffer type, e.g. GL_ARRAY_BUFFER/GL_ELEMENT_ARRAY_BUFFER. </param>

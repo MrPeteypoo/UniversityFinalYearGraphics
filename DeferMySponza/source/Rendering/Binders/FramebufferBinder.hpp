@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_OBJECTS_FRAMEBUFFER_BINDER_
 #define         _RENDERING_OBJECTS_FRAMEBUFFER_BINDER_
 
-
 // Personal headers.
 #include <Rendering/Objects/Framebuffer.hpp>
 
@@ -11,10 +10,10 @@
 /// <summary>
 /// A simple RAII utility to bind a given framebuffer on construction and bind the screen when going out of scope.
 /// </summary>
-template <GLenum target>
+template <GLenum Target>
 struct FramebufferBinder final
 {
-    static_assert (target == GL_FRAMEBUFFER || target == GL_READ_FRAMEBUFFER || target == GL_DRAW_FRAMEBUFFER, 
+    static_assert (Target == GL_FRAMEBUFFER || Target == GL_READ_FRAMEBUFFER || Target == GL_DRAW_FRAMEBUFFER, 
         "FramebufferBinder can only be used for GL_FRAMEBUFFER, GL_READ_FRAMEBUFFER and GL_DRAW_FRAMEBUFFER.");
 
     inline FramebufferBinder() noexcept = default;
@@ -36,17 +35,17 @@ struct FramebufferBinder final
 
     inline void bind (const Framebuffer& buffer) const noexcept
     {
-        glBindFramebuffer (target, buffer.getID());
+        glBindFramebuffer (Target, buffer.getID());
     }
 
     inline void bind (const GLuint buffer) const noexcept
     {
-        glBindFramebuffer (target, buffer);
+        glBindFramebuffer (Target, buffer);
     }
 
     inline void unbind() const noexcept
     {
-        glBindFramebuffer (target, 0);
+        glBindFramebuffer (Target, 0);
     }
 };
 

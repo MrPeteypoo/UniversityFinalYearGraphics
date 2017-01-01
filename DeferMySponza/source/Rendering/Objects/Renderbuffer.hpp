@@ -10,7 +10,7 @@
 /// <summary>
 /// An RAII encapsulation of an OpenGL renderbuffer object. It can be attached to framebuffer objects and drawn to.
 /// </summary>
-class Renderbuffer
+class Renderbuffer final
 {
     public:
 

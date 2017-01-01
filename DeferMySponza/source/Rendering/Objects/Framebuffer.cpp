@@ -6,9 +6,7 @@
 
 
 // Personal headers.
-#include <Rendering/Binders/FramebufferBinder.hpp>
 #include <Rendering/Binders/RenderbufferBinder.hpp>
-#include <Rendering/Objects/Texture.hpp>
 
 
 Framebuffer::Framebuffer (Framebuffer&& move) noexcept
@@ -57,16 +55,6 @@ void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum a
 
     // Add the renderbuffer as an attachment.
     glFramebufferRenderbuffer (GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer.getID());
-}
-
-
-void Framebuffer::attachTexture (const Texture& texture, GLenum attachment, GLint level) noexcept
-{
-    // We need to bind the current framebuffer.
-    const auto binder = FramebufferBinder<GL_FRAMEBUFFER> { m_buffer };
-
-    // Add the texture as an attachment.
-    glFramebufferTexture (GL_FRAMEBUFFER, attachment, texture.getID(), level);
 }
 
 

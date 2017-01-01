@@ -336,6 +336,7 @@
     <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp" />
     <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp" />
     <ClInclude Include="source\Rendering\Binders\RenderbufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\TextureBinder.hpp" />
     <ClInclude Include="source\Rendering\Objects\Buffer.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Internals\GeometryBuffer.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Internals\LightBuffer.hpp" />
@@ -357,9 +358,11 @@
     <ClInclude Include="source\Rendering\Uniforms\Internals\UniformBlocks.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
+    <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
     <ClInclude Include="source\Utility\OpenGL\ToDelete.hpp" />
     <ClInclude Include="source\Utility\OpenGL\Buffers.hpp" />
     <ClInclude Include="source\Utility\Scene.hpp" />
+    <ClInclude Include="source\Utility\TypeTraits.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\directionalLight.fs.glsl" />
@@ -383,6 +386,7 @@
     <ClCompile Include="source\Rendering\PassConfigurator\Internals\Programs.cpp" />
     <ClCompile Include="source\Rendering\Objects\Shader.cpp" />
     <ClCompile Include="source\Rendering\PassConfigurator\Internals\Shaders.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Internals\GeometryBuffer.cpp" />
     <ClCompile Include="source\Rendering\Uniforms\Uniforms.cpp" />
     <ClCompile Include="source\Utility\OpenGL\ToDelete.cpp" />
     <ClCompile Include="source\Utility\OpenGL\Buffers.cpp" />
