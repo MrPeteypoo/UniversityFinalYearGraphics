@@ -63,5 +63,6 @@ void Renderbuffer::clean() noexcept
     if (isInitialised())
     {
         glDeleteRenderbuffers (1, &m_buffer);
+        m_buffer = 0U;
     }
 }

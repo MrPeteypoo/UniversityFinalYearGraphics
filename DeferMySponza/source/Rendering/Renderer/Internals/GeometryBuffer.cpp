@@ -61,12 +61,9 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noex
 
 void GeometryBuffer::clean() noexcept
 {
-    if (isInitialised())
-    {
-        m_fbo.clean();
-        m_positions.clean();
-        m_normals.clean();
-        m_materials.clean();
-        m_depthStencil.clean();
-    }
+    m_fbo.clean();
+    m_positions.clean();
+    m_normals.clean();
+    m_materials.clean();
+    m_depthStencil.clean();
 }

@@ -40,7 +40,7 @@ class LightBuffer final
         /// a depth-stencil attachment.
         /// </summary>
         /// <param name="depthStencilTexture"> The texture to be attached as a depth-stencil attachment. </param>
-        /// <param name="internalFormat"> The data format of the renderbuffer, e.g. GL_RGBA32F. </param>
+        /// <param name="internalFormat"> The data format of the renderbuffer, e.g. GL_RGB8. </param>
         /// <param name="width"> How many pixels wide the Gbuffer should be. </param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>
         /// <returns> Whether the Gbuffer was successfully created or not. </returns>

@@ -12,7 +12,7 @@ bool LightBuffer::initialise (const TextureRectangle& depthStencilTexture, GLenu
     auto colour = Renderbuffer { };
 
     // Initialise the objects.
-    if (!fbo.initialise() && !colour.initialise (internalFormat, width, height, samples))
+    if (!(fbo.initialise() && colour.initialise (internalFormat, width, height, samples)))
     {
         return false;
     }
@@ -35,9 +35,6 @@ bool LightBuffer::initialise (const TextureRectangle& depthStencilTexture, GLenu
 
 void LightBuffer::clean() noexcept
 {
-    if (isInitialised())
-    {
-        m_fbo.clean();
-        m_colour.clean();
-    }
+    m_fbo.clean();
+    m_colour.clean();
 }

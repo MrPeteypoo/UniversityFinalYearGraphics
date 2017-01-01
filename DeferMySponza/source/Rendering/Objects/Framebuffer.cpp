@@ -43,6 +43,7 @@ void Framebuffer::clean() noexcept
     if (isInitialised())
     {
         glDeleteFramebuffers (1, &m_buffer);
+        m_buffer = 0U;
     }
 }
 

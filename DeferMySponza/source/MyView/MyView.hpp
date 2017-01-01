@@ -19,6 +19,8 @@
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
 #include <Rendering/PassConfigurator/PassConfigurator.hpp>
+#include <Rendering/Renderer/Internals/GeometryBuffer.hpp>
+#include <Rendering/Renderer/Internals/LightBuffer.hpp>
 #include <Rendering/Uniforms/Uniforms.hpp>
 #include <Utility/OpenGL/ToDelete.hpp>
 
@@ -122,6 +124,8 @@ class MyView final : public tygra::WindowViewDelegate
 
         PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
         Uniforms                                            m_uniforms          { };            //!< Stores and updates uniforms used by the scene.
+        GeometryBuffer                                      m_gbuffer           { };            //!< A rendering target where the scene geometry is constructed, independant of lighting.
+        LightBuffer                                         m_lbuffer           { };            //!< A rendering target where lighting is applied before being rendered on screen.
 
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.
         GLuint                                              m_vertexVBO         { 0 };          //!< A Vertex Buffer Object which contains the interleaved vertex data of every mesh in the scene.

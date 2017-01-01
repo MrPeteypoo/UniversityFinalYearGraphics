@@ -126,6 +126,7 @@ void Texture<Target>::clean() noexcept
     if (isInitialised())
     {
         glDeleteTextures (1, &m_texture);
+        m_texture = 0U;
     }
 }
 

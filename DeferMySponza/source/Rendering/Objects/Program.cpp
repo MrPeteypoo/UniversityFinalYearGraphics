@@ -25,10 +25,7 @@ Program& Program::operator= (Program&& move) noexcept
     if (this != &move)
     {
         // Ensure we don't leak.
-        if (isInitialised())
-        {
-            clean();
-        }
+        clean();
 
         m_program       = move.m_program;
         move.m_program  = 0U;
@@ -40,17 +37,17 @@ Program& Program::operator= (Program&& move) noexcept
 
 void Program::clean() noexcept
 {
-    glDeleteProgram (m_program);
-    m_program = 0U;
+    if (isInitialised())
+    {            
+        glDeleteProgram (m_program);
+        m_program = 0U;
+    }
 }
 
 
 bool Program::initialise() noexcept
 {
-    if (isInitialised())
-    {
-        clean();
-    }
+    clean();
     
     m_program = glCreateProgram();
 

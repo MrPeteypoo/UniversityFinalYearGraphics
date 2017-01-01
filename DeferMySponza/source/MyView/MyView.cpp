@@ -425,8 +425,6 @@ void MyView::cleanMeshMaterials()
 
 void MyView::deleteOpenGLObjects()
 { // TODO: Call delete on each refactored child object.
-    // Delete the program.
-    //glDeleteProgram (m_program);
     
     // Delete the VAO.
     glDeleteVertexArrays (1, &m_sceneVAO);
@@ -451,6 +449,15 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
     // Reset the viewport and recalculate the aspect ratio.
     glViewport (0, 0, width, height);
     m_aspectRatio = width / static_cast<float> (height);
+    if (!m_gbuffer.initialise (width, height))
+    {
+        std::cerr << "Failed to initialise the Gbuffer." << std::endl;
+    }
+
+    if (!m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGB8, width, height))
+    {
+        std::cerr << "Failed to initialise the Lbuffer." << std::endl;
+    }
 }
 
 

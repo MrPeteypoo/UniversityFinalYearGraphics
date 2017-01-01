@@ -22,10 +22,7 @@ Shader& Shader::operator= (Shader&& move) noexcept
     if (this != &move)
     {
         // Ensure we don't leak a shader.
-        if (isInitialised())
-        {
-            clean();
-        }
+        clean();
 
         m_shader    = move.m_shader;
         m_type      = move.m_type;
@@ -41,10 +38,7 @@ Shader& Shader::operator= (Shader&& move) noexcept
 bool Shader::initialise (const std::string& file, const GLenum type) noexcept
 {
     // Delete any previously compiled shader.
-    if (isInitialised())
-    {
-        clean();
-    }
+    clean();
 
     // Ensure we separate the .c_str() call as daisy chaining the function causes garbage data.
     const auto  string  = tygra::createStringFromFile (file);
@@ -81,7 +75,10 @@ bool Shader::initialise (const std::string& file, const GLenum type) noexcept
 
 void Shader::clean() noexcept
 {
-    glDeleteShader (m_shader);
-    m_shader    = 0;
-    m_type      = 0;
+    if (isInitialised())
+    {   
+        glDeleteShader (m_shader);
+        m_shader    = 0;
+        m_type      = 0;
+    }
 }
