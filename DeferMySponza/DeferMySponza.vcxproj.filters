@@ -251,5 +251,8 @@
     <ClCompile Include="source\Rendering\Renderer\Internals\GeometryBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Internals\LightBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -387,6 +387,7 @@
     <ClCompile Include="source\Rendering\Objects\Shader.cpp" />
     <ClCompile Include="source\Rendering\PassConfigurator\Internals\Shaders.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Internals\GeometryBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Internals\LightBuffer.cpp" />
     <ClCompile Include="source\Rendering\Uniforms\Uniforms.cpp" />
     <ClCompile Include="source\Utility\OpenGL\ToDelete.cpp" />
     <ClCompile Include="source\Utility\OpenGL\Buffers.cpp" />
