@@ -3,7 +3,6 @@
 #if !defined    _RENDERING_RENDERING_PASS_CONFIGURATOR_
 #define	        _RENDERING_RENDERING_PASS_CONFIGURATOR_
 
-
 // STL headers.
 #include <string>
 
@@ -17,8 +16,14 @@
 #include <Rendering/PassConfigurator/Internals/Shaders.hpp>
 
 
+// Forward declarations.
+class GeometryBuffer;
+class LightBuffer;
+
+
 /// <summary>
-/// Enables the easy configuration of rendering passes, also stores the OpenGL programs and shaders used in the renderer.
+/// Enables the easy configuration of the multiple passes required for the deferred shading technique. The 
+/// PassConfigurator also stores the programs used in the scene.
 /// </summary>
 class PassConfigurator final
 {
@@ -35,7 +40,6 @@ class PassConfigurator final
         ~PassConfigurator()                                     = default;
 
 
-
         /// <summary> Checks if the programs and shaders have been loaded correctly. </summary>
         inline bool isInitialised() const noexcept          { return m_programs.isInitialised() && m_shaders.isInitialised(); }
 
@@ -46,7 +50,6 @@ class PassConfigurator final
         inline const Shaders& getShaders() const noexcept   { return m_shaders; }
 
 
-
         /// <summary> Initialise the shaders and programs required for rendering. </summary>
         /// <returns> Whether the initialisation was successful. </returns>
         bool initialise() noexcept;
@@ -54,62 +57,23 @@ class PassConfigurator final
         /// <summary> Removes and deletes all shaders and programs. </summary>
         void clean() noexcept;
 
-        /// <summary> Unbind the current program. </summary>
-        inline void unbind() const noexcept { m_programs.unbind(); }
-
-
-
-        /// <summary> Initialises the OpenGL context, independent of any enabled mode. </summary>
-        void prepareDraw() const noexcept;
         
-        /// <summary> Prepares OpenGL for a scene construction rendering pass. </summary>
-        inline void switchToSceneConstructionMode() const noexcept;
+        /// <summary> Prepares OpenGL for the geometry pass. </summary>
+        void geometryPass (const GeometryBuffer& gbuffer) const noexcept;
 
-        /// <summary> Prepares OpenGL for a lighting pass using directional light shaders. </summary>
-        inline void switchToDirectionalLightMode() const noexcept;
+        /// <summary> Prepares OpenGL to apply global lighting after the geometry pass. </summary>
+        void globalLightPass (const GeometryBuffer& gbuffer, const LightBuffer& lbuffer) const noexcept;
 
-        /// <summary> Prepares OpenGL for a lighting pass using point light shaders. </summary>
-        inline void switchToPointLightMode() const noexcept;
+        /// <summary> Prepares OpenGL to apply point lighting after applying global light. </summary>
+        void pointLightPass() const noexcept;
 
-        /// <summary> Prepares OpenGL for a lighting pass using spotlight shaders. </summary>
-        inline void switchToSpotlightMode() const noexcept;
+        /// <summary> Prepares OpenGL to apply spotlighting after a point lighting pass. </summary>
+        void spotlightPass() const noexcept;
 
     private:
-
-        /// <summary> Enables depth testing and writing, disables blending but enables ambient lighting. </summary>
-        void useConstructionConfiguration (const GLuint program) const noexcept;
-
-        /// <summary> Disables writing to the depth buffer, enables blending and uses equality for depth testing. </summary>
-        void useLightingConfiguration (const GLuint program) const noexcept;
-        
-
 
         Programs    m_programs  { };    //!< Stores the programs used in different rendering passes.
         Shaders     m_shaders   { };    //!< Stores the shaders available to programs.
 };
-
-
-void PassConfigurator::switchToSceneConstructionMode() const noexcept
-{
-    useConstructionConfiguration (m_programs.sceneConstruction.getID());
-}
-
-
-void PassConfigurator::switchToDirectionalLightMode() const noexcept
-{
-    useLightingConfiguration (m_programs.directionalLighting.getID());
-}
-
-
-void PassConfigurator::switchToPointLightMode() const noexcept
-{
-    useLightingConfiguration (m_programs.pointLighting.getID());
-}
-
-
-void PassConfigurator::switchToSpotlightMode() const noexcept
-{
-    useLightingConfiguration (m_programs.spotlighting.getID());
-}
 
 #endif // _RENDERING_RENDERING_PASS_CONFIGURATOR_

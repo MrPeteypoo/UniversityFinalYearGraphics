@@ -16,12 +16,12 @@ struct Shaders;
 /// </summary>
 struct Programs final
 {
-    Program sceneConstruction   {}; //!< Basic shaders which construct the scene with ambient lighting.
-    Program directionalLighting {}; //!< Provides directional light shading.
-    Program pointLighting       {}; //!< Provides point light shading.
-    Program spotlighting        {}; //!< Provides spot light shading.
-        
 
+    Program geometry    {}; //!< Basic shaders which construct the scene with ambient lighting.
+    Program globalLight {}; //!< Provides directional light shading.
+    Program pointLight  {}; //!< Provides point light shading.
+    Program spotlight   {}; //!< Provides spot light shading.
+        
 
     Programs() noexcept                         = default;
     
@@ -34,14 +34,12 @@ struct Programs final
     ~Programs() { unbind(); }
 
 
-
     /// <summary> Checks whether the core programs have been loaded. </summary>
     inline bool isInitialised() const noexcept 
     { 
-        return sceneConstruction.isInitialised() || directionalLighting.isInitialised() || 
-            pointLighting.isInitialised() || spotlighting.isInitialised();
+        return geometry.isInitialised() || globalLight.isInitialised() || 
+            pointLight.isInitialised() || spotlight.isInitialised();
     }
-
 
 
     /// <summary> 
@@ -56,6 +54,7 @@ struct Programs final
 
     /// <summary> Unbind the current program. </summary>
     void unbind() const noexcept;
+
 };
 
 #endif // _RENDERING_PROGRAMS_

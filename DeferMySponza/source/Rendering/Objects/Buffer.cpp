@@ -28,9 +28,21 @@ Buffer& Buffer::operator= (Buffer&& move) noexcept
 
 bool Buffer::initialise() noexcept
 {
+    // Generate an object.
+    auto buffer = GLuint { 0 };
+    glGenBuffers (1, &buffer);
+
+    // Check the validity before using it.
+    if (buffer == 0U)
+    {
+        return false;
+    }
+
+    // Ensure we don't leak.
     clean();
-    glGenBuffers (1, &m_buffer);
-    return m_buffer != 0U;
+    m_buffer = buffer;
+
+    return true;
 }
 
 

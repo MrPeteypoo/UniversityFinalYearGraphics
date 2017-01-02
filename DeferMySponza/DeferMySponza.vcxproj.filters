@@ -177,12 +177,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\geometry.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\geometry.vs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\pointLight.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
@@ -196,6 +190,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\directionalLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Geometry.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Geometry.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

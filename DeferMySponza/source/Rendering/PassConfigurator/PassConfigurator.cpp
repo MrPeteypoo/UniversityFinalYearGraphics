@@ -3,12 +3,19 @@
 
 bool PassConfigurator::initialise() noexcept
 {
-    if (m_shaders.initialise())
+    auto shaders    = Shaders { };
+    auto programs   = Programs { };
+
+    // Attempt to initialise the shaders and programs.
+    if (!(shaders.initialise() && programs.initialise (shaders)))
     {
-        return m_programs.initialise (m_shaders);
+        return false;
     }
 
-    return false;
+    m_shaders   = std::move (shaders);
+    m_programs  = std::move (programs); 
+
+    return true;
 }
 
 
@@ -19,18 +26,37 @@ void PassConfigurator::clean() noexcept
 }
 
 
-void PassConfigurator::prepareDraw() const noexcept
+void PassConfigurator::geometryPass (const GeometryBuffer& gbuffer) const noexcept
 {
+
     glEnable (GL_CULL_FACE);
     glDepthMask (GL_TRUE);
     glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     glClearColor (0.f, 0.f, 0.25f, 0.f);    
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Finally use the correct program.
+    glUseProgram (m_programs.geometry.getID());
 }
 
 
-void PassConfigurator::useConstructionConfiguration (const GLuint program) const noexcept
+void PassConfigurator::globalLightPass (const GeometryBuffer& gbuffer, const LightBuffer& lbuffer) const noexcept
+{
+}
+
+
+void PassConfigurator::pointLightPass() const noexcept
+{
+}
+
+
+void PassConfigurator::spotlightPass() const noexcept
+{
+}
+
+
+void useConstructionConfiguration (const GLuint program) noexcept
 {
     // Switch to the given program.
     glUseProgram (program);
@@ -46,7 +72,7 @@ void PassConfigurator::useConstructionConfiguration (const GLuint program) const
 }
 
 
-void PassConfigurator::useLightingConfiguration (const GLuint program) const noexcept
+void useLightingConfiguration (const GLuint program) noexcept
 {
     // Switch to the given program.
     glUseProgram (program);

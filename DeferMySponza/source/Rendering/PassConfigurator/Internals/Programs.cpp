@@ -1,14 +1,6 @@
 #include "Programs.hpp"
 
 
-// STL headers.
-#include <string>
-
-
-// Engine headers.
-#include <tgl/tgl.h>
-
-
 // Personal headers.
 #include <Rendering/PassConfigurator/Internals/HardCodedShaders.hpp>
 #include <Rendering/PassConfigurator/Internals/Shaders.hpp>
@@ -16,38 +8,49 @@
 
 bool Programs::initialise (const Shaders& shaders) noexcept
 {
-    sceneConstruction.initialise();
-    directionalLighting.initialise();
-    pointLighting.initialise();
-    spotlighting.initialise();
-    // TODO: Shader attachment is disgusting.
-    sceneConstruction.attachShader (shaders.compiled.find (geometryVS)->second);
-    sceneConstruction.attachShader (shaders.compiled.find (geometryFS)->second);
-    
-    directionalLighting.attachShader (shaders.compiled.find (geometryVS)->second);
-    directionalLighting.attachShader (shaders.compiled.find (directionalLightFS)->second);
-    
-    pointLighting.attachShader (shaders.compiled.find (geometryVS)->second);
-    pointLighting.attachShader (shaders.compiled.find (pointLightFS)->second);
-    
-    spotlighting.attachShader (shaders.compiled.find (geometryVS)->second);
-    spotlighting.attachShader (shaders.compiled.find (spotlightFS)->second);
+    // Create temporary objects.
+    Program geo, global, point, spot;
 
-    return sceneConstruction.link() && directionalLighting.link() && pointLighting.link() && spotlighting.link();
+    // Initialise each temporary object.
+    if (!(geo.initialise(), global.initialise(), point.initialise(), spot.initialise()))
+    {
+        return false;
+    }
+
+    // Attach the requires shaders to each program.
+    // TODO: Shader attachment is disgusting.
+    geo.attachShader (shaders.compiled.find (geometryVS)->second);
+    geo.attachShader (shaders.compiled.find (geometryFS)->second);
+    
+    global.attachShader (shaders.compiled.find (geometryVS)->second);
+    global.attachShader (shaders.compiled.find (directionalLightFS)->second);
+    
+    point.attachShader (shaders.compiled.find (geometryVS)->second);
+    point.attachShader (shaders.compiled.find (pointLightFS)->second);
+    
+    spot.attachShader (shaders.compiled.find (geometryVS)->second);
+    spot.attachShader (shaders.compiled.find (spotlightFS)->second);
+
+    // Check they link properly.
+    if (!(geo.link() && global.link() && point.link() && spot.link()))
+    {
+        return false;
+    }
+
+    // We've successfully compiled each program.
+    geometry    = std::move (geo);
+    globalLight = std::move (global);
+    pointLight  = std::move (point);
+    spotlight   = std::move (spot);
+
+    return true;
 }
 
 
 void Programs::clean() noexcept
 {
-    sceneConstruction.clean();
-    directionalLighting.clean();
-    pointLighting.clean();
-    spotlighting.clean();
-    unbind();
-}
-
-
-void Programs::unbind() const noexcept
-{
-    glUseProgram (0);
+    geometry.clean();
+    globalLight.clean();
+    pointLight.clean();
+    spotlight.clean();
 }

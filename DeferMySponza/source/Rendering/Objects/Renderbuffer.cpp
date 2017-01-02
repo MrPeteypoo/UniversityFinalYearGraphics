@@ -31,17 +31,19 @@ Renderbuffer& Renderbuffer::operator= (Renderbuffer&& move) noexcept
 
 bool Renderbuffer::initialise (GLenum internalFormat, GLsizei width, GLsizei height, GLsizei samples) noexcept
 {
-    // Don't leak!
-    clean();
+    // Generate an object.
+    auto buffer = GLuint { 0 };
+    glGenBuffers (1, &buffer);
 
-    // Attempts to create and initialise the buffer.
-    glGenRenderbuffers (1, &m_buffer);
-
-    // Check whether we were allocated a buffer.
-    if (m_buffer == 0U)
+    // Check the validity before using it.
+    if (buffer == 0U)
     {
         return false;
     }
+
+    // Ensure we don't leak.
+    clean();
+    m_buffer = buffer;
 
     // Attempt to configure the buffer accordingly.
     const auto binder = RenderbufferBinder<GL_RENDERBUFFER> { m_buffer };

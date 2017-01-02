@@ -35,6 +35,25 @@ Program& Program::operator= (Program&& move) noexcept
 }
 
 
+bool Program::initialise() noexcept
+{
+    // Generate an object.
+    auto program = glCreateProgram();
+
+    // Check the validity before using it.
+    if (program == 0U)
+    {
+        return false;
+    }
+
+    // Ensure we don't leak.
+    clean();
+    m_program = program;
+
+    return true;
+}
+
+
 void Program::clean() noexcept
 {
     if (isInitialised())
@@ -42,17 +61,6 @@ void Program::clean() noexcept
         glDeleteProgram (m_program);
         m_program = 0U;
     }
-}
-
-
-bool Program::initialise() noexcept
-{
-    clean();
-    
-    m_program = glCreateProgram();
-
-    // Non-zero values indicate glCreateProgram succeeded.
-    return m_program != 0U;
 }
 
 

@@ -30,10 +30,11 @@ class GeometryBuffer final
         GeometryBuffer() noexcept                                   = default;
         GeometryBuffer (GeometryBuffer&& move) noexcept             = default;
         GeometryBuffer& operator= (GeometryBuffer&& move) noexcept  = default;
-        ~GeometryBuffer()                                           = default;
 
         GeometryBuffer (const GeometryBuffer&)                      = delete;
         GeometryBuffer& operator= (const GeometryBuffer&)           = delete;
+        
+        ~GeometryBuffer()                                           = default;
 
 
         /// <summary> Check if the Gbuffer has been initialised and is ready to be used. </summary>

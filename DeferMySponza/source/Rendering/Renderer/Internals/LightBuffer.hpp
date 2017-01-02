@@ -19,10 +19,11 @@ class LightBuffer final
         LightBuffer() noexcept                                  = default;
         LightBuffer (LightBuffer&& move) noexcept               = default;
         LightBuffer& operator= (LightBuffer&& move) noexcept    = default;
-        ~LightBuffer()                                          = default;
 
         LightBuffer (const LightBuffer&)                        = delete;
         LightBuffer& operator= (const LightBuffer&)             = delete;
+        
+        ~LightBuffer()                                          = default;
 
 
         /// <summary> Check if the Lbuffer has been initialised and is ready to be used. </summary>
