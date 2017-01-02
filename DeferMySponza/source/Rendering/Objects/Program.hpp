@@ -3,9 +3,8 @@
 #if !defined    _RENDERING_PROGRAM_
 #define         _RENDERING_PROGRAM_
 
-// Forward declarations.
-using GLuint = unsigned int;
-class Shader;
+// Engine headers.
+#include <tgl/tgl.h>
 
 
 /// <summary>
