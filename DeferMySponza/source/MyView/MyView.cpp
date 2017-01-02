@@ -60,19 +60,19 @@ void MyView::windowViewWillStart (tygra::Window*)
     }
 
     const auto& programs = m_configurator.getPrograms();    
-    if (!m_uniforms.bindToProgram (programs.sceneConstruction.getID()))
+    if (!m_uniforms.bindToProgram (programs.geometry.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the scene construction program." << std::endl;
     }
-    if (!m_uniforms.bindToProgram (programs.directionalLighting.getID()))
+    if (!m_uniforms.bindToProgram (programs.globalLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the directional lighting program." << std::endl;
     }
-    if (!m_uniforms.bindToProgram (programs.pointLighting.getID()))
+    if (!m_uniforms.bindToProgram (programs.pointLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the point lighting program." << std::endl;
     }
-    if (!m_uniforms.bindToProgram (programs.spotlighting.getID()))
+    if (!m_uniforms.bindToProgram (programs.spotlight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the spotlighting program." << std::endl;
     }
@@ -471,7 +471,7 @@ void MyView::windowViewRender (tygra::Window*)
     assert (m_scene != nullptr);
 
     // Prepare the draw.
-    m_configurator.prepareDraw();
+    //m_configurator.prepareDraw();
 
     // Define matrices.
     const auto& camera      = m_scene->getCamera();
@@ -499,7 +499,7 @@ void MyView::windowViewRender (tygra::Window*)
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
     
     // Geometry pass.
-    m_configurator.switchToSceneConstructionMode();
+    /*m_configurator.switchToSceneConstructionMode();
     mapTexturesToProgram (m_configurator.getPrograms().sceneConstruction.getID());
     renderGeometry (projection, view);
 
@@ -528,7 +528,7 @@ void MyView::windowViewRender (tygra::Window*)
     {
         m_uniforms.updateSpotlight (light);
         renderGeometry (projection, view);
-    }
+    }*/
 
     // UNBIND IT ALL CAPTAIN!
     glBindVertexArray (0);

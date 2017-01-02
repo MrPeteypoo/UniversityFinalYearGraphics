@@ -23,8 +23,7 @@ class Program final
         Program (const Program&)            = delete;
         Program& operator= (const Program&) = delete;
 
-        ~Program() { if (isInitialised()) clean(); }
-
+        ~Program() { clean(); }
 
 
         /// <summary> Check if the program has been successfully compiled. </summary>
@@ -34,13 +33,13 @@ class Program final
         inline GLuint getID() const noexcept        { return m_program; }
 
 
-
         /// <summary> 
-        /// Attempt to initialise the program. If already initialised then the stored program will be deleted and a fresh
-        /// program will be created.
+        /// Attempt to initialise the program. Successive calls will delete the old program and create a new one.
+        /// Upon failure the object will be untouched and left in a clean state.
         /// </summary>
         /// <returns> Whether the program was successfully created or not. </returns>
         bool initialise() noexcept;
+
 
         /// <summary> Detaches all shaders and deletes each program. </summary>
         void clean() noexcept;

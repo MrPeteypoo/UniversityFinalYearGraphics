@@ -35,7 +35,7 @@ class Buffer final
 
         /// <summary> 
         /// Attempt to initialise the buffer object. Successive calls to this function will cause the stored buffer to
-        /// be deleted and a fresh buffer will take its place.
+        /// be deleted and a fresh buffer will take its place. Upon failure the object will not be modified.
         /// </summary>
         /// <returns> Whether the buffer was successfully created or not. </returns>
         bool initialise() noexcept;
@@ -51,7 +51,10 @@ class Buffer final
         /// <param name="size"> The total size in bytes to allocate. </param>
         /// <param name="target"> The target buffer type, e.g. GL_ARRAY_BUFFER/GL_ELEMENT_ARRAY_BUFFER. </param>
         /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
-        void allocate (const GLsizeiptr size, const GLenum target, const GLenum usage) const noexcept;
+        void allocate (const GLsizeiptr size, const GLenum target, const GLenum usage) const noexcept
+        {
+            glNamedBufferData (m_buffer, size, nullptr, usage);
+        }
 
         /// <summary> 
         /// Resizes the buffer to the exact size of the given data and then copies the data across. 
@@ -61,7 +64,10 @@ class Buffer final
         /// <param name="target"> The target buffer type, e.g. GL_ARRAY_BUFFER/GL_ELEMENT_ARRAY_BUFFER. </param>
         /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
         template <typename Data, template <typename, typename...> typename Container, typename... Args>
-        void fillWith (const Container<Data, Args...>& data, const GLenum target, const GLenum usage) const noexcept;
+        void fillWith (const Container<Data, Args...>& data, const GLenum target, const GLenum usage) const noexcept
+        {
+            glNamedBufferData (m_buffer, data.size() * sizeof (Data), data.data(), usage);
+        }
 
         /// <summary> 
         /// Used to place data inside the previously allocated buffer at the given offset. If allocate() or fillWith() 
@@ -72,29 +78,14 @@ class Buffer final
         /// <param name="target"> The binding target of the buffer, e.g. GL_ARRAY_BUFFER. </param>
         /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         template <typename Data>
-        void placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept;
+        void placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept
+        {
+            glNamedBufferSubData (m_buffer, offset, sizeof (Data), &data);
+        }
 
     private:
 
         GLuint m_buffer { 0 }; //!< The OpenGL ID representing the buffer object.
 };
-
-
-template <typename Data, template <typename, typename...> typename Container, typename... Args>
-void Buffer::fillWith (const Container<Data, Args...>& data, const GLenum target, const GLenum usage) const noexcept
-{
-    glBindBuffer (target, m_buffer);
-    glBufferData (target, data.size() * sizeof (Data), data.data(), usage);
-    glBindBuffer (target, 0);
-}
-
-
-template <typename Data>
-void Buffer::placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept
-{
-    glBindBuffer (target, m_buffer);
-    glBufferSubData (target, offset, sizeof (Data), &data);
-    glBindBuffer (target, 0);
-}
 
 #endif // _RENDERING_OBJECTS_BUFFER_

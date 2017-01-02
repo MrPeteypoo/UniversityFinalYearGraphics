@@ -58,6 +58,7 @@ class GeometryBuffer final
 
         /// <summary> 
         /// Attempt to construct the Gbuffer and prepare it for usage. Successive calls will wipe the Gbuffer.
+        /// Upon failure the object will not be changed.
         /// </summary>
         /// <param name="width"> How many pixels wide the Gbuffer should be. <param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>

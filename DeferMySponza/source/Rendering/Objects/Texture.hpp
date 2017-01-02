@@ -49,6 +49,7 @@ class Texture final
 
         /// <summary> 
         /// Attempt to initialise the texture object. Successive calls with delete the currently managed object.
+        /// Upon failure the object will not be changed.
         /// </summary>
         /// <param name="unit"> The desired texture unit to bind the texture to. </param>
         /// <returns> Whether the texture was successfully created or not. </returns>
@@ -107,16 +108,21 @@ void Texture<Target>::setDesiredTextureUnit (const GLuint unit) noexcept
 template <GLenum Target>
 bool Texture<Target>::initialise (const GLuint unit) noexcept
 {
-    clean();
-    glGenTextures (1, &m_texture);
+    // Generate an object.
+    auto texture = GLuint { 0 };
+    glCreateTextures (Target, 1, &texture);
 
-    if (m_texture != 0U)
+    // Check the validity before using it.
+    if (texture == 0U)
     {
-        setDesiredTextureUnit (unit);
-        return true;
+        return false;
     }
-    
-    return false;
+
+    // Ensure we don't leak.
+    clean();
+    m_texture = texture;
+
+    return true;
 }
 
 

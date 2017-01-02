@@ -14,9 +14,6 @@ bool GeometryBuffer::isInitialised() const noexcept
 
 bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noexcept
 {
-    // Ensure we don't leak any data.
-    clean();
-
     // Ensure we don't modify this object if initialisation fails.
     auto fbo            = Framebuffer { };
     auto positions      = TextureRectangle { };
@@ -44,7 +41,7 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noex
     fbo.attachTexture (depthStencil,    GL_DEPTH_STENCIL_ATTACHMENT);
 
     // Check whether we've succeeded to construct the Gbuffer.
-    if (!fbo.validate())
+    if (!fbo.complete())
     {
         return false;
     }

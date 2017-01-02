@@ -7,9 +7,8 @@
 #include <string>
 
 
-// Aliases.
-using GLenum = unsigned int;
-using GLuint = unsigned int;
+// Engine headers.
+#include <tgl/tgl.h>
 
 
 /// <summary>
@@ -27,9 +26,8 @@ class Shader final
         Shader (const Shader&)              = delete;
         Shader& operator= (const Shader&)   = delete;
 
-        ~Shader() { if (isInitialised()) clean(); }
+        ~Shader() { clean(); }
         
-
 
         /// <summary> Check if the shader has been successfully compiled. </summary>
         inline bool isInitialised() const noexcept  { return m_shader != 0U; }
@@ -41,10 +39,10 @@ class Shader final
         inline GLenum getType() const noexcept      { return m_type; }
 
 
-
         /// <summary>
         /// Compile the shader from the given file locations. If called on a previously compiled shader, the old shader
         /// will be marked for deletion but deletion cannot occur until it has been detached from all programs.
+        /// Upon failure the object will not be modified.
         /// </summary>
         /// <param name="file"> The file location of the shader to be compiled. </param>
         /// <param name="type"> Describes the type of shader, e.g. GL_VERTEX_SHADER, GL_FRAGMENT_SHADER. </param>

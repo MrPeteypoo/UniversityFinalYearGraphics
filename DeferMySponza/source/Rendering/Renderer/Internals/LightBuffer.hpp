@@ -38,7 +38,8 @@ class LightBuffer final
 
         /// <summary> 
         /// Attemots to initialise the light buffer with the given format and attaches the given texture as
-        /// a depth-stencil attachment.
+        /// a depth-stencil attachment. Successive calls will re-initialise the object. Upon failure the
+        /// object will not be changed.
         /// </summary>
         /// <param name="depthStencilTexture"> The texture to be attached as a depth-stencil attachment. </param>
         /// <param name="internalFormat"> The data format of the renderbuffer, e.g. GL_RGB8. </param>

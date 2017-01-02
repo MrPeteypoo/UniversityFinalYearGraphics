@@ -34,7 +34,7 @@ bool Framebuffer::initialise() noexcept
 {
     // Generate an object.
     auto buffer = GLuint { 0 };
-    glGenFramebuffers (1, &buffer);
+    glCreateFramebuffers (1, &buffer);
 
     // Check the validity before using it.
     if (buffer == 0U)
@@ -45,6 +45,7 @@ bool Framebuffer::initialise() noexcept
     // Ensure we don't leak.
     clean();
     m_buffer = buffer;
+    m_attachPoints.reserve (8);
 
     return true;
 }
@@ -56,26 +57,29 @@ void Framebuffer::clean() noexcept
     {
         glDeleteFramebuffers (1, &m_buffer);
         m_buffer = 0U;
+        m_attachPoints.clear();
     }
 }
 
 
 void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment) noexcept
 {
-    // We need to bind the current framebuffer and the given renderbuffer to attach it.
-    const auto fbBinder = FramebufferBinder<GL_FRAMEBUFFER> { m_buffer };
-    const auto rbBinder = RenderbufferBinder<GL_RENDERBUFFER> { renderbuffer };
-
-    // Add the renderbuffer as an attachment.
-    glFramebufferRenderbuffer (GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer.getID());
+    glNamedFramebufferRenderbuffer (m_buffer, attachment, GL_RENDERBUFFER, renderbuffer.getID());
+    m_attachPoints.push_back (attachment);
 }
 
 
-bool Framebuffer::validate() noexcept
+bool Framebuffer::complete() noexcept
 {
-    // Bind the current framebuffer to check its status.
-    const auto binder = FramebufferBinder<GL_FRAMEBUFFER> { m_buffer };
+    // Specify the draw targets.
+    glNamedFramebufferDrawBuffers (m_buffer, static_cast<GLsizei> (m_attachPoints.size()), m_attachPoints.data());
 
-    // Check the status is valid.
-    return glCheckFramebufferStatus (GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    // Ensure the status is valid.
+    return glCheckNamedFramebufferStatus (m_buffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+}
+
+
+void Framebuffer::invalidateAllAttachments() noexcept
+{
+    glInvalidateNamedFramebufferData (m_buffer, static_cast<GLsizei> (m_attachPoints.size()), m_attachPoints.data());
 }

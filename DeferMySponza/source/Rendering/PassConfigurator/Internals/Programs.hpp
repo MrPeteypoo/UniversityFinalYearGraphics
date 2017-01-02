@@ -24,14 +24,13 @@ struct Programs final
         
 
     Programs() noexcept                         = default;
-    
     Programs (Programs&&) noexcept              = default;
     Programs& operator= (Programs&&) noexcept   = default;
 
     Programs (const Programs&)                  = delete;
     Programs& operator= (const Programs&)       = delete;
 
-    ~Programs() { unbind(); }
+    ~Programs()                                 = default;
 
 
     /// <summary> Checks whether the core programs have been loaded. </summary>
@@ -51,9 +50,6 @@ struct Programs final
 
     /// <summary> Detaches all shaders and deletes each program. </summary>
     void clean() noexcept;
-
-    /// <summary> Unbind the current program. </summary>
-    void unbind() const noexcept;
 
 };
 

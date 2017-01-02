@@ -30,7 +30,7 @@ bool Buffer::initialise() noexcept
 {
     // Generate an object.
     auto buffer = GLuint { 0 };
-    glGenBuffers (1, &buffer);
+    glCreateBuffers (1, &buffer);
 
     // Check the validity before using it.
     if (buffer == 0U)
@@ -53,12 +53,4 @@ void Buffer::clean() noexcept
         glDeleteBuffers (1, &m_buffer);
         m_buffer = 0U;
     }
-}
-
-
-void Buffer::allocate (const GLsizeiptr size, const GLenum target, const GLenum usage) const noexcept
-{
-    glBindBuffer (target, m_buffer);
-    glBufferData (target, size, nullptr, usage);
-    glBindBuffer (target, 0);
 }

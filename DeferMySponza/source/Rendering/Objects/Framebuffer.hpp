@@ -3,6 +3,10 @@
 #if !defined    _RENDERING_OBJECTS_FRAMEBUFFER_
 #define         _RENDERING_OBJECTS_FRAMEBUFFER_
 
+// STL headers
+#include <vector>
+
+
 // Engine headers.
 #include <tgl/tgl.h>
 
@@ -40,7 +44,7 @@ class Framebuffer final
 
         /// <summary> 
         /// Attempt to initialise the framebuffer object. Upon successful construction, objects can be attached as
-        /// colour attachments or depth/stencil attachments.
+        /// colour attachments or depth/stencil attachments. Upon failure the object won't be modified.
         /// </summary>
         /// <returns> Whether the buffer was successfully created or not. </returns>
         bool initialise() noexcept;
@@ -49,7 +53,7 @@ class Framebuffer final
         void clean() noexcept;
         
 
-        /// <summary> Attaches a renderbuffer to the framebuffer, overriding the bound GL_FRAMEBUFFER. </summary>
+        /// <summary> Attaches a renderbuffer to the framebuffer. </summary>
         /// <param name="renderbuffer"> The renderbuffer to be attached. </param>
         /// <param name="attachment"> 
         /// The location where the renderbuffer should be attached, e.g GL_COLOR_ATTACHMENT0,
@@ -57,7 +61,7 @@ class Framebuffer final
         /// </param>
         void attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment) noexcept;
 
-        /// <summary> Attaches a texture to the framebuffer, overriding the bound GL_FRAMEBUFFER. </summary>
+        /// <summary> Attaches a texture to the framebuffer. </summary>
         /// <param name="texture"> The texture to be attached. </param>
         /// <param name="attachment"> 
         /// The location where the texture should be attached, e.g GL_COLOR_ATTACHMENT0,
@@ -68,31 +72,31 @@ class Framebuffer final
         void attachTexture (const Texture<target>& texture, GLenum attachment, GLint level = 0) noexcept;
 
         /// <summary> 
-        /// Attempts to validate the framebuffer, this will check if the buffer is considered "complete" and
-        /// therefore whether it can be used as a framebuffer target. Overrides the bound GL_FRAMEBUFFER.
+        /// Attempts to complete the buffer by specifying draw targets.
         /// </summary>
-        /// <returns> Whether the framebuffer is "complete" and usable. </returns>
-        bool validate() noexcept;
+        /// <returns> Whether the framebuffer is complete and therefore can be used as a framebuffer target. </returns>
+        bool complete() noexcept;
+
+        /// <summary> Invalidates every attachment causing their contents to become undefined. </summary>
+        void invalidateAllAttachments() noexcept;
 
     private:
 
-        GLuint m_buffer { 0 }; //!< The OpenGL ID representing the framebuffer object.
+        GLuint              m_buffer        { 0 };  //!< The OpenGL ID representing the framebuffer object.
+        std::vector<GLenum> m_attachPoints  { };    //!< The points at which attachments have been attached, e.g. GL_COLOR_ATTACHMENT0.
 };
 
 
 // Required declarations.
-#include <Rendering/Binders/FramebufferBinder.hpp>
 #include <Rendering/Objects/Texture.hpp>
 
 
 template <GLenum target>
 void Framebuffer::attachTexture (const Texture<target>& texture, GLenum attachment, GLint level) noexcept
 {
-    // We need to bind the current framebuffer.
-    const auto binder = FramebufferBinder<GL_FRAMEBUFFER> { m_buffer };
-
     // Add the texture as an attachment.
-    glFramebufferTexture (GL_FRAMEBUFFER, attachment, texture.getID(), level);
+    glNamedFramebufferTexture (m_buffer, attachment, texture.getID(), level);
+    m_attachPoints.push_back (attachment);
 }
 
 #endif // _RENDERING_OBJECTS_FRAMEBUFFER_
