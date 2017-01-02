@@ -3,6 +3,7 @@
 
 // STL headers.
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <utility>
@@ -20,6 +21,7 @@
 #include <MyView/Internals/Material.hpp>
 #include <MyView/Internals/Mesh.hpp>
 #include <MyView/Internals/UniformData.hpp>
+#include <Rendering/Binders/BufferBinder.hpp>
 #include <Rendering/Uniforms/Uniforms.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/OpenGL/ToDelete.hpp>
@@ -64,10 +66,10 @@ void MyView::windowViewWillStart (tygra::Window*)
     {
         std::cerr << "Failed to bind all uniform blocks to the scene construction program." << std::endl;
     }
-    if (!m_uniforms.bindToProgram (programs.globalLight.getID()))
+    /*if (!m_uniforms.bindToProgram (programs.globalLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the directional lighting program." << std::endl;
-    }
+    }*/
     if (!m_uniforms.bindToProgram (programs.pointLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the point lighting program." << std::endl;
@@ -92,6 +94,22 @@ void MyView::windowViewWillStart (tygra::Window*)
 
     // Now we can construct the VAO so we're reading for rendering.
     constructVAO();
+
+    std::array<glm::vec2, 4> vertices 
+    {
+        glm::vec2 { -1, -1 },
+        glm::vec2 {  1, -1 },
+        glm::vec2 {  1,  1 },
+        glm::vec2 { -1,  1 }
+    };
+
+    quadVBO.initialise();
+    quadVBO.fillWith (vertices, GL_STATIC_DRAW);
+
+    glCreateVertexArrays (1, &quadVAO);
+    glEnableVertexArrayAttrib (quadVAO, 0);
+    glVertexArrayVertexBuffer (quadVAO, 0, quadVBO.getID(), 0, sizeof (glm::vec2));
+    glVertexArrayAttribFormat (quadVAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
 }
 
 
@@ -462,6 +480,98 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
 
 
 void MyView::windowViewRender (tygra::Window*)
+{
+    // Define matrices.
+    const auto& camera      = m_scene->getCamera();
+    const auto  projection	= glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
+                view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
+
+    // Perform the geometry pass.
+    m_configurator.geometryPass (m_gbuffer);
+    renderGeometry (projection, view);
+
+    // Perform the global lighting pass.
+    m_configurator.globalLightPass (m_lbuffer);
+    glBindVertexArray (quadVAO);
+    glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
+    glBindVertexArray (0);
+
+    GLint viewport_size[4];
+    glGetIntegerv(GL_VIEWPORT, viewport_size);
+
+    glBlitNamedFramebuffer (
+        m_lbuffer.getFramebuffer().getID(), 0,
+        viewport_size[0], viewport_size[1], viewport_size[2], viewport_size[3], 
+        viewport_size[0], viewport_size[1], viewport_size[2], viewport_size[3], 
+        GL_COLOR_BUFFER_BIT, GL_LINEAR
+    );
+    
+    glBindFramebuffer (GL_FRAMEBUFFER, 0);
+}
+
+
+void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept
+{
+    // Update the uniforms.
+    m_uniforms.updateScene (m_scene, projectionMatrix, viewMatrix);
+
+    // The scene VAO contains all renderable geometry.
+    glBindVertexArray (m_sceneVAO);
+
+    // We need to bind the transform buffer for instancing to work.
+    const auto arrayBuffer = BufferBinder<GL_ARRAY_BUFFER> { m_poolTransforms };
+
+    // We need a vector to store the matrices on the CPU side.
+    static auto matrices = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
+
+    // Iterate through each mesh using instancing to reduce GL calls.
+    for (const auto& pair : m_meshes)
+    {
+        // Obtain the instances to draw for the current mesh.
+        const auto& instances   = m_scene->getInstancesByMeshId (pair.first);
+        const auto size         = instances.size();
+
+        // Check if we need to do any rendering at all.
+        if (size != 0U)
+        {
+            // Update the instance-specific information.
+            for (size_t i { 0 }; i < size; ++i)
+            {
+                // Cache the current instance.
+                const auto& instance = m_scene->getInstanceById (instances[i]);
+
+                // Obtain the current instances model transformation.
+                const auto modelMatrix = glm::mat4 (util::toGLM (instance.getTransformationMatrix()));
+
+                // We have both the model and pvm matrices in the buffer so we need an offset.
+                const auto offset       = i * 2;
+                matrices[offset]        = modelMatrix;
+                matrices[offset + 1]    = projectionMatrix * viewMatrix * modelMatrix;
+            }
+			// TODO: Make this less brittle.
+            // Only overwrite the required data to speed up the buffering process.
+            glBufferSubData (GL_ARRAY_BUFFER, 0, sizeof (glm::mat4) * 2 * size, matrices.data());
+            
+            // Cache access to the current mesh.
+            const auto& mesh = pair.second;
+
+            // Finally draw all instances at the same time.
+            glDrawElementsInstancedBaseVertex (
+                GL_TRIANGLES, 
+                mesh.elementCount, 
+                GL_UNSIGNED_INT, 
+                (void*) mesh.elementsOffset, 
+                static_cast<GLsizei> (size), 
+                static_cast<GLint> (mesh.verticesIndex)
+            );
+        }
+    }   
+
+    glBindVertexArray (0);
+}
+
+
+/*void MyView::windowViewRender (tygra::Window*)
 { // TODO: Split into a Renderer class of some kind.
     /// For the rendering of the scene I have chosen to implement instancing. A traditional approach of rendering would be looping through each instance,
     /// assigning the correct model and PVM transforms, then drawing that one mesh before repeating the process. I don't use that method here, instead
@@ -499,7 +609,7 @@ void MyView::windowViewRender (tygra::Window*)
     glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
     
     // Geometry pass.
-    /*m_configurator.switchToSceneConstructionMode();
+    m_configurator.switchToSceneConstructionMode();
     mapTexturesToProgram (m_configurator.getPrograms().sceneConstruction.getID());
     renderGeometry (projection, view);
 
@@ -528,7 +638,7 @@ void MyView::windowViewRender (tygra::Window*)
     {
         m_uniforms.updateSpotlight (light);
         renderGeometry (projection, view);
-    }*/
+    }
 
     // UNBIND IT ALL CAPTAIN!
     glBindVertexArray (0);
@@ -545,6 +655,23 @@ void MyView::windowViewRender (tygra::Window*)
 
 void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept
 {
+    // The scene VAO contains all renderable geometry.
+    glBindVertexArray (m_sceneVAO);
+
+    // We need to bind the transform buffer for instancing to work.
+    glBindBuffer (GL_ARRAY_BUFFER, m_poolTransforms);
+    glBindBuffer (GL_TEXTURE_BUFFER, m_poolMaterialIDs.vbo);
+
+    // Specify the textures to use.
+    glActiveTexture (GL_TEXTURE0 + m_textureArray);
+    glBindTexture (GL_TEXTURE_2D_ARRAY, m_textureArray);
+
+    glActiveTexture (GL_TEXTURE0 + m_materials.tbo);
+    glBindTexture (GL_TEXTURE_BUFFER, m_materials.tbo);
+
+    glActiveTexture (GL_TEXTURE0 + m_poolMaterialIDs.tbo);
+    glBindTexture (GL_TEXTURE_BUFFER, m_poolMaterialIDs.tbo);
+
     // Use vectors for storing instancing data> This requires a material ID, a model transform and a PVM transform.
 	static auto materialIDs = std::vector<MaterialID> (m_instancePoolSize);
     static auto matrices    = std::vector<glm::mat4> (m_instancePoolSize * 2); // TODO: Make this less brittle.
@@ -595,7 +722,9 @@ void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4&
             );
         }
     }   
-}
+
+    glBindVertexArray (0);
+}*/
 
 
 void MyView::mapTexturesToProgram (const GLuint program) const noexcept

@@ -3,8 +3,8 @@
 #if !defined    _RENDERING_PROGRAM_
 #define         _RENDERING_PROGRAM_
 
-// Engine headers.
-#include <tgl/tgl.h>
+// Personal headers.
+#include <Rendering/Objects/Shader.hpp>
 
 
 /// <summary>

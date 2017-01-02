@@ -6,7 +6,7 @@
 
 
 // Personal headers.
-#include <Rendering/Binders/RenderbufferBinder.hpp>
+#include <Rendering/Objects/Renderbuffer.hpp>
 
 
 Framebuffer::Framebuffer (Framebuffer&& move) noexcept
@@ -45,7 +45,8 @@ bool Framebuffer::initialise() noexcept
     // Ensure we don't leak.
     clean();
     m_buffer = buffer;
-    m_attachPoints.reserve (8);
+    m_attachments.reserve (8);
+    m_drawBuffers.reserve (8);
 
     return true;
 }
@@ -57,22 +58,27 @@ void Framebuffer::clean() noexcept
     {
         glDeleteFramebuffers (1, &m_buffer);
         m_buffer = 0U;
-        m_attachPoints.clear();
+        m_attachments.clear();
     }
 }
 
 
-void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment) noexcept
+void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment, bool asDrawBuffer) noexcept
 {
     glNamedFramebufferRenderbuffer (m_buffer, attachment, GL_RENDERBUFFER, renderbuffer.getID());
-    m_attachPoints.push_back (attachment);
+    m_attachments.push_back (attachment);
+    
+    if (asDrawBuffer)
+    {
+        m_drawBuffers.push_back (attachment);
+    }
 }
 
 
 bool Framebuffer::complete() noexcept
 {
     // Specify the draw targets.
-    glNamedFramebufferDrawBuffers (m_buffer, static_cast<GLsizei> (m_attachPoints.size()), m_attachPoints.data());
+    glNamedFramebufferDrawBuffers (m_buffer, static_cast<GLsizei> (m_drawBuffers.size()), m_drawBuffers.data());
 
     // Ensure the status is valid.
     return glCheckNamedFramebufferStatus (m_buffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
@@ -81,5 +87,5 @@ bool Framebuffer::complete() noexcept
 
 void Framebuffer::invalidateAllAttachments() noexcept
 {
-    glInvalidateNamedFramebufferData (m_buffer, static_cast<GLsizei> (m_attachPoints.size()), m_attachPoints.data());
+    glInvalidateNamedFramebufferData (m_buffer, static_cast<GLsizei> (m_attachments.size()), m_attachments.data());
 }

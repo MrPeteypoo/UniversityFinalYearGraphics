@@ -145,6 +145,8 @@ class MyView final : public tygra::WindowViewDelegate
         scene::Context*                                     m_scene             { nullptr };    //!< The sponza scene containing instance and camera information.
         std::vector<std::pair<scene::MeshId, Mesh>>         m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
         std::unordered_map<scene::MaterialId, MaterialID>   m_materialIDs       { };            //!< A map containing each material used for rendering.
+        GLuint quadVAO { 0 };
+        Buffer quadVBO { };
 };
 
 #endif // _MY_VIEW_

@@ -22,8 +22,8 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     geo.attachShader (shaders.compiled.find (geometryVS)->second);
     geo.attachShader (shaders.compiled.find (geometryFS)->second);
     
-    global.attachShader (shaders.compiled.find (geometryVS)->second);
-    global.attachShader (shaders.compiled.find (directionalLightFS)->second);
+    global.attachShader (shaders.compiled.find (fullScreenQuadVS)->second);
+    global.attachShader (shaders.compiled.find (globalLightFS)->second);
     
     point.attachShader (shaders.compiled.find (geometryVS)->second);
     point.attachShader (shaders.compiled.find (pointLightFS)->second);

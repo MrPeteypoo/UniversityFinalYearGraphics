@@ -54,7 +54,7 @@ class Uniforms final
 
         void updateSpotlight (const scene::SpotLight& light) noexcept;
 
-        void updateBuffer() const noexcept;
+        void updateBuffer() noexcept;
 
     private:
 

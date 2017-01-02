@@ -12,17 +12,12 @@
 #include <Rendering/Objects/Shader.hpp>
 
 
-// Forward declarations.
-using GLenum = unsigned int;
-
-
 /// <summary>
 /// Contains the OpenGL shaders required to construct OpenGL programs.
 /// </summary>
 struct Shaders final
 {
     std::unordered_map<std::string, Shader> compiled {}; //!< A collection of successfully compiled shaders mapped by their filename.
-
 
 
     Shaders()                           = default;
@@ -36,13 +31,11 @@ struct Shaders final
     ~Shaders()                          = default;
     
 
-
     /// <summary> Checks whether the core programs have been loaded. </summary>
     inline bool isInitialised() const noexcept 
     { 
         return !compiled.empty();
     }
-
 
 
     /// <summary> 
@@ -53,7 +46,6 @@ struct Shaders final
 
     /// <summary> Discards and marks all shaders for deletion. They won't be deleted until detached from all programs. </summary>
     inline void clean() noexcept { compiled.clear(); }
-
 
 
     /// <summary> Attempts to compile a shader from the given file location, if successful it'll be added. </summary>

@@ -19,7 +19,7 @@ bool LightBuffer::initialise (const TextureRectangle& depthStencilTexture, GLenu
 
     // Set up the framebuffer and check the validity.
     fbo.attachRenderbuffer  (colour, GL_COLOR_ATTACHMENT0);
-    fbo.attachTexture (depthStencilTexture, GL_DEPTH_STENCIL_ATTACHMENT);
+    fbo.attachTexture (depthStencilTexture, GL_DEPTH_STENCIL_ATTACHMENT, false);
 
     if (!fbo.complete())
     {

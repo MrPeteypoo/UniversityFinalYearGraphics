@@ -62,7 +62,7 @@ class PassConfigurator final
         void geometryPass (const GeometryBuffer& gbuffer) const noexcept;
 
         /// <summary> Prepares OpenGL to apply global lighting after the geometry pass. </summary>
-        void globalLightPass (const GeometryBuffer& gbuffer, const LightBuffer& lbuffer) const noexcept;
+        void globalLightPass (const LightBuffer& lbuffer) const noexcept;
 
         /// <summary> Prepares OpenGL to apply point lighting after applying global light. </summary>
         void pointLightPass() const noexcept;

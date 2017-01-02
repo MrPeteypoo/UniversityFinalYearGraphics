@@ -38,7 +38,7 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noex
     fbo.attachTexture (positions,       GL_COLOR_ATTACHMENT0 + positionLocation);
     fbo.attachTexture (normals,         GL_COLOR_ATTACHMENT0 + normalLocation);
     fbo.attachTexture (materials,       GL_COLOR_ATTACHMENT0 + materialLocation);
-    fbo.attachTexture (depthStencil,    GL_DEPTH_STENCIL_ATTACHMENT);
+    fbo.attachTexture (depthStencil,    GL_DEPTH_STENCIL_ATTACHMENT, false);
 
     // Check whether we've succeeded to construct the Gbuffer.
     if (!fbo.complete())

@@ -59,7 +59,8 @@ class Framebuffer final
         /// The location where the renderbuffer should be attached, e.g GL_COLOR_ATTACHMENT0,
         /// GL_DEPTH_ATTACHMENT, GL_DEPTH_STENCIL_ATTACHMENT.
         /// </param>
-        void attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment) noexcept;
+        /// <param name="asDrawBuffer"> Whether the attachment should be added as a draw buffer. </param>
+        void attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment, bool asDrawBuffer = true) noexcept;
 
         /// <summary> Attaches a texture to the framebuffer. </summary>
         /// <param name="texture"> The texture to be attached. </param>
@@ -67,9 +68,10 @@ class Framebuffer final
         /// The location where the texture should be attached, e.g GL_COLOR_ATTACHMENT0,
         /// GL_DEPTH_ATTACHMENT, GL_DEPTH_STENCIL_ATTACHMENT.
         /// </param>
+        /// <param name="asDrawBuffer"> Whether the attachment should be added as a draw buffer. </param>
         /// <param name="level"> The mipmap level to attach. </param>
         template <GLenum target>
-        void attachTexture (const Texture<target>& texture, GLenum attachment, GLint level = 0) noexcept;
+        void attachTexture (const Texture<target>& texture, GLenum attachment, bool asDrawBuffer = true, GLint level = 0) noexcept;
 
         /// <summary> 
         /// Attempts to complete the buffer by specifying draw targets.
@@ -83,7 +85,8 @@ class Framebuffer final
     private:
 
         GLuint              m_buffer        { 0 };  //!< The OpenGL ID representing the framebuffer object.
-        std::vector<GLenum> m_attachPoints  { };    //!< The points at which attachments have been attached, e.g. GL_COLOR_ATTACHMENT0.
+        std::vector<GLenum> m_attachments   { };    //!< The points at which attachments have been attached, e.g. GL_COLOR_ATTACHMENT0.
+        std::vector<GLenum> m_drawBuffers   { };    //!< The draw buffers that should be applied to the framebuffer.
 };
 
 
@@ -92,11 +95,16 @@ class Framebuffer final
 
 
 template <GLenum target>
-void Framebuffer::attachTexture (const Texture<target>& texture, GLenum attachment, GLint level) noexcept
+void Framebuffer::attachTexture (const Texture<target>& texture, GLenum attachment, bool asDrawBuffer, GLint level) noexcept
 {
     // Add the texture as an attachment.
     glNamedFramebufferTexture (m_buffer, attachment, texture.getID(), level);
-    m_attachPoints.push_back (attachment);
+    m_attachments.push_back (attachment);
+    
+    if (asDrawBuffer)
+    {
+        m_drawBuffers.push_back (attachment);
+    }
 }
 
 #endif // _RENDERING_OBJECTS_FRAMEBUFFER_

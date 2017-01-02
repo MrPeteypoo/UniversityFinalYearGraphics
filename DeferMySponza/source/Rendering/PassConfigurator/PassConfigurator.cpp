@@ -64,7 +64,7 @@ void PassConfigurator::geometryPass (const GeometryBuffer& gbuffer) const noexce
 }
 
 
-void PassConfigurator::globalLightPass (const GeometryBuffer& gbuffer, const LightBuffer& lbuffer) const noexcept
+void PassConfigurator::globalLightPass (const LightBuffer& lbuffer) const noexcept
 {
     // We don't need the depth test for global light.
     glDisable (GL_DEPTH_TEST);

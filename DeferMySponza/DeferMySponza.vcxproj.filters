@@ -177,25 +177,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\pointLight.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\sponza.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\sponza.vs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\spotlight.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\directionalLight.fs.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\Geometry.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\Geometry.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\FullScreenQuad.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\GlobalLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\PointLight.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Spotlight.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

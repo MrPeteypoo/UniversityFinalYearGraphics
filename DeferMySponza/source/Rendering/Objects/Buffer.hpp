@@ -49,9 +49,8 @@ class Buffer final
         /// given target.
         /// </summary>
         /// <param name="size"> The total size in bytes to allocate. </param>
-        /// <param name="target"> The target buffer type, e.g. GL_ARRAY_BUFFER/GL_ELEMENT_ARRAY_BUFFER. </param>
         /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
-        void allocate (const GLsizeiptr size, const GLenum target, const GLenum usage) const noexcept
+        void allocate (const GLsizeiptr size, const GLenum usage) noexcept
         {
             glNamedBufferData (m_buffer, size, nullptr, usage);
         }
@@ -61,24 +60,27 @@ class Buffer final
         /// This function will bind and unbind itself to the given target.
         /// </summary>
         /// <param name="data"> An array of data to fill the buffer with. </param>
-        /// <param name="target"> The target buffer type, e.g. GL_ARRAY_BUFFER/GL_ELEMENT_ARRAY_BUFFER. </param>
         /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
-        template <typename Data, template <typename, typename...> typename Container, typename... Args>
-        void fillWith (const Container<Data, Args...>& data, const GLenum target, const GLenum usage) const noexcept
+        template <typename Data, template <typename, typename = size_t...> typename Container, typename... Args>
+        void fillWith (const Container<Data, Args...>& data, const GLenum usage) noexcept
         {
             glNamedBufferData (m_buffer, data.size() * sizeof (Data), data.data(), usage);
+        }
+        template <typename Container>
+        void fillWith (const Container& data, const GLenum usage) noexcept
+        {
+            glNamedBufferData (m_buffer, data.size() * sizeof (data.data()[0]), data.data(), usage);
         }
 
         /// <summary> 
         /// Used to place data inside the previously allocated buffer at the given offset. If allocate() or fillWith() 
         /// hasn't been called then this will likely cause an OpenGL error. Bounds checking will not occur.
         /// This function will bind and unbind itself to the given target.
-        /// <summary>
+        /// </summary>
         /// <param name="data"> The data to place inside the buffer. </param>
-        /// <param name="target"> The binding target of the buffer, e.g. GL_ARRAY_BUFFER. </param>
         /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         template <typename Data>
-        void placeInside (const Data& data, const GLenum target, const GLintptr offset) const noexcept
+        void placeInside (const Data& data, const GLintptr offset) noexcept
         {
             glNamedBufferSubData (m_buffer, offset, sizeof (Data), &data);
         }
