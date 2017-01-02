@@ -56,7 +56,7 @@ void PassConfigurator::geometryPass (const GeometryBuffer& gbuffer) const noexce
 
     // Clear the stored depth and stencil values.
     glClearDepth (GLdouble { 1 });
-    glClearStencil (~0);
+    glClearStencil (skyStencilValue);
     glClear (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Finally use the correct program.
@@ -71,7 +71,7 @@ void PassConfigurator::globalLightPass (const LightBuffer& lbuffer) const noexce
     glDepthMask (GL_FALSE);
 
     // We should ignore the background and only shade geometry.
-    glStencilFunc (GL_NOTEQUAL, 0, ~0);
+    glStencilFunc (GL_NOTEQUAL, skyStencilValue, ~0);
     glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 
     // We're reading from the gbuffer, which was previously bound, and writing to the lbuffer.

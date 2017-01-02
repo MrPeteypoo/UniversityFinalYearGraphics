@@ -74,6 +74,8 @@ class PassConfigurator final
 
         Programs    m_programs  { };    //!< Stores the programs used in different rendering passes.
         Shaders     m_shaders   { };    //!< Stores the shaders available to programs.
+
+        constexpr static GLuint skyStencilValue { 128 }; //!< The stencil value representing the sky.
 };
 
 #endif // _RENDERING_RENDERING_PASS_CONFIGURATOR_
