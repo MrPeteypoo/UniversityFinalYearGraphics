@@ -23,13 +23,12 @@ namespace util
     void allocateImmutableStorage (Tex& texture, GLenum internalFormat, 
         GLsizei width, GLsizei height, GLsizei levels = 1)
     {
-        const TextureBinder<Tex::target> binder { texture };
-        glTexStorage2D (Tex::target, levels, internalFormat, width, height);
+        glTextureStorage2D (texture.getID(), levels, internalFormat, width, height);
     }
 
     /// <summary> 
     /// Allocates mutable storage and uploads data at the same time. Doing so after allocating immutable storage
-    /// is an error and won't do anything.
+    /// is an error and won't do anything. Binds the given texture to modify it.
     /// </summary>
     /// <param name="internalFormat"> Specifies the internal format of the memory, e.g. GL_RGB8. </param>
     /// <param name="width"> How many pixels wide the texture should be. </param>
@@ -47,8 +46,8 @@ namespace util
     }
 
     /// <summary>
-    /// An override for cube maps, the desired face must be specified in the first template parameter. 
-    /// E.g. util::allocateMutableStorage<GL_TEXTURE_CUBE_MAP_POSITIVE_X> (blah...).
+    /// An override for cube maps, the desired face must be specified in the first template parameter. E.g. 
+    /// util::allocateMutableStorage<GL_TEXTURE_CUBE_MAP_POSITIVE_X> (blah...). Binds the given texture to modify it. 
     /// </summary>
     template <GLenum CubeFace, typename Tex, typename = std::enable_if_t<std::is_same<Tex, TextureCubeMap>::value, Tex>>
     void allocateMutableStorage (Tex& texture, GLenum internalFormat, GLsizei width, GLsizei height, 

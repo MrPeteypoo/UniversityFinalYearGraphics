@@ -19,10 +19,9 @@ namespace util
 
         // Specify the block binding to be used.
         glUniformBlockBinding (program, index, bindingPoint);
-        if (glGetError() != GL_NO_ERROR) return false;
 
         // Finally inform the GPU which part of the UBO to read data from.
         glBindBufferRange (GL_UNIFORM_BUFFER, bindingPoint, buffer.getID(), offsetIntoBuffer, blockSize);
-        return glGetError() == GL_NO_ERROR;
+        return true;
     }
 }
