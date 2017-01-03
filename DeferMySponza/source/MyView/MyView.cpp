@@ -19,10 +19,10 @@
 // Personal headers.
 #include <Misc/Vertex.hpp>
 #include <MyView/Internals/Material.hpp>
-#include <MyView/Internals/Mesh.hpp>
+#include <Rendering/Renderer/Geometry/Mesh.hpp>
 #include <MyView/Internals/UniformData.hpp>
 #include <Rendering/Binders/BufferBinder.hpp>
-#include <Rendering/Uniforms/Uniforms.hpp>
+#include <Rendering/Renderer/Uniforms/Uniforms.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/OpenGL/ToDelete.hpp>
 #include <Utility/Scene.hpp>
@@ -51,7 +51,7 @@ void MyView::windowViewWillStart (tygra::Window*)
 {
     assert (m_scene != nullptr);
 
-    if (!m_configurator.initialise())
+    /*if (!m_configurator.initialise())
     {
         std::cerr << "PassConfigurator couldn't initialise." << std::endl;
     }
@@ -60,16 +60,16 @@ void MyView::windowViewWillStart (tygra::Window*)
     {
         throw std::runtime_error ("Unable to initialise uniform buffers.");
     }
-
+    
     const auto& programs = m_configurator.getPrograms();    
     if (!m_uniforms.bindToProgram (programs.geometry.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the scene construction program." << std::endl;
     }
-    /*if (!m_uniforms.bindToProgram (programs.globalLight.getID()))
+    if (!m_uniforms.bindToProgram (programs.globalLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the directional lighting program." << std::endl;
-    }*/
+    }
     if (!m_uniforms.bindToProgram (programs.pointLight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the point lighting program." << std::endl;
@@ -77,7 +77,7 @@ void MyView::windowViewWillStart (tygra::Window*)
     if (!m_uniforms.bindToProgram (programs.spotlight.getID()))
     {
         std::cerr << "Failed to bind all uniform blocks to the spotlighting program." << std::endl;
-    }
+    }*/
 
     // TODO: Some form of renderer component which stores and constructs buffers.
     // Generate the buffers.
@@ -102,14 +102,6 @@ void MyView::windowViewWillStart (tygra::Window*)
         glm::vec2 {  1,  1 },
         glm::vec2 { -1,  1 }
     };
-
-    quadVBO.initialise();
-    quadVBO.fillWith (vertices, GL_STATIC_DRAW);
-
-    glCreateVertexArrays (1, &quadVAO);
-    glEnableVertexArrayAttrib (quadVAO, 0);
-    glVertexArrayVertexBuffer (quadVAO, 0, quadVBO.getID(), 0, sizeof (glm::vec2));
-    glVertexArrayAttribFormat (quadVAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
 }
 
 
@@ -135,7 +127,7 @@ void MyView::buildMeshData()
     // Begin to construct sponza.
     const auto& builder = scene::GeometryBuilder();
     const auto& meshes  = builder.getAllMeshes();
-
+    
     // Resize our vector to speed up the loading process.
     m_meshes.resize (meshes.size());
 
@@ -467,7 +459,7 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
     // Reset the viewport and recalculate the aspect ratio.
     glViewport (0, 0, width, height);
     m_aspectRatio = width / static_cast<float> (height);
-    if (!m_gbuffer.initialise (width, height))
+    /*if (!m_gbuffer.initialise (width, height))
     {
         std::cerr << "Failed to initialise the Gbuffer." << std::endl;
     }
@@ -475,7 +467,7 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
     if (!m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGB8, width, height))
     {
         std::cerr << "Failed to initialise the Lbuffer." << std::endl;
-    }
+    }*/
 }
 
 
@@ -487,7 +479,7 @@ void MyView::windowViewRender (tygra::Window*)
                 view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
 
     // Perform the geometry pass.
-    m_configurator.geometryPass (m_gbuffer);
+    /*m_configurator.geometryPass (m_gbuffer);
     renderGeometry (projection, view);
 
     // Perform the global lighting pass.
@@ -506,13 +498,13 @@ void MyView::windowViewRender (tygra::Window*)
         GL_COLOR_BUFFER_BIT, GL_LINEAR
     );
     
-    glBindFramebuffer (GL_FRAMEBUFFER, 0);
+    glBindFramebuffer (GL_FRAMEBUFFER, 0);*/
 }
 
 
 void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) noexcept
 {
-    // Update the uniforms.
+    /*// Update the uniforms.
     m_uniforms.updateScene (m_scene, projectionMatrix, viewMatrix);
 
     // The scene VAO contains all renderable geometry.
@@ -567,7 +559,7 @@ void MyView::renderGeometry (const glm::mat4& projectionMatrix, const glm::mat4&
         }
     }   
 
-    glBindVertexArray (0);
+    glBindVertexArray (0);*/
 }
 
 
@@ -733,7 +725,7 @@ void MyView::mapTexturesToProgram (const GLuint program) const noexcept
     const auto materials    = glGetUniformLocation (program, "materials");
     const auto materialIDs  = glGetUniformLocation (program, "materialIDs");
 
-    glUniform1i (textures, m_textureArray);
+    /*glUniform1i (textures, m_textureArray);
     glUniform1i (materials, m_materials.tbo);
-    glUniform1i (materialIDs, m_poolMaterialIDs.tbo);
+    glUniform1i (materialIDs, m_poolMaterialIDs.tbo);*/
 }

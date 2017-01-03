@@ -17,11 +17,11 @@
 
 // Personal headers.
 #include <MyView/Internals/Material.hpp>
-#include <MyView/Internals/Mesh.hpp>
-#include <Rendering/PassConfigurator/PassConfigurator.hpp>
-#include <Rendering/Renderer/Internals/GeometryBuffer.hpp>
-#include <Rendering/Renderer/Internals/LightBuffer.hpp>
-#include <Rendering/Uniforms/Uniforms.hpp>
+#include <Rendering/Renderer/Geometry/Mesh.hpp>
+#include <Rendering/Renderer/Drawing/PassConfigurator.hpp>
+#include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
+#include <Rendering/Renderer/Drawing/LightBuffer.hpp>
+#include <Rendering/Renderer/Uniforms/Uniforms.hpp>
 #include <Utility/OpenGL/ToDelete.hpp>
 
 
@@ -122,11 +122,11 @@ class MyView final : public tygra::WindowViewDelegate
             GLuint  tbo { 0 };  //!< The texture buffer which points to the VBO, linking them together.
         };
 
-        PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
+        /*PassConfigurator                                    m_configurator      { };            //!< Used to configure the OpenGL context before rendering.
         Uniforms                                            m_uniforms          { };            //!< Stores and updates uniforms used by the scene.
         GeometryBuffer                                      m_gbuffer           { };            //!< A rendering target where the scene geometry is constructed, independant of lighting.
         LightBuffer                                         m_lbuffer           { };            //!< A rendering target where lighting is applied before being rendered on screen.
-
+        */
         GLuint                                              m_sceneVAO          { 0 };          //!< A Vertex Array Object for the entire scene.
         GLuint                                              m_vertexVBO         { 0 };          //!< A Vertex Buffer Object which contains the interleaved vertex data of every mesh in the scene.
         GLuint                                              m_elementVBO        { 0 };          //!< A Vertex Buffer Object with the elements data for every mesh in the scene.
@@ -146,7 +146,7 @@ class MyView final : public tygra::WindowViewDelegate
         std::vector<std::pair<scene::MeshId, Mesh>>         m_meshes            { };            //!< A container of MeshId and Mesh pairs, used in instance-based rendering of meshes in the scene.
         std::unordered_map<scene::MaterialId, MaterialID>   m_materialIDs       { };            //!< A map containing each material used for rendering.
         GLuint quadVAO { 0 };
-        Buffer quadVBO { };
+        //Buffer quadVBO { };
 };
 
 #endif // _MY_VIEW_

@@ -2,8 +2,8 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Internals/HardCodedShaders.hpp>
-#include <Rendering/PassConfigurator/Internals/Shaders.hpp>
+#include <Rendering/Renderer/Programs/HardCodedShaders.hpp>
+#include <Rendering/Renderer/Programs/Shaders.hpp>
 
 
 bool Programs::initialise (const Shaders& shaders) noexcept

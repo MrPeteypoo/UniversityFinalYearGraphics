@@ -10,19 +10,16 @@ layout (std140) uniform scene
     vec3    ambience;           //!< The ambient lighting in the scene.
 };
 
+layout (location = 0)   in  vec3    position;       //!< The local position of the current vertex.
+layout (location = 1)   in  vec3    normal;         //!< The local normal vector of the current vertex.
+layout (location = 2)   in  vec2    textureCoord;   //!< The texture co-ordinates for the vertex, used for mapping a texture to the object.
+layout (location = 3)   in  mat4    model;          //!< The model transform representing the position and rotation of the object in world space.
+layout (location = 7)   in  mat4    pvm;            //!< A combined matrix of the project, view and model transforms.
 
-layout (location = 0)   in      vec3    position;       //!< The local position of the current vertex.
-layout (location = 1)   in      vec3    normal;         //!< The local normal vector of the current vertex.
-layout (location = 2)   in      vec2    textureCoord;   //!< The texture co-ordinates for the vertex, used for mapping a texture to the object.
-
-layout (location = 3)   in      mat4    model;          //!< The model transform representing the position and rotation of the object in world space.
-layout (location = 7)   in      mat4    pvm;            //!< A combined matrix of the project, view and model transforms.
-
-
-                        out     vec3    worldPosition;  //!< The world position to be interpolated for the fragment shader.
-                        out     vec3    worldNormal;    //!< The world normal to be interpolated for the fragment shader.
-                        out     vec2    texturePoint;   //!< The texture co-ordinate for the fragment to use for texture mapping.
-flat                    out     int     instanceID;     //!< Allows the fragment shader to fetch the correct colour data.
+                        out vec3    worldPosition;  //!< The world position to be interpolated for the fragment shader.
+                        out vec3    worldNormal;    //!< The world normal to be interpolated for the fragment shader.
+                        out vec2    texturePoint;   //!< The texture co-ordinate for the fragment to use for texture mapping.
+flat                    out int     instanceID;     //!< Allows the fragment shader to fetch the correct colour data.
 
 
 void main()

@@ -10,7 +10,7 @@
 
 // Personal headers.
 #include <Rendering/Objects/Buffer.hpp>
-#include <Rendering/Uniforms/Internals/UniformBlocks.hpp>
+#include <Rendering/Renderer/Uniforms/Internals/UniformBlocks.hpp>
 
 
 // Forward declarations.

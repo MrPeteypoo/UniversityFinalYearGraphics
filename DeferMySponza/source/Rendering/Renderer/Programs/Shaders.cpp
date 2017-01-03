@@ -2,7 +2,7 @@
 
 
 // Personal headers.
-#include <Rendering/PassConfigurator/Internals/HardCodedShaders.hpp>
+#include <Rendering/Renderer/Programs/HardCodedShaders.hpp>
 
 
 bool Shaders::initialise() noexcept
