@@ -1,10 +1,11 @@
 #pragma once
 
-#if !defined    _RENDERING_GEOMETRY_
-#define         _RENDERING_GEOMETRY_
+#if !defined    _RENDERING_RENDERER_GEOMETRY_
+#define         _RENDERING_RENDERER_GEOMETRY_
 
 // STL headers.
 #include <memory>
+#include <unordered_map>
 
 
 // Engine headers.
@@ -13,8 +14,8 @@
 
 // Personal headers.
 #include <Rendering/Objects/Buffer.hpp>
-#include <Rendering/Objects/VertexArray.hpp>
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
+#include <Rendering/Renderer/Geometry/SceneVAO.hpp>
 
 
 /// <summary>
@@ -33,14 +34,27 @@ class Geometry final
         Geometry (const Geometry&)                  = delete;
         Geometry& operator= (const Geometry&)       = delete;
 
+        
+        inline const SceneVAO& getSceneVAO() const noexcept      { return m_scene; }
+
+        inline SceneVAO& getSceneVAO() noexcept                  { return m_scene; }
+
+        inline const VertexArray& getLightingVAO() const noexcept   { return m_lighting; }
+
+        inline VertexArray& getLightingVAO() noexcept               { return m_lighting; }
+
+
+
 
         /// <summary> 
-        /// Constructs geometry from scene::GeometryBuilder as well as constructing the required light sources, and
-        /// preparing static objects for static batching.
+        /// Constructs geometry from scene::GeometryBuilde
         /// </summary>
-        /// <param name="scene"> A context to use for determining static objects. </param>
+        /// <param name="scene"> A context to use for determining the number of spotlight meshes to build. </param>
+        /// <param name="staticInstanceCount"> The total number of static instances in the scene. </param>
+        /// <param name="staticInstances"> Contains every static instance which will be loaded into memory. </param> 
         /// <returns> Whether initialisation was successful or not. </returns>
-        bool initialise (scene::Context* scene) noexcept;
+        bool initialise (const size_t staticInstanceCount, 
+            const std::unordered_map<scene::MeshId, scene::Instance>& staticInstances) noexcept;
 
         /// <summary> Destroys every stored object and returns to a clean state. </summary>
         void clean() noexcept;
@@ -50,16 +64,17 @@ class Geometry final
         struct Internals;
         using Pimpl = std::unique_ptr<Internals>;
 
-        VertexArray m_scene         { };    //!< Used for drawing all scene geometry.
-        Buffer      m_transforms    { };    //!< Stores a PVM and model transform for every rendered instance.
-        Buffer      m_materialIDs   { };    //!< Stores the material IDs of every rendered instance.
+        SceneVAO    m_scene         { };    //!< Used for drawing all scene geometry.
+        Buffer      m_transforms    { };    //!< Stores model transforms for all static objects in the scene.
+        Buffer      m_materialIDs   { };    //!< Contains material IDs for all static objects in the scene.
         
-        VertexArray m_light         { };    //!< Used for applying light using quads, spheres and cones.
+        VertexArray m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
         Mesh        m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
-        Mesh        m_sphere        { };    //!< The mesh data required for drawing a sphere.
+        Mesh        m_pointLight    { };    //!< The mesh data required for drawing a sphere.
+        Mesh        m_spotlight     { };    //!< The mesh data required for drawing a cone.
 
         Pimpl       m_pimpl         { };    //!< Stores less important internal data.
 
 };
 
-#endif // _RENDERING_GEOMETRY_
+#endif // _RENDERING_RENDERER_GEOMETRY_

@@ -60,18 +60,23 @@ void VertexArray::clean() noexcept
 }
 
 
-void VertexArray::attachVertexBuffer (const Buffer& buffer, GLuint bufferIndex, GLintptr offset, GLsizei stride) noexcept
+void VertexArray::attachVertexBuffer (const Buffer& buffer, GLuint bufferIndex, 
+    GLintptr offset, GLsizei stride, GLuint divisor) noexcept
 {
     glVertexArrayVertexBuffer (m_array, bufferIndex, buffer.getID(), offset, stride);
+
+    if (divisor != 0)
+    {
+        glVertexArrayBindingDivisor (m_array, bufferIndex, divisor);
+    }
 }
 
 
-void VertexArray::specifyAttributeStatus (GLuint attributeIndex, GLuint bufferIndex, bool isEnabled) noexcept
+void VertexArray::setAttributeStatus (GLuint attributeIndex, bool isEnabled) noexcept
 {
     if (isEnabled)
     {
         glEnableVertexArrayAttrib (m_array, attributeIndex);
-        glVertexArrayAttribBinding (m_array, attributeIndex, bufferIndex);
     }
 
     else
@@ -81,7 +86,13 @@ void VertexArray::specifyAttributeStatus (GLuint attributeIndex, GLuint bufferIn
 }
 
 
-void VertexArray::specifyAttributeFormat (GLuint attributeIndex, AttributeLayout layout,
+void VertexArray::setAttributeBufferBinding (GLuint attributeIndex, GLuint bufferIndex) noexcept
+{
+    glVertexArrayAttribBinding (m_array, attributeIndex, bufferIndex);
+}
+
+
+void VertexArray::setAttributeFormat (GLuint attributeIndex, AttributeLayout layout,
             GLint size, GLenum type, GLuint relativeOffset, GLboolean isNormalised) noexcept
 {
     switch (layout)
@@ -101,13 +112,7 @@ void VertexArray::specifyAttributeFormat (GLuint attributeIndex, AttributeLayout
 }
 
 
-void VertexArray::specifyVertexBufferDivisor (GLuint bufferIndex, GLuint divisor) noexcept
-{
-    glVertexArrayBindingDivisor (m_array, bufferIndex, divisor);
-}
-
-
-void VertexArray::specifyElementBuffer (const Buffer& elementArrayBuffer) noexcept
+void VertexArray::setElementBuffer (const Buffer& elementArrayBuffer) noexcept
 {
     glVertexArrayElementBuffer (m_array, elementArrayBuffer.getID());
 }

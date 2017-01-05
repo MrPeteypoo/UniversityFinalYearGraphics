@@ -66,24 +66,25 @@ class Renderer final
         void render() noexcept;
 
     private:
-        
+
         struct MeshInstances final
         {
-            using Instances = std::vector<scene::Instance>;
+            using Instances = std::vector<scene::InstanceId>;
 
             Mesh        mesh        { };    //!< Rendering data for a particular scene mesh.
             Instances   instances   { };    //!< A list of instances requiring the stored mesh.
         };
+        
+        using DrawableObjects = std::vector<MeshInstances>;
 
-        using DynamicObjects = std::vector<MeshInstances>;
 
-        DynamicObjects  m_dynamics      { };    //!< A collection of dynamic mesh instances that need drawing.
-        Geometry        m_geometry      { };    //!< A collection of OpenGL objects which store the scene geometry.
-        Programs        m_programs      { };    //!< Stores the programs used in different rendering passes.
-        GeometryBuffer  m_gbuffer       { };    //!< The initial framebuffer where geometry is drawn to.
-        LightBuffer     m_lbuffer       { };    //!< A colour buffer where lighting is applied using data stored in the gbuffer.
-        Resolution      m_resolution    { };    //!< The internal and display resolution of drawing operations.
-        Uniforms        m_uniforms      { };    //!< Uniform data which is accessible to any program that requests it.
+        DrawableObjects     m_dynamics      { };    //!< A collection of dynamic mesh instances that need drawing.
+        Geometry            m_geometry      { };    //!< A collection of OpenGL objects which store the scene geometry.
+        Programs            m_programs      { };    //!< Stores the programs used in different rendering passes.
+        GeometryBuffer      m_gbuffer       { };    //!< The initial framebuffer where geometry is drawn to.
+        LightBuffer         m_lbuffer       { };    //!< A colour buffer where lighting is applied using data stored in the gbuffer.
+        Resolution          m_resolution    { };    //!< The internal and display resolution of drawing operations.
+        Uniforms            m_uniforms      { };    //!< Uniform data which is accessible to any program that requests it.
 };
 
 #endif // _RENDERING_RENDERER_

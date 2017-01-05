@@ -7,8 +7,8 @@
 #include <tgl/tgl.h>
 
 
-// Forward declarations.
-class Buffer;
+// Personal headers.
+#include <Rendering/Composites/PersistentMappedBuffer.hpp>
 
 
 /// <summary>
@@ -60,13 +60,31 @@ class VertexArray final
         /// <param name="bufferIndex"> The index inside the vertex array object where the buffer should be bound. </param>
         /// <param name="offset"> The memory offset into the buffer to start at when reading. </param>
         /// <param name="stride"> How many bytes to increment by the find the next element when reading. </param>
-        void attachVertexBuffer (const Buffer& buffer, GLuint bufferIndex, GLintptr offset, GLsizei stride) noexcept;
+        /// <param name="divisor"> If applicable, specifies how many instances will use the same data. </param>
+        void attachVertexBuffer (const Buffer& buffer, GLuint bufferIndex, 
+            GLintptr offset, GLsizei stride, GLuint divisor = 0) noexcept;
 
-        /// <summary> Enables or disables the vertex attribute at the given inex. </summary>
+        /// <summary> 
+        /// Attaches every partition contained in a persistently mapped buffer, partitions attached in sequence
+        /// starting from the initial index given.
+        /// </summary>
+        /// <param name="buffer"> The buffer to be attached. </param>
+        /// <param name="initialBufferIndex"> The starting index to bind each partition to. </param>
+        /// <param name="stride"> The strides to be applied to each partition. </param>
+        /// <param name="divisor"> If applicable, specifies how many instances will use the same data. </param>
+        template <size_t Partitions>
+        void attachPersistentMappedBuffer (const PMB<Partitions>& buffer, GLuint initialBufferIndex, 
+            GLsizei stride, GLuint divisor = 0) noexcept;
+
+        /// <summary> Enables or disables the vertex attribute at the given index. </summary>
+        /// <param name="attributeIndex"> The index of the attribute to set the status of. </param>
+        /// <param name="isEnabled"> Whether the attribute should be enabled or disabled. </param>
+        void setAttributeStatus (GLuint attributeIndex, bool isEnabled) noexcept;
+        
+        /// <summary> Specifies the binding index of the buffer containing data for the given attribute. </summary>
         /// <param name="attributeIndex"> The index of the attribute to set the status of. </param>
         /// <param name="bufferIndex"> The binding index of the buffer where the attribute data is stored. </param>
-        /// <param name="isEnabled"> Whether the attribute should be enabled or disabled. </param>
-        void specifyAttributeStatus (GLuint attributeIndex, GLuint bufferIndex, bool isEnabled) noexcept;
+        void setAttributeBufferBinding (GLuint attributeIndex, GLuint bufferIndex) noexcept;
 
         /// <summary> 
         /// Specifies the formatting for the given attribute. When given AttributeLayout::Float64, the GL_DOUBLE type
@@ -78,24 +96,33 @@ class VertexArray final
         /// <param name="type"> The underlying data type, e.g. GL_FLOAT, GL_HALF_FLOAT. </param>
         /// <param name="relativeOffset"> The amount of bytes to the first element in the offsetted vertex buffer. </param>
         /// <param name="isNormalised"> Whether the data will be normalised or not. Only applies to Float32. </param>
-        void specifyAttributeFormat (GLuint attributeIndex, AttributeLayout layout,
+        void setAttributeFormat (GLuint attributeIndex, AttributeLayout layout,
             GLint size, GLenum type, GLuint relativeOffset, GLboolean isNormalised = false) noexcept;
-
-        /// <summary>
-        /// Specify how many instances must be rendered before incrementing vertex attributes bound to the buffer at
-        /// the given index.
-        /// </summary>
-        /// <param name="bufferIndex"> The binding index of the buffer to enable a divisor for. </param>
-        /// <param name="divisor"> How many instances will use the same attribute element. </param>
-        void specifyVertexBufferDivisor (GLuint bufferIndex, GLuint divisor) noexcept;
 
         /// <summary> Specifies the elemnt array buffer to use when drawing with the VAO bound. </summary>
         /// <param name="elementArrayBuffer"> The buffer containing vertex element data. </param>
-        void specifyElementBuffer (const Buffer& elementArrayBuffer) noexcept;
+        void setElementBuffer (const Buffer& elementArrayBuffer) noexcept;
 
     private:
 
         GLuint m_array { 0 }; //!< The OpenGL ID representing the vertex array object.
 };
+
+
+template <size_t Partitions>
+void VertexArray::attachPersistentMappedBuffer (const PMB<Partitions>& buffer, GLuint initialBufferIndex, 
+    GLsizei stride, GLuint divisor) noexcept
+{
+    // Attach each partition separately.
+    for (size_t i { 0 }; i < Partitions; ++i)
+    {
+        // Calculate the index and offset for the partition.
+        const auto index    = initialBufferIndex + i;
+        const auto offset   = buffer.partitionOffset (i);
+
+        // Finally attach the partition.
+        attachVertexBuffer (buffer, index, offset, stride, divisor);
+    }
+}
 
 #endif // _RENDERING_OBJECTS_VERTEX_ARRAY_

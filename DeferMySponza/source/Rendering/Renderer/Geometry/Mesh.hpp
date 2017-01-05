@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_RENDERER_GEOMETRY_
-#define         _RENDERING_RENDERER_GEOMETRY_
+#if !defined    _RENDERING_RENDERER_GEOMETRY_MESH_
+#define         _RENDERING_RENDERER_GEOMETRY_MESH_
 
 // Engine headers.
 #include <tgl/tgl.h>
@@ -24,4 +24,4 @@ struct Mesh final
     ~Mesh()                                 = default;
 };
 
-#endif // _RENDERING_RENDERER_GEOMETRY_
+#endif // _RENDERING_RENDERER_GEOMETRY_MESH_

@@ -24,8 +24,8 @@ struct Geometry::Internals final
     Buffer  m_lightElements { };    //!< A element buffer containing element for rendering light shape geometry.
     Meshes  m_sceneMeshes   { };    //!< A list of mesh data for buffered scene meshes.
     
-    Internals() noexcept                                = default;
-    Internals (Internals&&) noexcept                    = default;
+    Internals()                                         = default;
+    Internals (Internals&&)                             = default;
     Internals (const Internals&) noexcept               = default;
     Internals& operator= (const Internals&) noexcept    = default;
     Internals& operator= (Internals&&) noexcept         = default;

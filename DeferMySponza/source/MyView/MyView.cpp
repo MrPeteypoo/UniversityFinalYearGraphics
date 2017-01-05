@@ -470,7 +470,7 @@ void MyView::windowViewDidReset (tygra::Window*, int width, int height)
     }*/
 }
 
-
+#include <tsl/shapes.hpp>
 void MyView::windowViewRender (tygra::Window*)
 {
     // Define matrices.
@@ -478,6 +478,8 @@ void MyView::windowViewRender (tygra::Window*)
     const auto  projection	= glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), m_aspectRatio, camera.getNearPlaneDistance(), camera.getFarPlaneDistance()),
                 view        = glm::lookAt (util::toGLM (camera.getPosition()), util::toGLM (camera.getPosition()) + util::toGLM (camera.getDirection()), util::toGLM (m_scene->getUpDirection()));
 
+
+    std::cout << "Bob";
     // Perform the geometry pass.
     /*m_configurator.geometryPass (m_gbuffer);
     renderGeometry (projection, view);

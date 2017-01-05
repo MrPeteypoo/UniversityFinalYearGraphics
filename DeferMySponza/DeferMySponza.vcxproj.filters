@@ -190,6 +190,15 @@
     <ClInclude Include="source\Rendering\Binders\VertexArrayBinder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Composites\PersistentMappedBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Geometry\SceneVAO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Geometry\LightingVAO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Geometry.vs.glsl">
@@ -267,6 +276,9 @@
       <Filter>Source Files\Rendering\PassConfigurator</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
