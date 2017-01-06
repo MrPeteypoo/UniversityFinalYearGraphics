@@ -127,7 +127,7 @@ void MyView::buildMeshData()
     // Begin to construct sponza.
     const auto& builder = scene::GeometryBuilder();
     const auto& meshes  = builder.getAllMeshes();
-    
+
     // Resize our vector to speed up the loading process.
     m_meshes.resize (meshes.size());
 

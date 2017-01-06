@@ -1,8 +1,7 @@
 #pragma once
 
-#if !defined    _VERTEX_
-#define         _VERTEX_
-
+#if !defined    _RENDERING_RENDERER_GEOMETRY_INTERNALS_VERTEX_
+#define         _RENDERING_RENDERER_GEOMETRY_INTERNALS_VERTEX_
 
 // Engine headers.
 #include <glm/vec2.hpp>
@@ -30,4 +29,4 @@ struct Vertex final
         : position (pos), normal (norm), texturePoint (texture) { }
 };
 
-#endif // _VERTEX_
+#endif // _RENDERING_RENDERER_GEOMETRY_INTERNALS_VERTEX_

@@ -325,7 +325,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
-    <ClInclude Include="source\Misc\Vertex.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyController.hpp" />
     <ClInclude Include="source\MyView.hpp" />
     <ClInclude Include="source\MyView\Internals\Material.hpp" />
@@ -391,6 +391,8 @@
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Programs\Programs.cpp" />
     <ClCompile Include="source\Rendering\Objects\Shader.cpp" />

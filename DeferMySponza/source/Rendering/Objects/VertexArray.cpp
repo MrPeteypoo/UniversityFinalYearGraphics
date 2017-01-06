@@ -86,9 +86,27 @@ void VertexArray::setAttributeStatus (GLuint attributeIndex, bool isEnabled) noe
 }
 
 
+void VertexArray::setAttributeStatus (GLuint startingIndex, GLuint count, bool isEnabled) noexcept
+{
+    for (GLuint i { 0 }; i < count; ++i)
+    {
+        setAttributeStatus (startingIndex + i, isEnabled);
+    }
+}
+
+
 void VertexArray::setAttributeBufferBinding (GLuint attributeIndex, GLuint bufferIndex) noexcept
 {
     glVertexArrayAttribBinding (m_array, attributeIndex, bufferIndex);
+}
+
+
+void VertexArray::setAttributeBufferBinding (GLuint startingIndex, GLuint count, GLuint bufferIndex) noexcept
+{
+    for (GLuint i { 0 }; i < count; ++i)
+    {
+        setAttributeBufferBinding (startingIndex + i, bufferIndex);
+    }
 }
 
 
@@ -108,6 +126,16 @@ void VertexArray::setAttributeFormat (GLuint attributeIndex, AttributeLayout lay
         case AttributeLayout::Integer:
             glVertexArrayAttribIFormat (m_array, attributeIndex, size, type, relativeOffset);
             break;
+    }
+}
+
+
+void VertexArray::setAttributeFormat (GLuint startingIndex, GLuint count, GLuint offsetPerIndex, 
+    AttributeLayout layout, GLint size, GLenum type, GLuint relativeOffset, GLboolean isNormalised) noexcept
+{
+    for (GLuint i { 0 }; i < count; ++i)
+    {
+        setAttributeFormat (startingIndex + i, layout, size, type, relativeOffset + offsetPerIndex * i, isNormalised);
     }
 }
 

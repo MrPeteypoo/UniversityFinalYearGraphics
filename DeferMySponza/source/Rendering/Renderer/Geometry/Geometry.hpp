@@ -4,8 +4,9 @@
 #define         _RENDERING_RENDERER_GEOMETRY_
 
 // STL headers.
+#include <map>
 #include <memory>
-#include <unordered_map>
+#include <vector>
 
 
 // Engine headers.
@@ -16,6 +17,7 @@
 #include <Rendering/Objects/Buffer.hpp>
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
 #include <Rendering/Renderer/Geometry/SceneVAO.hpp>
+#include <Rendering/Renderer/Geometry/LightingVAO.hpp>
 
 
 /// <summary>
@@ -26,7 +28,7 @@ class Geometry final
 {
     public:
 
-        Geometry() noexcept                         = default;
+        Geometry() noexcept;
         Geometry (Geometry&&) noexcept              = default;
         Geometry& operator= (Geometry&&) noexcept   = default;
         ~Geometry()                                 = default;
@@ -34,27 +36,50 @@ class Geometry final
         Geometry (const Geometry&)                  = delete;
         Geometry& operator= (const Geometry&)       = delete;
 
+
+        /// <summary> Checks whether the object is initialised or not. </summary>
+        bool isInitialised() const noexcept;
         
-        inline const SceneVAO& getSceneVAO() const noexcept      { return m_scene; }
+        /// <summary> Gets the vertex array object containing scene geometric data. </summary>
+        inline const SceneVAO& getSceneVAO() const noexcept             { return m_scene; }
 
-        inline SceneVAO& getSceneVAO() noexcept                  { return m_scene; }
+        /// <summary> Gets the vertex array object containing scene geometric data. </summary>
+        inline SceneVAO& getSceneVAO() noexcept                         { return m_scene; }
 
-        inline const VertexArray& getLightingVAO() const noexcept   { return m_lighting; }
+        /// <summary> Gets the vertex array object containing light volume data. </summary>
+        inline const LightingVAO& getLightingVAO() const noexcept       { return m_lighting; }
 
-        inline VertexArray& getLightingVAO() noexcept               { return m_lighting; }
+        /// <summary> Gets the vertex array object containing light volume data. </summary>
+        inline LightingVAO& getLightingVAO() noexcept                   { return m_lighting; }
 
+        /// <summary> Retrieves the command buffer filled with commands to draw static geometry. </summary>
+        inline const Buffer& getStaticGeometryCommands() const noexcept { return m_drawCommands; }
 
+        /// <summary> Gets the mesh data required to draw a quad. </summary>
+        inline const Mesh& getQuad() const noexcept                     { return m_quad; }
+
+        /// <summary> Gets the mesh data required to draw a sphere. </summary>
+        inline const Mesh& getSphere() const noexcept                   { return m_sphere; }
+
+        /// <summary> Gets the mesh data required to draw a cone. </summary>
+        inline const Mesh& getCone() const noexcept                     { return m_cone; }
 
 
         /// <summary> 
-        /// Constructs geometry from scene::GeometryBuilde
+        /// Constructs geometry from scene::GeometryBuilder class as well and building the required shapes to perform
+        /// deferred lighting. Along with this, VAOs within the scene are built and static object optimisation is
+        /// performed by creating instancing buffers for static objects and by creating draw calls for indirect
+        /// rendering. Successive calls will not change the object unless initialisation is successful.
         /// </summary>
-        /// <param name="scene"> A context to use for determining the number of spotlight meshes to build. </param>
-        /// <param name="staticInstanceCount"> The total number of static instances in the scene. </param>
         /// <param name="staticInstances"> Contains every static instance which will be loaded into memory. </param> 
+        /// <param name="dynamicMaterialIDs"> The buffer to use for the material IDs of dynamic objects. </param>
+        /// <param name="dynamicTransforms"> The buffer to use for the model transforms of dynamic objects. </param>
+        /// <param name="lightingTransforms"> The buffer to use for the model transforms of light volumes. </param>
         /// <returns> Whether initialisation was successful or not. </returns>
-        bool initialise (const size_t staticInstanceCount, 
-            const std::unordered_map<scene::MeshId, scene::Instance>& staticInstances) noexcept;
+        template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
+        bool initialise (const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
+            const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
+            const PMB<LightingPartitions>& lightingTransforms) noexcept;
 
         /// <summary> Destroys every stored object and returns to a clean state. </summary>
         void clean() noexcept;
@@ -65,16 +90,125 @@ class Geometry final
         using Pimpl = std::unique_ptr<Internals>;
 
         SceneVAO    m_scene         { };    //!< Used for drawing all scene geometry.
-        Buffer      m_transforms    { };    //!< Stores model transforms for all static objects in the scene.
-        Buffer      m_materialIDs   { };    //!< Contains material IDs for all static objects in the scene.
+        Buffer      m_drawCommands  { };    //!< Contains the drawing commands to indirectly render every static object in the scene.
         
-        VertexArray m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
+        LightingVAO m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
         Mesh        m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
-        Mesh        m_pointLight    { };    //!< The mesh data required for drawing a sphere.
-        Mesh        m_spotlight     { };    //!< The mesh data required for drawing a cone.
+        Mesh        m_sphere        { };    //!< The mesh data required for drawing a sphere.
+        Mesh        m_cone          { };    //!< The mesh data required for drawing a cone.
 
         Pimpl       m_pimpl         { };    //!< Stores less important internal data.
 
+    private:
+
+        /// <summary> Configures the given vertex array objects for storing scene and lighting geometry. </summary>
+        /// <param name="scene"> The VAO to use for scene geometry. </param>
+        /// <param name="lighting"> The VAO to use for lighting. </param>
+        /// <param name="internals"> The object containing static buffers that need to be attached. </param>
+        /// <param name="dynamicMaterialIDs"> The PMB containing material IDs for dynamic object instances. </param>
+        /// <param name="dynamicTransforms"> The PMB containing model transforms for dynamic object instances. </param>
+        /// <param name="lightingTransforms"> The PMB containing transforms for all lighting instances. </param>
+        template <typename MaterialIDPMB, typename TransformPMB, typename LightingPMB>
+        void configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Internals& internals, 
+            const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
+            const LightingPMB& lightingTransforms) const noexcept;
+
+        /// <summary> 
+        /// Fills the mesh vertex and elements data in the given Internals object with data retrieved contained by
+        /// scene::GeometryBuilder. Data will be stored by the GPU in scene::MeshId order.
+        /// </summary>
+        /// <param name="internals"> Where the data should be stored. </param>
+        void buildMeshData (Internals& internals) const noexcept;
+
+        /// <summary> 
+        /// Fills the light volume vertex and element data in the given Internals object with valid data for the
+        /// rendering of global lighting, point lighting and spotlighting.
+        /// </summary>
+        /// <param name="internals"> Where the data should be stored. </param>
+        /// <param name="quad"> The Mesh object to contain information required to draw the quad. </param>
+        /// <param name="sphere"> The Mesh object to contain information required to draw the sphere. </param>
+        /// <param name="cone"> The Mesh object to contain information required to draw the cone. </param>
+        void buildLighting (Internals& internals, Mesh& quad, Mesh& sphere, Mesh& cone) const noexcept;
+
+        /// <summary> 
+        /// Fills the static instancing and draw command buffers with data to draw every static object in the scene.
+        /// </summary>
+        /// <param name="internals"> Where the static buffers are stored. </param>
+        /// <param name="drawCommands"> Where the list of indirect draw commands should be stored. </param>
+        void fillStaticBuffers (Internals& internals, Buffer& drawCommands,
+            const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances) const noexcept;
 };
+
+
+// Personal headers.
+#include <Rendering/Renderer/Geometry/Internals/Internals.hpp>
+
+
+template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
+bool Geometry::initialise (const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
+    const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
+    const PMB<LightingPartitions>& lightingTransforms) noexcept
+{
+    // We need to create replacement objects to initialise.
+    auto scene          = SceneVAO { };
+    auto drawCommands   = Buffer { };
+    auto lighting       = LightingVAO { };
+    auto quad           = Mesh { };
+    auto sphere         = Mesh { };
+    auto cone           = Mesh { };
+    auto internals      = Internals { };
+
+    // Initialise each object.
+    if (!(scene.vao.initialise() && drawCommands.initialise() && lighting.vao.initialise() && internals.initialise()))
+    {
+        return false;
+    }
+
+    // Start by configuring the VAOs.
+    configureVAOs (scene, lighting, internals, dynamicMaterialIDs, dynamicTransforms, lightingTransforms);
+
+    // Construct the required geometry.
+    buildMeshData (internals);
+    buildLighting (internals, quad, sphere, cone);
+
+    // Allow for static batching by filling the static buffers with instance information and draw commands.
+    fillStaticBuffers (internals, drawCommands, staticInstances);
+
+    // Finally we can make use of the successfully created data.
+    m_scene         = std::move (scene);
+    m_drawCommands  = std::move (drawCommands);
+    m_lighting      = std::move (lighting);
+    m_quad          = std::move (quad);
+    m_sphere        = std::move (sphere);
+    m_cone          = std::move (cone);
+    *m_pimpl        = std::move (internals);
+
+    return true;
+}
+
+
+template <typename MaterialIDPMB, typename TransformPMB, typename LightingPMB>
+void Geometry::configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Internals& internals,
+    const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
+    const LightingPMB& lightingTransforms) const noexcept
+{
+    scene.attachVertexBuffers (
+        internals.buffers[Internals::sceneVerticesIndex],
+        internals.buffers[Internals::sceneElementsIndex],
+        internals.buffers[Internals::transformsIndex],
+        internals.buffers[Internals::materialIDsIndex],
+        dynamicMaterialIDs,
+        dynamicTransforms
+    );
+
+    lighting.attachVertexBuffers (
+        internals.buffers[Internals::lightVerticesIndex],
+        internals.buffers[Internals::lightElementsIndex],
+        lightingTransforms
+    );
+
+    scene.configureAttributes();
+    lighting.configureAttributes();
+}
 
 #endif // _RENDERING_RENDERER_GEOMETRY_

@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER
-#define         _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER
+#if !defined    _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER_
+#define         _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER_
 
 // STL headers.
 #include <array>
@@ -51,12 +51,17 @@ class PersistentMappedBuffer final
         /// divisible by the number of partitions. Successive calls will replace the buffer, invalidating any
         /// previously retrieved pointer. Upon failure the object will not be changed.
         /// </summary>
-        /// <param name="size"> How many bytes of storage should be allocated. </param>
+        /// <param name="data"> The data, if any, to fill the buffer with. </param>
+        /// <param name="size"> 
+        /// If data is a nullptr then this determines how much memory will be allocated. If data isn't nullptr then 
+        /// this should mirror the total size of the given data. 
+        /// </param>
         /// <param name="read"> Will the mapped buffer be used for reading? </param>
         /// <param name="write"> Will the mapped buffer be used for writing? </param>
         /// <param name="coherent"> Should reading and writing of data be synchronised with the GPU? </param>
         /// <returns> Whether the buffer was successfully created or not. </returns>
-        bool initialise (const GLintptr size, const bool read, const bool write, const bool coherent) noexcept;
+        template <typename T>
+        bool initialise (const T* data, const GLintptr size, const bool read, const bool write, const bool coherent) noexcept;
 
         /// <summary> Deletes the buffer, freeing memory to the GPU. Also causes pointers to be invalidated. </summary>
         void clean() noexcept;
@@ -74,7 +79,17 @@ class PersistentMappedBuffer final
         /// If an invalid index is given then the start of the buffer will be returned.
         /// </summary>
         /// <param name="partition"> The partition to return the pointer for. </param>
-        inline void* pointer (const size_t partition) const noexcept
+        inline const void* pointer (const size_t partition) const noexcept
+        {
+            return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
+        }
+
+        /// <summary> 
+        /// Gets a pointer to the partition at the given index. Extreme care is required when handling the pointer.
+        /// If an invalid index is given then the start of the buffer will be returned.
+        /// </summary>
+        /// <param name="partition"> The partition to return the pointer for. </param>
+        inline void* pointer (const size_t partition) noexcept
         {
             return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
         }
@@ -97,11 +112,13 @@ class PersistentMappedBuffer final
         GLintptr    m_size      { 0 };          //!< How large the buffer is.
 };
 
+
 template <size_t Partitions>
 using PMB       = PersistentMappedBuffer<Partitions>;
 using SinglePMB = PersistentMappedBuffer<1>;
 using DoublePMB = PersistentMappedBuffer<2>;
 using TriplePMB = PersistentMappedBuffer<3>;
+
 
 // STL headers.
 #include <utility>
@@ -135,8 +152,72 @@ PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
 
 
 template <size_t Partitions>
-bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bool write, const bool coherent) noexcept
+template <typename T>
+bool PMB<Partitions>::initialise (const T* data, const GLintptr size, 
+    const bool read, const bool write, const bool coherent) noexcept
 {
+    // First of all, ensure at least read or write is enabled.
+    if (!read && !write)
+    {
+        return false;
+    }
+
+    // Initialise a new buffer.
+    auto buffer = Buffer { };
+    if (!buffer.initialise())
+    {
+        return false;
+    }
+
+    // We need to allocate immutable storage to persistently map the buffer so we need to determine applicable flags.
+    auto access = GL_MAP_PERSISTENT_BIT;
+    
+    if (read)
+    {
+        access |= GL_MAP_READ_BIT;
+    }
+
+    if (write)
+    {
+        access |= GL_MAP_WRITE_BIT;
+    }
+
+    // Coherency means we don't need to manually flush.
+    if (coherent)
+    {
+        access |= GL_MAP_COHERENT_BIT;
+    }
+
+    // The explicity flush bit is only valid on writes.
+    else if (write)
+    {
+        access |= GL_MAP_FLUSH_EXPLICIT_BIT;
+    }
+
+    // The storage flags don't support GL_MAP_FLUSH_EXPLICIT_BIT so ensure we don't use that.
+    auto storageFlags = access & (~GL_MAP_FLUSH_EXPLICITY_BIT);
+
+    // Next we can allocate the storage with the correct bits.
+    if (data)
+    {
+        buffer.immutablyFillWith (&data, storageFlags);
+    }
+    
+    else
+    {
+        buffer.allocateImmutableStorage (size, storageFlags);
+    }
+
+    // Finally clean up after ourselves and utilise the new data!
+    if (m_mapping)
+    {
+        m_buffer.unmap();
+    }
+
+    m_buffer    = std::move (buffer);
+    m_mapping   = m_buffer.mapRange (0, size, access);
+    m_size      = size;
+
     return true;
 }
 
@@ -146,6 +227,8 @@ void PMB<Partitions>::clean() noexcept
 {
     if (isInitialised())
     {
+        // Ensure we unmap the buffer first!
+        m_buffer.unmap();
         m_buffer.clean();
         m_mapping   = nullptr;
         m_size      = 0U;
@@ -159,4 +242,4 @@ void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const GLi
     glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + startOffset, length);
 }
 
-#endif // _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER
+#endif // _RENDERING_COMPOSITES_PERSISTANT_MAPPED_BUFFER_

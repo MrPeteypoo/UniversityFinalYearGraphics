@@ -17,7 +17,7 @@ bool Uniforms::initialise() noexcept
         return false;
     }
 
-    m_ubo.allocate (sizeof (UniformBlocks), GL_DYNAMIC_DRAW);
+    m_ubo.allocateImmutableStorage (sizeof (UniformBlocks));
     return true;
 }
 

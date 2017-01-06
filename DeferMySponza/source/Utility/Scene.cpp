@@ -12,7 +12,7 @@
 
 
 // Personal headers.
-#include <Misc/Vertex.hpp>
+#include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
 
 
 // Namespaces.
@@ -21,7 +21,8 @@ using namespace std::string_literals;
 
 namespace util
 {
-    void calculateVBOSize (const std::vector<scene::Mesh>& meshes, size_t& vertexSize, size_t& elementSize)
+    void calculateSceneSize (const std::vector<scene::Mesh>& meshes, 
+        size_t& vertexCount, size_t& elementCount) noexcept
     {
         // Create temporary accumlators.
         size_t vertices { 0 }, elements { 0 };  
@@ -34,12 +35,12 @@ namespace util
         }
 
         // Calculate the final values.
-        vertexSize  = vertices * sizeof (Vertex);
-        elementSize = elements * sizeof (unsigned int);
+        vertexCount     = vertices;
+        elementCount    = elements;
     }
 
 
-    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh)
+    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh) noexcept
     {
         // Obtain each attribute.
         const auto& positions       = mesh.getPositionArray();
@@ -74,7 +75,8 @@ namespace util
     }
 
 
-    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, const std::vector<scene::Material>& materials)
+    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, 
+        const std::vector<scene::Material>& materials) noexcept
     {
         // Ensure the vector is empty.
         images.clear();

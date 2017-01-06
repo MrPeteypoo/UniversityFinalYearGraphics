@@ -67,9 +67,6 @@
     <ClInclude Include="source\Misc\MyController.hpp">
       <Filter>Source Files\Misc</Filter>
     </ClInclude>
-    <ClInclude Include="source\Misc\Vertex.hpp">
-      <Filter>Source Files\Misc</Filter>
-    </ClInclude>
     <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp">
       <Filter>Source Files\MyView\Internals\UniformData</Filter>
     </ClInclude>
@@ -199,6 +196,9 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\LightingVAO.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp">
+      <Filter>Source Files\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Geometry.vs.glsl">
@@ -279,6 +279,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
