@@ -38,28 +38,39 @@ class Materials final
         Materials& operator= (const Materials&)     = delete;
 
 
+        /// <summary> Gets the material ID associated with the scene ID given. </summary>
+        /// <param name="sceneID"> The scene::MaterialId to retrieve the MaterialID for. </param>
+        /// <returns> The material ID if successful, the maximum value if not found. </returns> 
+        MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
+
+
         /// <summary> 
-        /// Constructs geometry from scene::GeometryBuilder class as well and building the required shapes to perform
-        /// deferred lighting. Along with this, VAOs within the scene are built and static object optimisation is
-        /// performed by creating instancing buffers for static objects and by creating draw calls for indirect
-        /// rendering. Successive calls will not change the object unless initialisation is successful.
+        /// Constructs every material in the scene, including loading every texture and mapping scene::MaterialId 
+        /// values to built-in values. Successive calls will not change the object unless initialisation is successful.
         /// </summary>
         /// <param name="scene"> Contains every material in the scene. </param>
+        /// <param name="startingTextureUnit"> The initial index to apply to stored textures. </param>
         /// <returns> Whether initialisation was successful or not. </returns>
-        bool initialise (const scene::Context* const scene) noexcept;
+        bool initialise (const scene::Context* const scene, const GLuint startingTextureUnit) noexcept;
 
         /// <summary> Destroys every stored object and returns to a clean state. </summary>
         void clean() noexcept;
 
+
+        /// <summary> Binds every texture unit with its associated texture. </summary>
+        void bindTextures() const noexcept;
+
+        /// <summary> Unbind every texture, leaving their associated texture units in a clean state. </summary>
+        void unbindTextures() const noexcept;
+
     private:
 
-        struct Internals;
+        class Internals;
 
         using MaterialIDs   = std::unordered_map<scene::MaterialId, MaterialID>;
         using Pimpl         = std::unique_ptr<Internals>;
 
         MaterialIDs     m_materialIDs   { };    //!< Maps scene material IDs to stored GPU material IDs.
-        SamplerBuffer   m_materials     { };    //!< The texture buffer which provides access to materials in shaders.
         Pimpl           m_internals     { };    //!< A pointer to internal managed data.
 };
 

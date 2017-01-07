@@ -352,8 +352,8 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\Geometry.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Internals.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\SceneVAO.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Internals.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Material.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Internals.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Material.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Programs\HardCodedShaders.hpp" />
     <ClInclude Include="source\Rendering\Objects\Program.hpp" />
@@ -400,6 +400,8 @@
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Internals\Internals.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Materials.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Programs\Programs.cpp" />
     <ClCompile Include="source\Rendering\Objects\Shader.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Programs\Shaders.cpp" />

@@ -202,13 +202,13 @@
     <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Material.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Internals.hpp">
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Internals.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Material.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -306,6 +306,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Objects\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Materials\Materials.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Materials\Internals\Internals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
