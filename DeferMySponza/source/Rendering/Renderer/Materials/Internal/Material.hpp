@@ -4,7 +4,7 @@
 #define         _RENDERING_RENDERER_MATERIALS_INTERNAL_MATERIAL_
 
 // Engine headers.
-#include <tgl/tgl.h>
+#include <glm/vec2.hpp>
 
 
 /// <summary>
@@ -12,10 +12,10 @@
 /// </summary>
 struct Material final
 {
-    GLuint  samplerIndex    { 0 };  //!< The index of the samplers to use when retrieving material data.
-    GLuint  properties      { 0 };  //!< The texture containing the physical properties of the mesh.
-    GLuint  albedo          { 0 };  //!< Contains the albedo and transparency of the material.
-    GLuint  normalMap       { 0 };  //!< The normal map to apply to the surface.
+    glm::uvec2  properties  { 0 };  //!< The sampler index and depth to use when looking up the physical properties of the material.
+    glm::uvec2  albedo      { 0 };  //!< The sampler index and depth to use when looking up the albedo of the material.
+    glm::uvec2  normal      { 0 };  //!< The sampler index and depth to use when looking up the normal map of the material.
+    glm::uvec2  unused      { 0 };  //!< Currently unused.
     
     Material()                                      = default;
     Material (Material&&)                           = default;

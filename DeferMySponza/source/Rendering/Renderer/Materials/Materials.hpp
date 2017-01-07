@@ -61,8 +61,6 @@ class Materials final
         MaterialIDs     m_materialIDs   { };    //!< Maps scene material IDs to stored GPU material IDs.
         SamplerBuffer   m_materials     { };    //!< The texture buffer which provides access to materials in shaders.
         Pimpl           m_internals     { };    //!< A pointer to internal managed data.
-        
-        
 };
 
 #endif // _RENDERING_RENDERER_MATERIALS_

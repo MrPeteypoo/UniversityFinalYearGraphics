@@ -52,12 +52,6 @@ class Renderer final
         /// <returns> Whether initialisation was successful or not. </returns>
         bool initialise (scene::Context* scene, const glm::ivec2& internalRes, const glm::ivec2& displayRes) noexcept;
 
-        /// <summary> 
-        /// Causes all shaders and programs to be completely rebuilt. Upon failure the old shaders will be lost.
-        /// </summary>
-        /// <returns> Whether the shaders were successfully built. </returns>
-        bool rebuildShaders() noexcept;
-
         /// <summary> Cleans all resources, putting the renderer in a state where it can be safely initialised. </summary>
         void clean() noexcept;
 

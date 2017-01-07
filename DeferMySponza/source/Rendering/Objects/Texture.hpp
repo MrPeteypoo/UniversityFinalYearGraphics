@@ -13,12 +13,15 @@ class TextureT;
 
 
 // Aliases.
-using Texture1DArray    = TextureT<GL_TEXTURE_1D_ARRAY>;
-using Texture2D         = TextureT<GL_TEXTURE_2D>;
-using TextureCubeMap    = TextureT<GL_TEXTURE_CUBE_MAP>;
-using TextureRectangle  = TextureT<GL_TEXTURE_RECTANGLE>;
-using Texture2DArray    = TextureT<GL_TEXTURE_2D_ARRAY>;
-using TextureBuffer     = TextureT<GL_TEXTURE_BUFFER>;
+using TextureBuffer         = TextureT<GL_TEXTURE_BUFFER>;
+using Texture1D             = TextureT<GL_TEXTURE_1D>;
+using Texture1DArray        = TextureT<GL_TEXTURE_1D_ARRAY>;
+using Texture2D             = TextureT<GL_TEXTURE_2D>;
+using TextureCubeMap        = TextureT<GL_TEXTURE_CUBE_MAP>;
+using TextureRectangle      = TextureT<GL_TEXTURE_RECTANGLE>;
+using Texture2DArray        = TextureT<GL_TEXTURE_2D_ARRAY>;
+using Texture3D             = TextureT<GL_TEXTURE_3D>;
+using TextureCubeMapArray   = TextureT<GL_TEXTURE_CUBE_MAP_ARRAY>;
 
 
 /// <summary>
@@ -64,7 +67,11 @@ class Texture
         GLenum m_unit    { 0 }; //!< The desired texture unit to bind the texture too.
 };
 
+
+// Personal headers.
 #include <Rendering/Objects/Buffer.hpp>
+
+
 /// <summary>
 /// A specialised version of the Texture class, the texture target is specified and as such the available functionality
 /// will change to suit the actual texture object. For example, if the target is GL_TEXTURE_BUFFER a "setBuffer()"
@@ -99,27 +106,6 @@ class TextureT final : public Texture
         bool initialise (const GLuint unit) noexcept;
 
 
-        /// <summary> Attaches the entirety of a buffer as the texture objects data store. </summary>
-        /// <param name="buffer"> The buffer to be attached to the texture. </param>
-        /// <param name="internalFormat"> The format of the data in the buffer, e.g. GL_RGBA32F. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_BUFFER>>
-        void setBuffer (const Buffer& buffer, const GLenum internalFormat) noexcept
-        {
-            glTextureBuffer (m_texture, internalFormat, buffer.getID());
-        }
-
-        /// <summary> Attaches a subset of a buffer as the texture objects data store. </summary>
-        /// <param name="buffer"> The buffer to be attached to the texture. </param>
-        /// <param name="internalFormat"> The format of the data in the buffer, e.g. GL_RGBA32F. </param>
-        /// <param name="offset"> The start of the range of the buffers data store to attach. </param>
-        /// <param name="size"> How many bytes, after the offset, should the texture have access to. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_BUFFER>>
-        void setBuffer (const Buffer& buffer, const GLenum internalFormat, 
-            const GLintptr offset, const GLsizeiptr size) noexcept
-        {
-            glTextureBufferRange (m_texture, internalFormat, buffer.getID(), offset, size);
-        }
-
         /// <summary> 
         /// Allocates immutable storage for the texture which can't be changed without reinitialising the
         /// texture. This is the recommended way of storing textures. The contents of the texture will be blank.
@@ -144,7 +130,7 @@ class TextureT final : public Texture
         /// <param name="height"> How many texels tall the texture should be. </param>
         /// <param name="depth"> How many texels deep the texture should be. </param>
         /// <param name="levels"> How many levels of images are required. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_CUBE_ARRAY>>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_CUBE_MAP_ARRAY>>
         void allocateImmutableStorage (GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, 
             GLsizei levels = 1) noexcept
         {
@@ -152,41 +138,108 @@ class TextureT final : public Texture
         }
 
         /// <summary> 
-        /// Allocates mutable storage and uploads data at the same time. Doing so after allocating immutable storage
-        /// is an error and won't do anything. Binds the given texture to modify it.
+        /// Places data at the given location inside the texture. Bounds checking will not occur care must be taken
+        /// when setting parameters. This overload is only applicable to 2D texture types.
         /// </summary>
-        /// <param name="internalFormat"> Specifies the internal format of the memory, e.g. GL_RGB8. </param>
-        /// <param name="width"> How many texels wide the texture should be. </param>
-        /// <param name="height"> How many texels tall the texture should be. </param>
+        /// <param name="xOffset"> The number of texels to offset into the image on the X axis. </param>
+        /// <param name="yOffset"> The number of texels to offset into the image on the Y axis. </param>
+        /// <param name="width"> How many texels wide the data is. </param>
+        /// <param name="height"> How many texels tall the data is. </param>
         /// <param name="pixelFormat"> The colour channel format of the given pixel data. E.g. GL_RGBA. </param>
         /// <param name="pixelType"> The underlying data type of the given pixel data. E.g. GL_FLOAT. </param>
         /// <param name="pixelData"> The data to upload to the allocated storage. </param>
-        /// <param name="level"> The level of image to allocate memory for, 0 is the base image. </param>
+        /// <param name="level"> The mipmap level of the image to set the data for, 0 is the base image. </param>
         template <typename = std::enable_if_t<Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_RECTANGLE>>
-        void allocateMutableStorage (GLenum internalFormat, GLsizei width, GLsizei height, 
+        void placeAt (GLint xOffset, GLint yOffset, GLsizei width, GLsizei height, 
             GLenum pixelFormat, GLenum pixelType, const GLvoid* pixelData = nullptr, GLsizei level = 0) noexcept
         {
-            const TextureBinder<Target> binder { *this };
-            glTexImage2D (Target, level, internalFormat, width, height, 0, pixelFormat, pixelType, pixelData);
+            glTextureSubImage2D (m_texture, level, xOffset, yOffset, width, height, pixelFormat, pixelType, pixelData);
         }
 
-        /// <summary>
-        /// An override for cube maps, the desired face must be specified in the first template parameter. E.g. 
-        /// util::allocateMutableStorage<GL_TEXTURE_CUBE_MAP_POSITIVE_X> (blah...). Binds the given texture to modify it. 
+        /// <summary> 
+        /// Places data at the given location inside the texture. Bounds checking will not occur care must be taken
+        /// when setting parameters. This is only for 3D textures types.
         /// </summary>
-        template <GLenum CubeFace, typename = std::enable_if_t<Target == GL_TEXTURE_CUBE_MAP>>
-        void allocateMutableStorage (GLenum internalFormat, GLsizei width, GLsizei height, 
+        /// <param name="xOffset"> The number of texels to offset into the image on the X axis. </param>
+        /// <param name="yOffset"> The number of texels to offset into the image on the Y axis. </param>
+        /// <param name="zOffset"> The number of texels to offset into the image on the Z axis. </param>
+        /// <param name="width"> How many texels wide the data is. </param>
+        /// <param name="height"> How many texels tall the data is. </param>
+        /// <param name="depth"> How many texels deep the data is. </param>
+        /// <param name="pixelFormat"> The colour channel format of the given pixel data. E.g. GL_RGBA. </param>
+        /// <param name="pixelType"> The underlying data type of the given pixel data. E.g. GL_FLOAT. </param>
+        /// <param name="pixelData"> The data to upload to the allocated storage. </param>
+        /// <param name="level"> The mipmap level of the image to set the data for, 0 is the base image. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_CUBE_MAP_ARRAY>>
+        void placeAt (GLint xOffset, GLint yOffset, GLint zOffset, GLsizei width, GLsizei height, GLsizei depth,
             GLenum pixelFormat, GLenum pixelType, const GLvoid* pixelData = nullptr, GLsizei level = 0) noexcept
         {
-            static_assert (
-                CubeFace == GL_TEXTURE_CUBE_MAP_POSITIVE_X || CubeFace == GL_TEXTURE_CUBE_MAP_NEGATIVE_X ||
-                CubeFace == GL_TEXTURE_CUBE_MAP_POSITIVE_Y || CubeFace == GL_TEXTURE_CUBE_MAP_NEGATIVE_Y ||
-                CubeFace == GL_TEXTURE_CUBE_MAP_POSITIVE_Z || CubeFace == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-                "A cube face must be specified when using allocateMutableStorage for TextureCubeMap objects."
-            );
+            glTextureSubImage3D (m_texture, level, xOffset, yOffset, zOffset,
+                width, height, depth, pixelForm, pixelType, pixelData);
+        }
 
-            const TextureBinder<Target> binder { *this };
-            glTexImage2D (CubeFace, level, internalFormat, width, height, 0, pixelFormat, pixelType, pixelData);
+        /// <summary> Tells OpenGL to generate mipmaps based on the data currently stored by the texture. </summary>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_CUBE_MAP || TARGET == GLTEXTURE_CUBE_MAP_ARRAY>>
+        void generateMipMap() noexcept
+        {
+            glGenerateTextureMipmap (m_texture);
+        }
+
+        /// <summary> Attaches the entirety of a buffer as the texture objects data store. </summary>
+        /// <param name="buffer"> The buffer to be attached to the texture. </param>
+        /// <param name="internalFormat"> The format of the data in the buffer, e.g. GL_RGBA32F. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_BUFFER>>
+        void setBuffer (const Buffer& buffer, const GLenum internalFormat) noexcept
+        {
+            glTextureBuffer (m_texture, internalFormat, buffer.getID());
+        }
+
+        /// <summary> Attaches a subset of a buffer as the texture objects data store. </summary>
+        /// <param name="buffer"> The buffer to be attached to the texture. </param>
+        /// <param name="internalFormat"> The format of the data in the buffer, e.g. GL_RGBA32F. </param>
+        /// <param name="offset"> The start of the range of the buffers data store to attach. </param>
+        /// <param name="size"> How many bytes, after the offset, should the texture have access to. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_BUFFER>>
+        void setBuffer (const Buffer& buffer, const GLenum internalFormat, 
+            const GLintptr offset, const GLsizeiptr size) noexcept
+        {
+            glTextureBufferRange (m_texture, internalFormat, buffer.getID(), offset, size);
+        }
+
+        /// <summary> Sets the given texture parameter to the given value. </summary>
+        /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
+        /// <param name="value"> The value to set the parameter to. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        void setParameter (const GLenum name, const GLfloat value) noexcept
+        {
+            glTextureParameterf (m_texture, name, value);
+        }
+
+        /// <summary> Sets the given texture parameter to the given value. </summary>
+        /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
+        /// <param name="value"> The value to set the parameter to. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        void setParameter (const GLenum name, const GLint value) noexcept
+        {
+            glTextureParameteri (m_texture, name, value);
+        }
+
+        /// <summary> Sets the given texture parameter to the given value. </summary>
+        /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
+        /// <param name="values"> The values to set the parameter to. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        void setParameter (const GLenum name, const GLfloat* values) noexcept
+        {
+            glTextureParameterfv (m_texture, name, values);
+        }
+
+        /// <summary> Sets the given texture parameter to the given value. </summary>
+        /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
+        /// <param name="values"> The values to set the parameter to. </param>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        void setParameter (const GLenum name, const GLint* values) noexcept
+        {
+            glTextureParameteriv (m_texture, name, values);
         }
 };
 

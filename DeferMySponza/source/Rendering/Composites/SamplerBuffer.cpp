@@ -16,9 +16,6 @@ bool SamplerBuffer::initialise (const GLuint unit, const GLenum internalFormat) 
     }
 
     newTexture.setBuffer (newBuffer, internalFormat);
-    auto crap = Texture2D { };
-    crap.allocateImmutableStorage (GL_RGBA32F, 0, 0);
-    //crap.setBuffer (newBuffer, internalFormat);
 
     texture = std::move (newTexture);
     buffer  = std::move (newBuffer);

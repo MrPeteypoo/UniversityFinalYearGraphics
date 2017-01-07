@@ -108,7 +108,7 @@ class Buffer final
         /// <param name="data"> The data to place inside the buffer. </param>
         /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         template <typename Data, template <typename, typename = size_t...> typename Container, typename... Args>
-        void placeInside (const Container<Data, Args...>& data, const GLintptr offset) noexcept
+        void placeAt (const GLintptr offset, const Container<Data, Args...>& data) noexcept
         {
             glNamedBufferSubData (m_buffer, offset, data.size() * sizeof (Data), data.data());
         }
@@ -121,9 +121,24 @@ class Buffer final
         /// <param name="data"> The data to place inside the buffer. </param>
         /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
         template <typename Data>
-        void placeInside (const Data& data, const GLintptr offset) noexcept
+        void placeAt (const GLintptr offset, const Data& data) noexcept
         {
             glNamedBufferSubData (m_buffer, offset, sizeof (Data), &data);
+        }
+
+        /// <summary> 
+        /// Used to place data inside the previously allocated buffer at the given offset. If allocate() or fillWith() 
+        /// hasn't been called then this will likely cause an OpenGL error. Bounds checking will not occur.
+        /// If the storage is immutable then GL_DYNAMIC_STORAGE_BIT must have been specified to do this.
+        /// </summary>
+        /// <param name="data"> The data to place inside the buffer. </param>
+        /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
+        void placeAt (const GLintptr offset, const size_t size, const void* data) noexcept
+        {
+            if (data)
+            {
+                glNamedBufferSubData (m_buffer, offset, size, data);
+            }
         }
 
         /// <summary> 
