@@ -9,11 +9,14 @@
 // Engine headers.
 #include <scene/GeometryBuilder.hpp>
 #include <scene/Mesh.hpp>
+#include <tsl/shapes.hpp>
 
 
 // Personal headers.
 #include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
+#include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Utility/Scene.hpp>
+#include <Utility/TSL.hpp>
 
 
 Geometry::Geometry() noexcept
@@ -69,45 +72,72 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
     vertices.reserve (vertexCount);
     elements.reserve (elementCount);
 
-    // Iterate through each mesh adding them to the mesh container.
+    // Iterate through each mesh adding the vertices, elements and mapping to their corresponding container.
+    auto mesh           = Mesh { };
     auto vertexIndex    = GLintptr { 0 };
-    void* elementOffset = nullptr;
+    auto elementOffset  = size_t { 0 };
     
-	for (size_t i { 0 }; i < meshes.size(); ++i)
+	for (const auto& sceneMesh : meshes)
     {
-        // Cache the required mesh data.
-        const auto& sceneMesh   = meshes[i];
-        const auto& elements    = sceneMesh.getElementArray();
-        auto&       localMesh   = m_meshes[i].second;
+        // Retrieve the required mesh data.
+        const auto meshVertices     = util::assembleVertices (sceneMesh);
+        const auto& meshElements    = sceneMesh.getElementArray();
         
-        // Assign the local mesh an ID.
-        m_meshes[i].first = sceneMesh.getId();
+        // Set the mesh parameters, the element offset must be a pointer type.
+        mesh.verticesIndex  = vertexIndex;
+        mesh.elementsOffset = (void*) elementOffset;
+        mesh.elementCount   = static_cast<GLsizei> (meshElements.size());
 
-        localMesh.verticesIndex     = vertexIndex;
-        localMesh.elementsOffset    = elementOffset;
-        localMesh.elementCount      = static_cast<GLsizei> (elements.size());
-        
-        // Obtain the required vertex information.
-        auto vertices = util::assembleVertices (sceneMesh);
-
-        // Fill the vertex buffer objects with data.
-        glBufferSubData (GL_ARRAY_BUFFER,           vertexIndex * sizeof (Vertex),  vertices.size() * sizeof (Vertex),          vertices.data());
-        glBufferSubData (GL_ELEMENT_ARRAY_BUFFER,   elementOffset,                  elements.size() * sizeof (unsigned int),    elements.data());
+        // Now we can add the mesh to the map and the vertices/elements to the vectors.
+        internals.sceneMeshes[sceneMesh.getId()] = mesh;
+        vertices.insert (std::end (vertices), std::begin (meshVertices), std::end (meshVertices));
+        elements.insert (std::end (elements), std::begin (meshElements), std::end (meshElements));
 
         // The vertexIndex needs an actual index value whereas elementOffset needs to be in bytes.
-        vertexIndex += vertices.size();
-        elementOffset += elements.size() * sizeof (unsigned int);
+        vertexIndex     += meshVertices.size();
+        elementOffset   += meshElements.size() * sizeof (GLuint);
     }
+
+    // Now we can fill the mesh and element buffer. We will leave them with no access flags so they can be static.
+    internals.buffers[internals.sceneVerticesIndex].immutablyFillWith (vertices);
+    internals.buffers[internals.sceneElementsIndex].immutablyFillWith (elements);
 }
 
 
 void Geometry::buildLighting (Internals& internals, Mesh& quad, Mesh& sphere, Mesh& cone) const noexcept
 {
+    // Light volumes only contain a position but all shapes will be stored in the same buffer like scene meshes.
+    auto vertices = std::vector<glm::vec3> { };
+    auto elements = std::vector<GLuint> { };
 
+    // Reserve 512KiB for shape vertices and elements, this will likely be more than enough.
+    constexpr auto reservation = 256'000;
+    vertices.reserve (reservation / sizeof (glm::vec3));
+    elements.reserve (reservation / sizeof (GLuint));
+
+    // Quads are very simple shapes.
+    constexpr auto quadVertices = std::array<glm::vec3, 4> 
+    { 
+        glm::vec3 { -1, -1, 0 }, glm::vec3 { 1, -1, 0 },
+        glm::vec3 { -1,  1, 0 }, glm::vec3 { 1,  1, 0 }
+    };
+    constexpr auto quadElements = std::array<GLuint, 6> { 0, 1, 2, 1, 3, 2 };
+
+    // Add the quad to the vectors.
+    vertices.insert (std::end (vertices), std::begin (quadVertices), std::end (quadVertices));
+    elements.insert (std::end (elements), std::begin (quadElements), std::end (quadElements));
+
+    // Now add the sphere and cone.
+    util::addTSLMeshData (vertices, elements, tsl::createSpherePtr (1.f, 12));
+    util::addTSLMeshData (vertices, elements, tsl::createConePtr (1.f, 1.f, 12));
+
+    // Finally fill the GPU buffers.
+    internals.buffers[internals.lightVerticesIndex].immutablyFillWith (vertices);
+    internals.buffers[internals.lightElementsIndex].immutablyFillWith (elements);
 }
 
 
-void Geometry::fillStaticBuffers (Internals& internals, Buffer& drawCommands,
+void Geometry::fillStaticBuffers (Internals& internals, Buffer& drawCommands, const Materials& materials,
             const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances) const noexcept
 {
     

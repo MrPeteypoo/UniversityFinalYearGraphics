@@ -17,7 +17,7 @@
 
 
 // Personal headers.
-#include <Misc/Vertex.hpp>
+#include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
 #include <MyView/Internals/Material.hpp>
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
 #include <MyView/Internals/UniformData.hpp>
@@ -125,7 +125,7 @@ void MyView::generateOpenGLObjects()
 void MyView::buildMeshData()
 { // TODO: Move into buffer management class/struct.
     // Begin to construct sponza.
-    const auto& builder = scene::GeometryBuilder();
+    /*const auto& builder = scene::GeometryBuilder();
     const auto& meshes  = builder.getAllMeshes();
 
     // Resize our vector to speed up the loading process.
@@ -174,7 +174,7 @@ void MyView::buildMeshData()
 
     // Unbind the buffers.
     glBindBuffer (GL_ARRAY_BUFFER, 0);
-    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);*/
 }
 
 

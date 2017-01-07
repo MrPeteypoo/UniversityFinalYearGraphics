@@ -3,7 +3,6 @@
 #if !defined    _UTIL_SCENE_MODEL_
 #define         _UTIL_SCENE_MODEL_
 
-
 // STL headers.
 #include <vector>
 

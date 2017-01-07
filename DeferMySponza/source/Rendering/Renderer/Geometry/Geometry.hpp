@@ -20,6 +20,10 @@
 #include <Rendering/Renderer/Geometry/LightingVAO.hpp>
 
 
+// Forward declarations.
+class Materials;
+
+
 /// <summary>
 /// Contains every piece of geometry in the scene. Static batching is supported with static instances having their
 /// transforms permanently stored in the transforms buffer.
@@ -71,13 +75,15 @@ class Geometry final
         /// performed by creating instancing buffers for static objects and by creating draw calls for indirect
         /// rendering. Successive calls will not change the object unless initialisation is successful.
         /// </summary>
+        /// <param name="materials"> The object containing material information. </param>
         /// <param name="staticInstances"> Contains every static instance which will be loaded into memory. </param> 
         /// <param name="dynamicMaterialIDs"> The buffer to use for the material IDs of dynamic objects. </param>
         /// <param name="dynamicTransforms"> The buffer to use for the model transforms of dynamic objects. </param>
         /// <param name="lightingTransforms"> The buffer to use for the model transforms of light volumes. </param>
         /// <returns> Whether initialisation was successful or not. </returns>
         template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
-        bool initialise (const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
+        bool initialise (const Materials& materials, 
+            const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
             const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
             const PMB<LightingPartitions>& lightingTransforms) noexcept;
 
@@ -135,8 +141,10 @@ class Geometry final
         /// </summary>
         /// <param name="internals"> Where the static buffers are stored. </param>
         /// <param name="drawCommands"> Where the list of indirect draw commands should be stored. </param>
-        void fillStaticBuffers (Internals& internals, Buffer& drawCommands,
-            const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances) const noexcept;
+        /// <param name="materials"> Material information for the material ID buffer. </param>
+        /// <param name="instances"> Each instance that will be added to the static buffers. </param>
+        void fillStaticBuffers (Internals& internals, Buffer& drawCommands, const Materials& materials,
+            const std::map<scene::MeshId, std::vector<scene::Instance>>& instances) const noexcept;
 };
 
 
@@ -145,7 +153,8 @@ class Geometry final
 
 
 template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
-bool Geometry::initialise (const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
+bool Geometry::initialise (const Materials& materials, 
+    const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
     const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
     const PMB<LightingPartitions>& lightingTransforms) noexcept
 {
@@ -172,7 +181,7 @@ bool Geometry::initialise (const std::map<scene::MeshId, std::vector<scene::Inst
     buildLighting (internals, quad, sphere, cone);
 
     // Allow for static batching by filling the static buffers with instance information and draw commands.
-    fillStaticBuffers (internals, drawCommands, staticInstances);
+    fillStaticBuffers (internals, drawCommands, materials, staticInstances);
 
     // Finally we can make use of the successfully created data.
     m_scene         = std::move (scene);

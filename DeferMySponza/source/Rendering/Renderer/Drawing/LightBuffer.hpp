@@ -46,7 +46,7 @@ class LightBuffer final
         /// <param name="width"> How many pixels wide the Gbuffer should be. </param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>
         /// <returns> Whether the Gbuffer was successfully created or not. </returns>
-        bool initialise (const TextureRectangle& depthStencilTexture, GLenum internalFormat, 
+        bool initialise (const Texture& depthStencilTexture, GLenum internalFormat, 
             GLsizei width, GLsizei height, GLsizei samples = 0) noexcept;
 
         /// <summary> Deletes the Gbuffer, freeing memory to the GPU. </summary>

@@ -1,10 +1,6 @@
 #include "GeometryBuffer.hpp"
 
 
-// Personal headers.
-#include <Utility/OpenGL/Textures.hpp>
-
-
 bool GeometryBuffer::isInitialised() const noexcept
 {
     return m_fbo.isInitialised() && m_positions.isInitialised() && m_normals.isInitialised() && 
@@ -29,10 +25,10 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noex
     }
 
     // Allocate memory for each texture.
-    util::allocateImmutableStorage (positions,      GL_RGB32F,              width, height);
-    util::allocateImmutableStorage (normals,        GL_RGB32F,              width, height);
-    util::allocateImmutableStorage (materials,      GL_RGB32F,              width, height);
-    util::allocateImmutableStorage (depthStencil,   GL_DEPTH24_STENCIL8,    width, height);
+    positions.allocateImmutableStorage      (GL_RGB32F,             width, height);
+    normals.allocateImmutableStorage        (GL_RGB32F,             width, height);
+    materials.allocateImmutableStorage      (GL_RGB32F,             width, height);
+    depthStencil.allocateImmutableStorage   (GL_DEPTH24_STENCIL8,   width, height);
 
     // Attach the textures to the framebuffer.
     fbo.attachTexture (positions,       GL_COLOR_ATTACHMENT0 + positionLocation);

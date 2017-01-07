@@ -3,7 +3,6 @@
 #if !defined    _UTIL_ALGORITHM_
 #define         _UTIL_ALGORITHM_
 
-
 // STL headers.
 #include <algorithm>
 

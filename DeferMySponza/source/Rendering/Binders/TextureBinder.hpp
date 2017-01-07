@@ -16,7 +16,7 @@ struct TextureBinder final
 {
     inline TextureBinder() noexcept = default;
     
-    inline TextureBinder (const Texture<Target>& texture) noexcept 
+    inline TextureBinder (const TextureT<Target>& texture) noexcept 
         : m_unit (texture.getDesiredTextureUnit())
     {
         bind (texture.getID());
@@ -27,7 +27,7 @@ struct TextureBinder final
         bind (texture);
     }
     
-    inline TextureBinder (const Texture<Target>& texture, const GLenum textureUnitOverride) noexcept 
+    inline TextureBinder (const TextureT<Target>& texture, const GLenum textureUnitOverride) noexcept 
         : m_unit (textureUnitOverride)
     {
         bind (texture.getID());
@@ -44,7 +44,7 @@ struct TextureBinder final
         unbind();
     }
 
-    inline void bind (const Texture<Target>& texture) const noexcept
+    inline void bind (const TextureT<Target>& texture) const noexcept
     {
         bind (texture.getID());
     }

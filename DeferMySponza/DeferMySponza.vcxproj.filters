@@ -127,9 +127,6 @@
     <ClInclude Include="source\Rendering\Binders\TextureBinder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Utility\OpenGL\Textures.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Utility\TypeTraits.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -198,6 +195,21 @@
     </ClInclude>
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp">
       <Filter>Source Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Utility\TSL.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internal\Internals.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -285,6 +297,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\TSL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Composites\SamplerBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

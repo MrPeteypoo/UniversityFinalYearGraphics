@@ -1,7 +1,7 @@
 #include "LightBuffer.hpp"
 
 
-bool LightBuffer::initialise (const TextureRectangle& depthStencilTexture, GLenum internalFormat,
+bool LightBuffer::initialise (const Texture& depthStencilTexture, GLenum internalFormat,
     GLsizei width, GLsizei height, GLsizei samples) noexcept
 {
     // Ensure the object is in a stable state upon failure by using temporary objects.

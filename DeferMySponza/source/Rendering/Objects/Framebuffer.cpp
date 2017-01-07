@@ -7,6 +7,7 @@
 
 // Personal headers.
 #include <Rendering/Objects/Renderbuffer.hpp>
+#include <Rendering/Objects/Texture.hpp>
 
 
 Framebuffer::Framebuffer (Framebuffer&& move) noexcept
@@ -66,6 +67,19 @@ void Framebuffer::clean() noexcept
 void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment, bool asDrawBuffer) noexcept
 {
     glNamedFramebufferRenderbuffer (m_buffer, attachment, GL_RENDERBUFFER, renderbuffer.getID());
+    m_attachments.push_back (attachment);
+    
+    if (asDrawBuffer)
+    {
+        m_drawBuffers.push_back (attachment);
+    }
+}
+
+
+void Framebuffer::attachTexture (const Texture& texture, GLenum attachment, bool asDrawBuffer, GLint level) noexcept
+{
+    // Add the texture as an attachment.
+    glNamedFramebufferTexture (m_buffer, attachment, texture.getID(), level);
     m_attachments.push_back (attachment);
     
     if (asDrawBuffer)
