@@ -103,7 +103,7 @@ class Geometry final
         Mesh        m_sphere        { };    //!< The mesh data required for drawing a sphere.
         Mesh        m_cone          { };    //!< The mesh data required for drawing a cone.
 
-        Pimpl       m_pimpl         { };    //!< Stores less important internal data.
+        Pimpl       m_internals     { };    //!< Stores less important internal data.
 
     private:
 
@@ -165,23 +165,23 @@ bool Geometry::initialise (const Materials& materials,
     auto quad           = Mesh { };
     auto sphere         = Mesh { };
     auto cone           = Mesh { };
-    auto internals      = Internals { };
+    auto internals      = std::make_unique<Internals>();
 
     // Initialise each object.
-    if (!(scene.vao.initialise() && drawCommands.initialise() && lighting.vao.initialise() && internals.initialise()))
+    if (!(scene.vao.initialise() && drawCommands.initialise() && lighting.vao.initialise() && internals->initialise()))
     {
         return false;
     }
 
     // Start by configuring the VAOs.
-    configureVAOs (scene, lighting, internals, dynamicMaterialIDs, dynamicTransforms, lightingTransforms);
+    configureVAOs (scene, lighting, *internals, dynamicMaterialIDs, dynamicTransforms, lightingTransforms);
 
     // Construct the required geometry.
-    buildMeshData (internals);
-    buildLighting (internals, quad, sphere, cone);
+    buildMeshData (*internals);
+    buildLighting (*internals, quad, sphere, cone);
 
     // Allow for static batching by filling the static buffers with instance information and draw commands.
-    fillStaticBuffers (internals, drawCommands, materials, staticInstances);
+    fillStaticBuffers (*internals, drawCommands, materials, staticInstances);
 
     // Finally we can make use of the successfully created data.
     m_scene         = std::move (scene);
@@ -190,7 +190,7 @@ bool Geometry::initialise (const Materials& materials,
     m_quad          = std::move (quad);
     m_sphere        = std::move (sphere);
     m_cone          = std::move (cone);
-    *m_pimpl        = std::move (internals);
+    m_internals     = std::move (internals);
 
     return true;
 }

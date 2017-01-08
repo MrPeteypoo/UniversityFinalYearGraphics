@@ -175,12 +175,12 @@ class TextureT final : public Texture
             GLenum pixelFormat, GLenum pixelType, const GLvoid* pixelData = nullptr, GLsizei level = 0) noexcept
         {
             glTextureSubImage3D (m_texture, level, xOffset, yOffset, zOffset,
-                width, height, depth, pixelForm, pixelType, pixelData);
+                width, height, depth, pixelFormat, pixelType, pixelData);
         }
 
         /// <summary> Tells OpenGL to generate mipmaps based on the data currently stored by the texture. </summary>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_CUBE_MAP || TARGET == GLTEXTURE_CUBE_MAP_ARRAY>>
-        void generateMipMap() noexcept
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_CUBE_MAP || Target == GL_TEXTURE_CUBE_MAP_ARRAY>>
+        void generateMipmap() noexcept
         {
             glGenerateTextureMipmap (m_texture);
         }
@@ -209,7 +209,7 @@ class TextureT final : public Texture
         /// <summary> Sets the given texture parameter to the given value. </summary>
         /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
         /// <param name="value"> The value to set the parameter to. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_RECTANGLE || Target == GL_TEXTURE_CUBE_MAP>>
         void setParameter (const GLenum name, const GLfloat value) noexcept
         {
             glTextureParameterf (m_texture, name, value);
@@ -218,7 +218,7 @@ class TextureT final : public Texture
         /// <summary> Sets the given texture parameter to the given value. </summary>
         /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
         /// <param name="value"> The value to set the parameter to. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_RECTANGLE || Target == GL_TEXTURE_CUBE_MAP>>
         void setParameter (const GLenum name, const GLint value) noexcept
         {
             glTextureParameteri (m_texture, name, value);
@@ -227,7 +227,7 @@ class TextureT final : public Texture
         /// <summary> Sets the given texture parameter to the given value. </summary>
         /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
         /// <param name="values"> The values to set the parameter to. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_RECTANGLE || Target == GL_TEXTURE_CUBE_MAP>>
         void setParameter (const GLenum name, const GLfloat* values) noexcept
         {
             glTextureParameterfv (m_texture, name, values);
@@ -236,7 +236,7 @@ class TextureT final : public Texture
         /// <summary> Sets the given texture parameter to the given value. </summary>
         /// <param name="name"> The name of the parameter to set, e.g. GL_TEXTURE_MIN_FILTER. </param>
         /// <param name="values"> The values to set the parameter to. </param>
-        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || TARGET == GL_TEXTURE_1D_ARRAY || TARGET == GL_TEXTURE_2D_ARRAY || TARGET == GL_TEXTURE_RECTANGLE || TARGET == GL_TEXTURE_CUBE_MAP>>
+        template <typename = std::enable_if_t<Target == GL_TEXTURE_1D || Target == GL_TEXTURE_2D || Target == GL_TEXTURE_3D || Target == GL_TEXTURE_1D_ARRAY || Target == GL_TEXTURE_2D_ARRAY || Target == GL_TEXTURE_RECTANGLE || Target == GL_TEXTURE_CUBE_MAP>>
         void setParameter (const GLenum name, const GLint* values) noexcept
         {
             glTextureParameteriv (m_texture, name, values);

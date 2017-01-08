@@ -4,6 +4,7 @@
 #define         _UTIL_SCENE_MODEL_
 
 // STL headers.
+#include <array>
 #include <vector>
 
 
@@ -14,11 +15,29 @@
 #include <glm/mat4x4.hpp>
 #include <scene/scene_fwd.hpp>
 #include <scene/types.hpp>
+#include <tgl/tgl.h>
 
 
 // Forward declarations.
 namespace tygra { class Image; }
 struct Vertex;
+
+
+/// <summary> A physically-based material interpretation of a scene::Material. </summary>
+struct PBSMaterial final
+{
+    using ID    = scene::MaterialId;
+    using RGB   = std::array<GLubyte, 3>;
+    using RGBA  = std::array<GLubyte, 4>;
+    
+    ID          id          { 0 };                  //!< The ID of the material, referenced by instances at run time.
+    RGB         physics     { 128, 128, 0 };        //!< Smoothness, reflectance and conductivity.
+    RGBA        albedo      { 50, 0, 128, 255 };    //!< The base colour and transparency values.
+    RGB         normal      { 0, 0, 0 };            //!< Any normal mapping to apply.
+    std::string physicsMap  { };                    //!< A texture map for smoothness, reflectance and conductivity.
+    std::string albedoMap   { };                    //!< A texture map for base colour and transparency.
+    std::string normalMap   { };                    //!< A texture map for normal mapping.
+};
 
 
 namespace util
@@ -36,6 +55,10 @@ namespace util
     void calculateSceneSize (const std::vector<scene::Mesh>& meshes, 
         size_t& vertexCount, size_t& elementCount) noexcept;
 
+    /// <summary> Retrieves a physically-based shading interpretation of every material in the scene. </summary>
+    /// <param name="scene"> The scene to retrieve materials from. </param>
+    /// <returns> A list of every material in the scene. </returns>
+    std::vector<PBSMaterial> getAllMaterials (const scene::Context& scene) noexcept;
 
     /// <summary> Iterates through every material in a scene and fills the given vector with image data. </summary>
     /// <param name="images"> The vector to fill with data. This will generate filename-image pairs. </param>

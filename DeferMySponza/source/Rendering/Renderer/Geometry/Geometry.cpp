@@ -23,7 +23,7 @@ Geometry::Geometry() noexcept
 {
     try
     {
-        m_pimpl = std::make_unique<Internals>();
+        m_internals = std::make_unique<Internals>();
     }
 
     catch (const std::exception& e)
@@ -36,7 +36,7 @@ Geometry::Geometry() noexcept
 bool Geometry::isInitialised() const noexcept
 {
     return m_scene.vao.isInitialised() && m_drawCommands.isInitialised() && m_lighting.vao.isInitialised() && 
-        m_pimpl->isInitialised();
+        m_internals->isInitialised();
 }
 
 
@@ -45,7 +45,7 @@ void Geometry::clean() noexcept
      m_scene.vao.clean();
      m_drawCommands.clean();
      m_lighting.vao.clean();
-     m_pimpl->clean();
+     m_internals->clean();
 
      m_quad = m_sphere = m_cone = Mesh { };
 }

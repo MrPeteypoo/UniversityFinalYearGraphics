@@ -6,8 +6,7 @@
 
 
 // Engine headers.
-#include <scene/Material.hpp>
-#include <scene/Mesh.hpp>
+#include <scene/scene.hpp>
 #include <tygra/FileHelper.hpp>
 
 
@@ -72,6 +71,66 @@ namespace util
         }
 
         return vertices;
+    }
+
+
+    std::vector<PBSMaterial> getAllMaterials (const scene::Context& scene) noexcept
+    {
+        // The materials we've been provided aren't suitable for physically-based shading techniques. Therefore a hacky
+        // interpretation is required.
+        const auto& sceneMaterials = scene.getAllMaterials();
+
+        // The following code won't be pretty, without modifying the framework a function like this needs to exist.
+        auto materials = std::vector<PBSMaterial> { };
+        materials.reserve (sceneMaterials.size());
+
+        // Might as well make SOME effort to keep it clean.
+        constexpr auto smoothness = 0, reflectance = 1, conductivity = 2;
+
+        for (const auto& sceneMaterial : sceneMaterials)
+        {
+            // The material ID should be a straight copy.
+            auto material = PBSMaterial { };
+            material.id = sceneMaterial.getId();
+
+            // Cache the material properties.
+            const auto& diffuse     = sceneMaterial.getDiffuseColour();
+            const auto& specular    = sceneMaterial.getSpecularColour();
+
+            // Infer smoothness from the specular luminance of the material.
+            material.physics[smoothness] = static_cast<GLubyte> (255 * (specular.x * 0.2126f + specular.y * 0.7151f + specular.z * 0.0722f));
+
+            // Infer reflectance from the diffuse luminance of the material.
+            material.physics[reflectance] = static_cast<GLubyte> (255 * (diffuse.x * 0.2126f + diffuse.y * 0.7151f + diffuse.z * 0.0722f));
+
+            // We will treat "shiny" materials as if they're conductive.
+            if (sceneMaterial.isShiny())
+            {
+                material.physics[conductivity] = 255;
+            }
+
+            // The albedo should just be the diffuse colour.
+            material.albedo[0] = static_cast<GLubyte> (255 * diffuse.x);
+            material.albedo[1] = static_cast<GLubyte> (255 * diffuse.y);
+            material.albedo[2] = static_cast<GLubyte> (255 * diffuse.z);
+
+            // Now do any material specific overloading.
+            switch (sceneMaterial.getId())
+            {
+                // Orange drapes and roof.
+                case 201:
+                    material.albedoMap = "resource:///kappa.pmg"s;
+                    break;
+
+                // Do nothing my lord!
+                default:
+                    break;
+            }
+
+            materials.push_back (std::move (material));
+        }
+
+        return materials;
     }
 
 
