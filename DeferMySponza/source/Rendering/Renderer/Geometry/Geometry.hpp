@@ -14,6 +14,7 @@
 
 
 // Personal headers.
+#include <Rendering/Composites/DrawCommands.hpp>
 #include <Rendering/Objects/Buffer.hpp>
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
 #include <Rendering/Renderer/Geometry/SceneVAO.hpp>
@@ -32,6 +33,11 @@ class Geometry final
 {
     public:
 
+        // Aliases.
+        using DrawCommands = MultiDrawCommands<Buffer>;
+
+    public:
+
         Geometry() noexcept;
         Geometry (Geometry&&) noexcept              = default;
         Geometry& operator= (Geometry&&) noexcept   = default;
@@ -45,28 +51,28 @@ class Geometry final
         bool isInitialised() const noexcept;
         
         /// <summary> Gets the vertex array object containing scene geometric data. </summary>
-        inline const SceneVAO& getSceneVAO() const noexcept             { return m_scene; }
+        inline const SceneVAO& getSceneVAO() const noexcept                     { return m_scene; }
 
         /// <summary> Gets the vertex array object containing scene geometric data. </summary>
-        inline SceneVAO& getSceneVAO() noexcept                         { return m_scene; }
+        inline SceneVAO& getSceneVAO() noexcept                                 { return m_scene; }
 
         /// <summary> Gets the vertex array object containing light volume data. </summary>
-        inline const LightingVAO& getLightingVAO() const noexcept       { return m_lighting; }
+        inline const LightingVAO& getLightingVAO() const noexcept               { return m_lighting; }
 
         /// <summary> Gets the vertex array object containing light volume data. </summary>
-        inline LightingVAO& getLightingVAO() noexcept                   { return m_lighting; }
+        inline LightingVAO& getLightingVAO() noexcept                           { return m_lighting; }
 
         /// <summary> Retrieves the command buffer filled with commands to draw static geometry. </summary>
-        inline const Buffer& getStaticGeometryCommands() const noexcept { return m_drawCommands; }
+        inline const DrawCommands& getStaticGeometryCommands() const noexcept   { return m_drawCommands; }
 
         /// <summary> Gets the mesh data required to draw a quad. </summary>
-        inline const Mesh& getQuad() const noexcept                     { return m_quad; }
+        inline const Mesh& getQuad() const noexcept                             { return m_quad; }
 
         /// <summary> Gets the mesh data required to draw a sphere. </summary>
-        inline const Mesh& getSphere() const noexcept                   { return m_sphere; }
+        inline const Mesh& getSphere() const noexcept                           { return m_sphere; }
 
         /// <summary> Gets the mesh data required to draw a cone. </summary>
-        inline const Mesh& getCone() const noexcept                     { return m_cone; }
+        inline const Mesh& getCone() const noexcept                             { return m_cone; }
 
 
         /// <summary> 
@@ -95,15 +101,15 @@ class Geometry final
         struct Internals;
         using Pimpl = std::unique_ptr<Internals>;
 
-        SceneVAO    m_scene         { };    //!< Used for drawing all scene geometry.
-        Buffer      m_drawCommands  { };    //!< Contains the drawing commands to indirectly render every static object in the scene.
+        SceneVAO        m_scene         { };    //!< Used for drawing all scene geometry.
+        DrawCommands    m_drawCommands  { };    //!< Contains the drawing commands to indirectly render every static object in the scene.
         
-        LightingVAO m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
-        Mesh        m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
-        Mesh        m_sphere        { };    //!< The mesh data required for drawing a sphere.
-        Mesh        m_cone          { };    //!< The mesh data required for drawing a cone.
+        LightingVAO     m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
+        Mesh            m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
+        Mesh            m_sphere        { };    //!< The mesh data required for drawing a sphere.
+        Mesh            m_cone          { };    //!< The mesh data required for drawing a cone.
 
-        Pimpl       m_internals     { };    //!< Stores less important internal data.
+        Pimpl           m_internals     { };    //!< Stores less important internal data.
 
     private:
 
@@ -143,7 +149,7 @@ class Geometry final
         /// <param name="drawCommands"> Where the list of indirect draw commands should be stored. </param>
         /// <param name="materials"> Material information for the material ID buffer. </param>
         /// <param name="instances"> Each instance that will be added to the static buffers. </param>
-        void fillStaticBuffers (Internals& internals, Buffer& drawCommands, const Materials& materials,
+        void fillStaticBuffers (Internals& internals, DrawCommands& drawCommands, const Materials& materials,
             const std::map<scene::MeshId, std::vector<scene::Instance>>& instances) const noexcept;
 };
 
@@ -160,7 +166,7 @@ bool Geometry::initialise (const Materials& materials,
 {
     // We need to create replacement objects to initialise.
     auto scene          = SceneVAO { };
-    auto drawCommands   = Buffer { };
+    auto drawCommands   = DrawCommands { };
     auto lighting       = LightingVAO { };
     auto quad           = Mesh { };
     auto sphere         = Mesh { };
@@ -168,7 +174,7 @@ bool Geometry::initialise (const Materials& materials,
     auto internals      = std::make_unique<Internals>();
 
     // Initialise each object.
-    if (!(scene.vao.initialise() && drawCommands.initialise() && lighting.vao.initialise() && internals->initialise()))
+    if (!(scene.vao.initialise() && drawCommands.buffer.initialise() && lighting.vao.initialise() && internals->initialise()))
     {
         return false;
     }
@@ -179,6 +185,11 @@ bool Geometry::initialise (const Materials& materials,
     // Construct the required geometry.
     buildMeshData (*internals);
     buildLighting (*internals, quad, sphere, cone);
+
+    // Set the draw command buffer parameters.
+    drawCommands.mode   = GL_TRIANGLES;
+    drawCommands.type   = GL_UNSIGNED_INT;
+    drawCommands.start  = 0;
 
     // Allow for static batching by filling the static buffers with instance information and draw commands.
     fillStaticBuffers (*internals, drawCommands, materials, staticInstances);

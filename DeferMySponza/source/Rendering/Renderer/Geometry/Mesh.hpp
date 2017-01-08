@@ -13,7 +13,8 @@
 struct Mesh final
 {
     GLintptr    verticesIndex   { 0 };  //!< The index of a VBO where the vertices for the mesh begin.
-    void*       elementsOffset  { 0 };  //!< An offset in bytes used to draw the mesh in the scene.
+    GLuint      elementsIndex   { 0 };  //!< The index of a VBO where the elements for the mesh start.
+    void*       elementsOffset  { 0 };  //!< The offset to the first element in a VBO in bytes.
     GLsizei     elementCount    { 0 };  //!< Indicates how many elements there are.
     
     Mesh() noexcept                         = default;

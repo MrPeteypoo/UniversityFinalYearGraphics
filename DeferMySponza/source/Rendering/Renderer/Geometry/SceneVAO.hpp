@@ -73,7 +73,7 @@ void SceneVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements
     constexpr auto meshesStride = GLuint { sizeof (glm::vec3) * 2 + sizeof (glm::vec2) };
 
     // Material ID is an integer.
-    constexpr auto materialIDStride = GLuint { sizeof (GLint) };
+    constexpr auto materialIDStride = GLuint { sizeof (GLuint) };
 
     // Model transforms are a 4x3 matrix.
     constexpr auto modelStride = GLuint { sizeof (glm::mat4x3) };

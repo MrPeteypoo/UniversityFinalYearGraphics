@@ -195,7 +195,7 @@ bool PMB<Partitions>::initialise (const T* data, const GLintptr size,
     }
 
     // The storage flags don't support GL_MAP_FLUSH_EXPLICIT_BIT so ensure we don't use that.
-    auto storageFlags = access & (~GL_MAP_FLUSH_EXPLICITY_BIT);
+    auto storageFlags = (access & (~GL_MAP_FLUSH_EXPLICITY_BIT));
 
     // Next we can allocate the storage with the correct bits.
     if (data)
