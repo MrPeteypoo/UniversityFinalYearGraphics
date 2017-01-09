@@ -60,7 +60,7 @@ class GeometryBuffer final
         /// Attempt to construct the Gbuffer and prepare it for usage. Successive calls will wipe the Gbuffer.
         /// Upon failure the object will not be changed.
         /// </summary>
-        /// <param name="width"> How many pixels wide the Gbuffer should be. <param>
+        /// <param name="width"> How many pixels wide the Gbuffer should be. </param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>
         /// <returns> Whether the Gbuffer was successfully created or not. </returns>
         bool initialise (const GLsizei width, const GLsizei height) noexcept;

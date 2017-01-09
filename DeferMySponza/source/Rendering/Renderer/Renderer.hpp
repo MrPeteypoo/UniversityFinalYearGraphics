@@ -3,6 +3,10 @@
 #if !defined    _RENDERING_RENDERER_
 #define         _RENDERING_RENDERER_
 
+// STL headers.
+#include <utility>
+
+
 // Engine headers.
 #include <glm/fwd.hpp>
 #include <scene/scene_fwd.hpp>
@@ -76,6 +80,11 @@ class Renderer final
 
             Mesh        mesh        { };    //!< Rendering data for a particular scene mesh.
             Instances   instances   { };    //!< A list of instances requiring the stored mesh.
+
+            MeshInstances (const Mesh& mesh, Instances&& instances) noexcept
+                : mesh (std::move (mesh)), instances (std::move (instances))
+            {
+            }
         };
         
         using DrawCommands      = MultiDrawCommands<Buffer>;

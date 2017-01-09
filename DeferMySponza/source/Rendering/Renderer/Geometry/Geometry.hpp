@@ -6,6 +6,7 @@
 // STL headers.
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 
@@ -47,8 +48,15 @@ class Geometry final
         Geometry& operator= (const Geometry&)       = delete;
 
 
+        /// <summary> Maps the given mesh ID to a stored mesh. </summary>
+        /// <param name="id"> The scene ID of the mesh to retrieve data for. </param>
+        const Mesh& operator[] (const scene::MeshId id) const noexcept;
+
         /// <summary> Checks whether the object is initialised or not. </summary>
         bool isInitialised() const noexcept;
+
+        /// <summary> Retrieves a map, containing every constructed mesh with an associated ID. </summary>
+        const std::unordered_map<scene::MeshId, Mesh>& getMeshes() const noexcept;
         
         /// <summary> Gets the vertex array object containing scene geometric data. </summary>
         inline const SceneVAO& getSceneVAO() const noexcept                     { return m_scene; }

@@ -175,8 +175,8 @@ bool Renderer::buildDynamicObjectBuffers() noexcept
 
     // Initialise the objects with the correct memory values.
     if (!(m_objectDrawing.buffer.initialise() && 
-        m_materialIDs.initialise (nullptr, materialIDSize, false, true, false) && 
-        m_objectTransforms.initialise (nullptr, transformSize, false, true, false)))
+        m_materialIDs.initialise (materialIDSize, false, true, false) && 
+        m_objectTransforms.initialise (transformSize, false, true, false)))
     {
         return false;
     }
@@ -204,7 +204,7 @@ bool Renderer::buildLightBuffers() noexcept
     
     // Now we can initialise the buffers
     if (!(m_lightDrawing.buffer.initialise() && 
-        m_lightTransforms.initialise (nullptr, transformSize, false, true, false)))
+        m_lightTransforms.initialise (transformSize, false, true, false)))
     {
         return false;
     }
@@ -235,14 +235,65 @@ bool Renderer::buildGeometry() noexcept
     });
 
     // Now we can try to initialise the geometry object.
-    if (!m_geometry.initialise (m_materials, staticInstances, m_materialIDs, m_objectTransforms, m_lightTransforms))
-    {
-        return false;
-    }
+    return m_geometry.initialise (m_materials, staticInstances, m_materialIDs, m_objectTransforms, m_lightTransforms);
 }
 
 
 bool Renderer::buildFramebuffers() noexcept
 {
-    
+    // We need width and height values to initialise with.
+    const auto width    = m_resolution.internalWidth;
+    const auto height   = m_resolution.internalHeight;
+
+    // Now we can initialise the framebuffers.
+    return  m_gbuffer.initialise (width, height) &&
+            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGB8, width, height);
+}
+
+
+bool Renderer::buildUniforms() noexcept
+{
+    return false;
+}
+
+
+void Renderer::fillDynamicInstances() noexcept
+{
+    // Ensure the target vector is clean.
+    m_dynamics.clear();
+
+    // We need to iterate through mesh IDs and retrieve the dynamic instances for each.
+    const auto& sceneMeshes = m_geometry.getMeshes();
+
+    // Reserve enough memory to speed the process up.
+    m_dynamics.reserve (sceneMeshes.size());
+
+    for (const auto& pair : sceneMeshes)
+    {
+        // Retrieve the instances for the current mesh.
+        const auto instances = m_scene->getInstancesByMeshId (pair.first);
+
+        // We only want the dynamic instance IDs.
+        auto dynamicIDs = std::vector<scene::InstanceId> { };
+        dynamicIDs.reserve (instances.size());
+        for (const auto& instance : instances)
+        {
+            if (!m_scene->getInstanceById (instance).isStatic())
+            {
+                dynamicIDs.push_back (instance);
+            }
+        }
+
+        // Don't keep extra memory we don't need.
+        dynamicIDs.shrink_to_fit();
+
+        // Finally add the mesh if necessary.
+        if (dynamicIDs.size() > 0)
+        {
+            m_dynamics.emplace_back (pair.second, std::move (dynamicIDs));
+        }
+    }
+
+    // Finally remove any excess memory in the dynamic container.
+    m_dynamics.shrink_to_fit();
 }

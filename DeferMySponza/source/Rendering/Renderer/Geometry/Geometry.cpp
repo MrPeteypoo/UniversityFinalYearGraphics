@@ -32,10 +32,22 @@ Geometry::Geometry() noexcept
 }
 
 
+const Mesh& Geometry::operator[] (const scene::MeshId id) const noexcept
+{
+    return m_internals->sceneMeshes[id];
+}
+
+
 bool Geometry::isInitialised() const noexcept
 {
     return m_scene.vao.isInitialised() && m_drawCommands.buffer.isInitialised() && m_lighting.vao.isInitialised() && 
         m_internals->isInitialised();
+}
+
+
+const std::unordered_map<scene::MeshId, Mesh>& Geometry::getMeshes() const noexcept
+{
+    return m_internals->sceneMeshes;
 }
 
 

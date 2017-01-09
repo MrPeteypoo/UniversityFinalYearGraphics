@@ -70,10 +70,13 @@ class Buffer final
         /// Flags that determine the capabilities of the buffer. E.g. GL_DYNAMIC_STORAGE_BIT allows for data to be
         /// placed inside the storage. 0 will signify that the data is static and will never be changed.
         /// </param>
+        /// <returns> The amount of allocated data. </returns>
         template <typename Data, template <typename, typename = size_t...> typename Container, typename... Args>
-        void immutablyFillWith (const Container<Data, Args...>& data, const GLbitfield flags = 0) noexcept
+        GLsizeiptr immutablyFillWith (const Container<Data, Args...>& data, const GLbitfield flags = 0) noexcept
         {
-            glNamedBufferStorage (m_buffer, data.size() * sizeof (Data), data.data(), flags);
+            const auto size = data.size() * sizeof (Data);
+            glNamedBufferStorage (m_buffer, size, data.data(), flags);
+            return size;
         }
 
         /// <summary> 
@@ -95,9 +98,11 @@ class Buffer final
         /// <param name="data"> An array of data to fill the buffer with. </param>
         /// <param name="usage"> The usage parameter of the buffered data, e.g. GL_STATIC_DRAW/GL_DYNAMIC_DRAW. </param>
         template <typename Data, template <typename, typename = size_t...> typename Container, typename... Args>
-        void mutablyFillWith (const Container<Data, Args...>& data, const GLenum usage) noexcept
+        GLsizeiptr mutablyFillWith (const Container<Data, Args...>& data, const GLenum usage) noexcept
         {
+            const auto size = data.size() * sizeof (Data);
             glNamedBufferData (m_buffer, data.size() * sizeof (Data), data.data(), usage);
+            return size;
         }
 
         /// <summary> 

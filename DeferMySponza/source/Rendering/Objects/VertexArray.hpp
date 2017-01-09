@@ -146,11 +146,11 @@ void VertexArray::attachPersistentMappedBuffer (const PMB<Partitions>& buffer, G
     for (size_t i { 0 }; i < Partitions; ++i)
     {
         // Calculate the index and offset for the partition.
-        const auto index    = initialBufferIndex + i;
+        const auto index    = static_cast<GLuint> (initialBufferIndex + i);
         const auto offset   = buffer.partitionOffset (i);
 
         // Finally attach the partition.
-        attachVertexBuffer (buffer, index, offset, stride, divisor);
+        attachVertexBuffer (buffer.getBuffer(), index, offset, stride, divisor);
     }
 }
 

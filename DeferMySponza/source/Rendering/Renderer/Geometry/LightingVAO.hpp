@@ -62,7 +62,7 @@ void LightingVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& eleme
 
     // Attach buffers. Vertex attributes are interleaved.
     vao.attachVertexBuffer (meshes, meshesBufferIndex, 0, meshesStride);
-    vao.attachPersistentMappedBuffer (modelTransforms, modelTransformsBufferIndex, 0, modelStride, divisor);
+    vao.attachPersistentMappedBuffer (modelTransforms, modelTransformsBufferIndex, modelStride, divisor);
     vao.setElementBuffer (elements);
 }
 
