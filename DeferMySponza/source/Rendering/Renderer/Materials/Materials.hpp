@@ -51,6 +51,12 @@ class Materials final
         /// <returns> The material ID if successful, the maximum value if not found. </returns> 
         MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
 
+        /// <summary> Retrieves the texture unit of the first texture array. </summary>
+        GLenum getFirstTextureUnit() const noexcept;
+
+        /// <summary> Retrieves the texture unit of the last texture array. </summary>
+        GLenum getLastTextureUnit() const noexcept;
+
 
         /// <summary> 
         /// Constructs every material in the scene, including loading every texture and mapping scene::MaterialId 

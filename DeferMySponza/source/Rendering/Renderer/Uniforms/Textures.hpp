@@ -16,7 +16,10 @@
 /// </summary>
 struct Textures final
 {
-    struct Gbuffer final
+    /// <summary>
+    /// Enables accessing GBuffer values in the shaders.
+    /// </summary>
+    struct GBuffer final
     {
         GLint positions { 0 };  //!< A texture rectangle containing the positions of objects.
         GLint normals   { 0 };  //!< A texture rectangle containing the normals of objects.
@@ -24,12 +27,15 @@ struct Textures final
     };
 
     /// <summary> 
-    /// Assumes 8 arrays for GL_RGB and GL_RGBA.
+    /// Enables the texturing objects with GL_RGB and GL_RGBA textures.
     /// </summary>
     struct Arrays final
     {
         GLint arrays[16];   //!< We use 8 arrays for GL_RGB and 8 arrays for GL_RGBA.
     };
+
+    GBuffer gbuffer;
+    Arrays  arrays;
 };
 
 

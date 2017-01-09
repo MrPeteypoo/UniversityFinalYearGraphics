@@ -253,7 +253,17 @@ bool Renderer::buildFramebuffers() noexcept
 
 bool Renderer::buildUniforms() noexcept
 {
-    return false;
+    // Make sure the uniforms build correctly.
+    if (!m_uniforms.initialise (m_gbuffer, m_materials))
+    {
+        return false;
+    }
+
+    // Now we can bind the uniform blocks to each program.
+    m_uniforms.bindBlocksToProgram (m_programs);
+
+    // And we're done!
+    return true;
 }
 
 

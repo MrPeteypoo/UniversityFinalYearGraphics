@@ -4,7 +4,7 @@
 #define         _RENDERING_UNIFORMS_POINT_LIGHT_
 
 // Engine headers.
-#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.

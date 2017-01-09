@@ -4,6 +4,7 @@
 #define         _RENDERING_UNIFORMS_
 
 // STL headers.
+#include <type_traits>
 #include <unordered_map>
 
 
@@ -44,7 +45,7 @@ class Uniforms final
         };
 
         // Aliases.
-        using Gbuffer           = Data<Textures::Gbuffer,           0>;
+        using GBuffer           = Data<Textures::GBuffer,           0>;
         using TextureArrays     = Data<Textures::Arrays,            1>;
         using Scene             = Data<Scene,                       2>;
         using DirectionalLights = Data<FullBlock<DirectionalLight>, 3>;
@@ -77,8 +78,8 @@ class Uniforms final
 
         /// <summary>
         /// Attempts to initialise the uniform buffer by allocating enough memory for each uniform block. Also fills
-        /// the static uniform blocks with data, such as the Gbuffer and texture arrays block. Successive calls will
-        /// not modify the object if initialisation fails.
+        /// the static uniform blocks with data, such as the Gbuffer and texture arrays block. This will reset the
+        /// bound partition to zero. Successive calls will not modify the object if initialisation fails.
         /// </summary>
         /// <param name="geometryBuffer"> Used to map the gbuffer textures to the correct sampler. </param>
         /// <param name="materials"> Used to map the texture arrays to the correct samplers. </param>
@@ -106,31 +107,62 @@ class Uniforms final
     private:
 
         using BlockNames = std::unordered_map<GLuint, const char*>;
+        
+        Scene               m_scene;            //!< Contains universal data about the scene.
+        DirectionalLights   m_directional;      //!< Contains the parameters of every directional light in the scene.
+        PointLights         m_point;            //!< Contains the parameters of many point lights in the scene.
+        Spotlights          m_spot;             //!< Contains the parameters of many spotlights in the scene.
 
         Buffer              m_staticBlocks;     //!< Contains static uniform buffer data such as Gbuffer and array textures.
         SinglePMB           m_dynamicBlocks;    //!< A multi-buffered uniform buffer object containing uniform block data.
         size_t              m_partition;        //!< The currently cound partition.
 
-        Scene               m_scene;            //!< Contains universal data about the scene.
-        DirectionalLights   m_directional;      //!< Contains the parameters of every directional light in the scene.
-        PointLights         m_point;            //!< Contains the parameters of many point lights in the scene.
-        Spotlights          m_spot;             //!< Contains the parameters of many spotlights in the scene.
-        
         /// <summary> Maps block binding indices to block names as found in shaders. </summary>
-        const BlockNames blockNames
+        const BlockNames m_blockNames
         {
-            { Gbuffer::blockBinding,            "gbuffer" },
+            { GBuffer::blockBinding,            "gbuffer" },
             { TextureArrays::blockBinding,      "textures" },
             { Scene::blockBinding,              "scene" },
             { DirectionalLights::blockBinding,  "directionalLights" },
             { PointLights::blockBinding,        "pointLights" },
             { Spotlights::blockBinding,         "spotlights" },
         };
+        
+        static GLint alignment; //!< How many bytes the uniform buffer blocks must be aligned to.
 
     private:
 
+        /// <summary> Calculate the amount of memory to allocate for the dynamic blocks UBO. </summary>
+        GLintptr calculateDynamicBlockSize() const noexcept;
+
+        /// <summary> Determines the size of a type, ensuring it's aligned with a block boundary. </summary>
+        template <typename T>
+        GLintptr calculateAlignedSize() const noexcept;
+
+        /// <summary> Build data for static blocks and bind each block correctly. </summary>
+        /// <returns> Whether the static block buffer was built correctly. </returns>
+        bool buildStaticBlocks (Buffer& staticBlocks, 
+            const GeometryBuffer& gbuffer, const Materials& materials) const noexcept;
+
         /// <summary> Binds an individual block to an individual program. </summary>
         void bindBlockToProgram (const Program& program, const GLuint blockBinding) const noexcept;
+
+        /// <summary> Resets the pointer and offset of every stored data block. </summary>
+        void resetBlockData() noexcept;
+
+        /// <summary> Binds each UBO block containing static data to their associated index. </summary>
+        void rebindStaticBlocks() const noexcept;
+
+        /// <summary> Binds each block to ranges in the current partition. </summary>
+        void rebindDynamicBlocks() const noexcept;
 };
+
+
+template <typename T>
+GLintptr Uniforms::calculateAlignedSize() const noexcept
+{
+    constexpr auto size = sizeof (std::remove_pointer_t<T>);
+    return size + alignment - size % alignment;
+}
 
 #endif // _RENDERING_UNIFORMS_

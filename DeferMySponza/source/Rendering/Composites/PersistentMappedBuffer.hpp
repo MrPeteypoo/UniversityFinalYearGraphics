@@ -92,7 +92,7 @@ class PersistentMappedBuffer final
         /// If an invalid index is given then the start of the buffer will be returned.
         /// </summary>
         /// <param name="partition"> The partition to return the pointer for. </param>
-        inline const void* pointer (const size_t partition) const noexcept
+        inline const GLbyte* pointer (const size_t partition) const noexcept
         {
             return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
         }
@@ -102,7 +102,7 @@ class PersistentMappedBuffer final
         /// If an invalid index is given then the start of the buffer will be returned.
         /// </summary>
         /// <param name="partition"> The partition to return the pointer for. </param>
-        inline void* pointer (const size_t partition) noexcept
+        inline GLbyte* pointer (const size_t partition) noexcept
         {
             return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
         }
@@ -121,7 +121,7 @@ class PersistentMappedBuffer final
         using Regions = std::array<void*, Partitions>;
 
         Buffer      m_buffer    { };            //!< The persistently mapped buffer.
-        void*       m_mapping   { nullptr };    //!< A pointer provided by the GPU where we can write to.
+        GLbyte*     m_mapping   { nullptr };    //!< A pointer provided by the GPU where we can write to.
         GLintptr    m_size      { 0 };          //!< How large the buffer is.
         bool        m_coherent  { false };      //!< If the PMB is coherent then flush requires will be silently dropped.
 
@@ -205,7 +205,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = m_buffer.mapRange (0, size, access);
+    m_mapping   = static_cast<GLbyte*> (m_buffer.mapRange (0, size, access));
     m_size      = size;
     m_coherent  = coherent;
 
@@ -252,7 +252,7 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = m_buffer.mapRange (0, size, access);
+    m_mapping   = static_cast<GLbyte*> (m_buffer.mapRange (0, size, access));
     m_size      = size;
     m_coherent  = coherent;
 

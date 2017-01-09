@@ -80,6 +80,17 @@ class Buffer final
         }
 
         /// <summary> 
+        /// A catch-all overload where the passed object will fill the buffer.
+        /// </summary>
+        /// <returns> The amount of allocated data. </returns>
+        template <typename Data>
+        GLsizeiptr immutablyFillWith (Data& data, const GLbitfield flags = 0) noexcept
+        {
+            glNamedBufferStorage (m_buffer, sizeof (Data), &data, flags);
+            return sizeof (Data);
+        }
+
+        /// <summary> 
         /// Allocates the desired amount of memory to the buffer. This function will bind and unbind itself to the
         /// given target. Mutable storage can be reallocated but may restrict implementation optimisation. This
         /// should not be performed after allocating immutable storage.
