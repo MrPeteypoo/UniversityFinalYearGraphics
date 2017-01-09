@@ -1,125 +1,74 @@
 #include "Uniforms.hpp"
 
 
-// Engine headers.
-#include <scene/scene.hpp>
-
-
 // Personal headers.
-#include <Utility/OpenGL/Buffers.hpp>
-#include <Utility/Scene.hpp>
+#include <Rendering/Renderer/Programs/Programs.hpp>
 
 
-bool Uniforms::initialise() noexcept
+bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials& materials) noexcept
 {
-    if (!m_ubo.initialise())
+    /*if (!m_ubo.initialise())
     {
         return false;
     }
 
-    m_ubo.allocateImmutableStorage (sizeof (UniformBlocks));
+    m_ubo.allocateImmutableStorage (sizeof (UniformBlocks));*/
     return true;
 }
 
 
 void Uniforms::clean() noexcept
 {
-    m_ubo.clean();
-    m_data = UniformBlocks { };
+    m_staticBlocks.clean();
+    m_dynamicBlocks.clean();
+
+    m_scene         = Scene { };
+    m_directional   = DirectionalLights { };
+    m_point         = PointLights { };
+    m_spot          = Spotlights { };
 }
 
 
-bool Uniforms::bindToProgram (const GLuint program) const noexcept
+void Uniforms::bindBlocksToProgram (const Programs& programs) const noexcept
 {
-    auto success = util::bindBlockToProgram 
-    (
-        m_ubo, 
-        program, 
-        m_data.sceneName, 
-        m_data.sceneBlock, 
-        m_data.sceneOffset, 
-        sizeof (Scene)
-    );
-     
-    success |= util::bindBlockToProgram 
-    ( 
-        m_ubo, 
-        program, 
-        m_data.directionalLightName,
-        m_data.directionalLightBlock, 
-        m_data.directionalLightOffset, 
-        sizeof (DirectionalLight)
-    );
-     
-    success |= util::bindBlockToProgram 
-    ( 
-        m_ubo, 
-        program, 
-        m_data.pointLightName,
-        m_data.pointLightBlock, 
-        m_data.pointLightOffset, 
-        sizeof (PointLight)
-    );
-     
-    success |= util::bindBlockToProgram 
-    ( 
-        m_ubo, 
-        program, 
-        m_data.spotlightName,
-        m_data.spotlightBlock, 
-        m_data.spotlightOffset, 
-        sizeof (Spotlight)
-    );
+    const auto bindAllBlocks = [&] (const Program& program)
+    {
+        bindBlockToProgram (program, Gbuffer::blockBinding);
+        bindBlockToProgram (program, TextureArrays::blockBinding);
+        bindBlockToProgram (program, Scene::blockBinding);
+        bindBlockToProgram (program, DirectionalLights::blockBinding);
+        bindBlockToProgram (program, PointLights::blockBinding);
+        bindBlockToProgram (program, Spotlights::blockBinding);
+    };
     
-    return success;
+    bindAllBlocks (programs.geometry);
+    bindAllBlocks (programs.globalLight);
+    bindAllBlocks (programs.pointLight);
+    bindAllBlocks (programs.spotlight);
 }
 
 
-void Uniforms::updateScene (const scene::Context* const scene, const glm::mat4& projection, const glm::mat4& view) noexcept
+void Uniforms::bindBlocksToPartition (const size_t partitionIndex) noexcept
 {
-    m_data.scene.projection = projection;
-    m_data.scene.view = view;
-    m_data.scene.cameraPosition = glm::vec4 (util::toGLM (scene->getCamera().getPosition()), 0.f);
-    m_data.scene.ambience = glm::vec4 (util::toGLM (scene->getAmbientLightIntensity()), 0.f);
 
-    m_ubo.placeAt (0, m_data.scene);
-    //updateBuffer();
 }
 
 
-void Uniforms::updateDirectionalLight (const scene::DirectionalLight& light) noexcept
+void Uniforms::notifyModifiedDataRange (const GLintptr startOffset, const GLsizei length) noexcept
 {
-    m_data.directionalLight.direction = glm::vec4 (util::toGLM (light.getDirection()), 0.f);
-    m_data.directionalLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
-
-    m_ubo.placeAt (m_data.directionalLightOffset, m_data.directionalLight);
-    //updateBuffer();
+    m_dynamicBlocks.notifyModifiedDataRange (m_partition, startOffset, length);
 }
 
 
-void Uniforms::updatePointLight (const scene::PointLight& light) noexcept
+void Uniforms::bindBlockToProgram (const Program& program, const GLuint blockBinding) const noexcept
 {
-    m_data.pointLight.position  = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
-    m_data.pointLight.intensity = glm::vec4 (util::toGLM (light.getIntensity()), 0.f);
+    // Check if the program uses the block.
+    const auto index = glGetUniformBlockIndex (program.getID(), blockNames.at (blockBinding));
+    if (index == GL_INVALID_INDEX) 
+    {
+        return;
+    }
 
-    m_ubo.placeAt (m_data.pointLightOffset, m_data.pointLight);
-    //updateBuffer();
-}
-
-
-void Uniforms::updateSpotlight (const scene::SpotLight& light) noexcept
-{
-    m_data.spotlight.position   = glm::vec4 (util::toGLM (light.getPosition()), 0.f);
-    m_data.spotlight.direction  = util::toGLM (light.getDirection());
-    m_data.spotlight.coneAngle  = light.getConeAngleDegrees();
-    m_data.spotlight.intensity  = util::toGLM (light.getIntensity());
-
-    m_ubo.placeAt (m_data.spotlightOffset, m_data.spotlight);
-    //updateBuffer();
-}
-
-
-void Uniforms::updateBuffer() noexcept
-{
-    m_ubo.placeAt (0, m_data);
+    // Bind the block to the program.
+    glUniformBlockBinding (program.getID(), index, blockBinding);
 }

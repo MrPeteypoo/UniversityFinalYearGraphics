@@ -12,19 +12,12 @@
 
 
 /// <summary>
-/// A uniform block containing information required to render a directional light.
+/// A directional light as it appears in a uniform block.
 /// </summary>
 struct DirectionalLight final
 {
     glm::vec4 direction { 0.f };    //!< The direction of the light in world-space. The 'w' component is alignment padding.
     glm::vec4 intensity { 0.f };    //!< The colour/intensity of the light. The 'w' component is alignment padding.
-
-    private:
-
-        /// <summary>
-        /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
-        /// </summary>
-        float unused[56];
 };
 
 

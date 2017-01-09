@@ -133,21 +133,6 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Uniforms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Internals\DirectionalLight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Internals\PointLight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Internals\Scene.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Internals\Spotlight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Internals\UniformBlocks.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Renderer\Drawing\GeometryBuffer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -173,6 +158,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\FullBlock.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\DirectionalLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Spotlight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\PointLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Textures.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

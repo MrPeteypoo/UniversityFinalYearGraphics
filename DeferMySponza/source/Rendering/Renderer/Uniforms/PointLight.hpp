@@ -11,24 +11,19 @@
 #pragma pack (push, 4)
 
 
-/// <summary>
-/// A uniform block containing information required to render a point light.
+/// <summary> 
+/// A point light as it appears in a uniform block.
 /// </summary>
 struct PointLight final
 {
-    glm::vec4   position    { 0.f };    //!< The position of the light in world-space. The 'w' component is alignment padding.
-    glm::vec4   intensity   { 0.f };    //!< The colour/intensity of the light. The 'w' component is alignment padding.
+    glm::vec3   position    { 0.f };    //!< The position of the light in world-space.
+    float       range       { 0.f };    //!< The range of the point light.
 
+    glm::vec3   intensity   { 0.f };    //!< The colour/intensity of the light.
     float       aConstant   { 1.f };    //!< The constant co-efficient for the attenutation formula.
+
     float       aLinear     { 0.f };    //!< The linear co-efficient for the attenutation formula.
     float       aQuadratic  { 0.1f };	//!< The quadratic co-efficient for the attenuation formula.
-
-    private:
-
-        /// <summary>
-        /// Ensure the block is padded to 256-byte alignment as required by OpenGL UBO bindings.
-        /// </summary>
-        float unused[53];
 };
 
 

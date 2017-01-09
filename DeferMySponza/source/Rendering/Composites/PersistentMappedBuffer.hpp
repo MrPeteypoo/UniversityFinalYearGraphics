@@ -123,6 +123,7 @@ class PersistentMappedBuffer final
         Buffer      m_buffer    { };            //!< The persistently mapped buffer.
         void*       m_mapping   { nullptr };    //!< A pointer provided by the GPU where we can write to.
         GLintptr    m_size      { 0 };          //!< How large the buffer is.
+        bool        m_coherent  { false };      //!< If the PMB is coherent then flush requires will be silently dropped.
 
     private:
         
@@ -160,9 +161,11 @@ PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
         m_buffer    = std::move (move.m_buffer);
         m_mapping   = move.m_mapping;
         m_size      = move.m_size;
+        m_coherent  = move.m_coherent;
 
         move.m_mapping  = nullptr;
         move.m_size     = 0U;
+        move.m_coherent = false;
     }
 
     return *this;
@@ -204,6 +207,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     m_buffer    = std::move (buffer);
     m_mapping   = m_buffer.mapRange (0, size, access);
     m_size      = size;
+    m_coherent  = coherent;
 
     return true;
 }
@@ -250,6 +254,7 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
     m_buffer    = std::move (buffer);
     m_mapping   = m_buffer.mapRange (0, size, access);
     m_size      = size;
+    m_coherent  = coherent;
 
     return true;
 }
@@ -265,6 +270,7 @@ void PMB<Partitions>::clean() noexcept
         m_buffer.clean();
         m_mapping   = nullptr;
         m_size      = 0U;
+        m_coherent  = false;
     }
 }
 
@@ -272,7 +278,10 @@ void PMB<Partitions>::clean() noexcept
 template <size_t Partitions>
 void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const GLintptr startOffset, const GLsizei length) noexcept
 {
-    glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + startOffset, length);
+    if (!m_coherent)
+    {
+        glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + startOffset, length);
+    }
 }
 
 
