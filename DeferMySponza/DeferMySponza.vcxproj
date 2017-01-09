@@ -408,6 +408,7 @@
     <ClCompile Include="source\Rendering\Renderer\Programs\Shaders.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\GeometryBuffer.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\LightBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Renderer.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Uniforms\Uniforms.cpp" />
     <ClCompile Include="source\Utility\OpenGL\Textures.cpp" />
     <ClCompile Include="source\Utility\OpenGL\ToDelete.cpp" />

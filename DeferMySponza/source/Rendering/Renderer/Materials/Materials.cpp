@@ -32,6 +32,11 @@ Materials::Materials (Materials&& move) noexcept
 }
 
 
+Materials::~Materials()
+{
+}
+
+
 MaterialID Materials::operator[] (const scene::MaterialId sceneID) const noexcept
 {
     const auto result = m_materialIDs.find (sceneID);

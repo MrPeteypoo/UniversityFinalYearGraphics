@@ -186,11 +186,6 @@ bool Geometry::initialise (const Materials& materials,
     buildMeshData (*internals);
     buildLighting (*internals, quad, sphere, cone);
 
-    // Set the draw command buffer parameters.
-    drawCommands.mode   = GL_TRIANGLES;
-    drawCommands.type   = GL_UNSIGNED_INT;
-    drawCommands.start  = 0;
-
     // Allow for static batching by filling the static buffers with instance information and draw commands.
     fillStaticBuffers (*internals, drawCommands, materials, staticInstances);
 

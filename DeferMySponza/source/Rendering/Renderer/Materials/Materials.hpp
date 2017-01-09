@@ -40,7 +40,7 @@ class Materials final
         Materials() noexcept;
         Materials (Materials&&) noexcept;
         Materials& operator= (Materials&&) noexcept = default;
-        ~Materials()                                = default;
+        ~Materials();
 
         Materials (const Materials&)                = delete;
         Materials& operator= (const Materials&)     = delete;

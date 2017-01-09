@@ -26,6 +26,9 @@ class PersistentMappedBuffer final
 
         static_assert (Partitions > 0, "Invalid partition value given to PersistentMappedBuffer. Must be larger than zero.");
 
+        constexpr static auto partitions = Partitions;  //!< How many partitions the buffer is split into.
+
+    public:
         PersistentMappedBuffer() noexcept                                   = default;
         
         PersistentMappedBuffer (PersistentMappedBuffer&& move) noexcept;
@@ -60,8 +63,12 @@ class PersistentMappedBuffer final
         /// <param name="write"> Will the mapped buffer be used for writing? </param>
         /// <param name="coherent"> Should reading and writing of data be synchronised with the GPU? </param>
         /// <returns> Whether the buffer was successfully created or not. </returns>
-        template <typename T>
+        template <typename T = std::enable_if_t<!std::is_same<T, std::nullptr_t>::value, T>>
         bool initialise (const T* data, const GLintptr size, const bool read, const bool write, const bool coherent) noexcept;
+        bool initialise (std::nullptr_t, const GLintptr size, const bool read, const bool write, const bool coherent) noexcept
+        {
+            return initialise<int> (nullptr, size, read, write, coherent);
+        }
 
         /// <summary> Deletes the buffer, freeing memory to the GPU. Also causes pointers to be invalidated. </summary>
         void clean() noexcept;
@@ -195,12 +202,12 @@ bool PMB<Partitions>::initialise (const T* data, const GLintptr size,
     }
 
     // The storage flags don't support GL_MAP_FLUSH_EXPLICIT_BIT so ensure we don't use that.
-    auto storageFlags = (access & (~GL_MAP_FLUSH_EXPLICITY_BIT));
+    auto storageFlags = (access & GL_MAP_FLUSH_EXPLICIT_BIT);
 
     // Next we can allocate the storage with the correct bits.
     if (data)
     {
-        buffer.immutablyFillWith (&data, storageFlags);
+        buffer.immutablyFillWith (*data, storageFlags);
     }
     
     else
