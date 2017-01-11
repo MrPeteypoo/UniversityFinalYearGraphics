@@ -96,9 +96,9 @@ void Uniforms::bindBlocksToPartition (const size_t partitionIndex) noexcept
 }
 
 
-void Uniforms::notifyModifiedDataRange (const GLintptr startOffset, const GLsizei length) noexcept
+void Uniforms::notifyModifiedDataRange (const ModifiedRange& range) noexcept
 {
-    m_dynamicBlocks.notifyModifiedDataRange (m_partition, startOffset, length);
+    m_dynamicBlocks.notifyModifiedDataRange (m_partition, range);
 }
 
 
@@ -109,7 +109,7 @@ GLintptr Uniforms::calculateDynamicBlockSize() const noexcept
     const auto pointLightBlock  = calculateAlignedSize<decltype (m_point.data)>();
     const auto spotlightBlock   = calculateAlignedSize<decltype (m_spot.data)>();
     
-    return m_dynamicBlocks.partitions * (sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock);
+    return sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock;
 }
 
 

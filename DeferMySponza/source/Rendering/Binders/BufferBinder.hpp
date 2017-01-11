@@ -30,17 +30,17 @@ struct BufferBinder final
         unbind();
     }
 
-    inline void bind (const Buffer& buffer) const noexcept
+    static inline void bind (const Buffer& buffer) noexcept
     {
         glBindBuffer (Target, buffer.getID());
     }
 
-    inline void bind (const GLuint buffer) const noexcept
+    static inline void bind (const GLuint buffer) noexcept
     {
         glBindBuffer (Target, buffer);
     }
 
-    inline void unbind() const noexcept
+    static inline void unbind() noexcept
     {
         glBindBuffer (Target, 0);
     }

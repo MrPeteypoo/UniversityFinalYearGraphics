@@ -33,17 +33,17 @@ struct FramebufferBinder final
         unbind();
     }
 
-    inline void bind (const Framebuffer& buffer) const noexcept
+    static inline void bind (const Framebuffer& buffer) noexcept
     {
         glBindFramebuffer (Target, buffer.getID());
     }
 
-    inline void bind (const GLuint buffer) const noexcept
+    static inline void bind (const GLuint buffer) noexcept
     {
         glBindFramebuffer (Target, buffer);
     }
 
-    inline void unbind() const noexcept
+    static inline void unbind() noexcept
     {
         glBindFramebuffer (Target, 0);
     }

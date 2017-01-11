@@ -148,8 +148,9 @@ class Buffer final
         /// If the storage is immutable then GL_DYNAMIC_STORAGE_BIT must have been specified to do this.
         /// </summary>
         /// <param name="data"> The data to place inside the buffer. </param>
+        /// <param name="size"> The total size of the given data. </param>
         /// <param name="offset"> How many bytes into the buffer the data should be written. </param>
-        void placeAt (const GLintptr offset, const size_t size, const void* data) noexcept
+        void placeAt (const GLintptr offset, const GLsizeiptr size, const void* data) noexcept
         {
             if (data)
             {

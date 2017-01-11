@@ -32,17 +32,17 @@ struct RenderbufferBinder final
         unbind();
     }
 
-    inline void bind (const Renderbuffer& buffer) const noexcept
+    static inline void bind (const Renderbuffer& buffer) noexcept
     {
         glBindRenderbuffer (Target, buffer.getID());
     }
 
-    inline void bind (const GLuint buffer) const noexcept
+    static inline void bind (const GLuint buffer) noexcept
     {
         glBindRenderbuffer (Target, buffer);
     }
 
-    inline void unbind() const noexcept
+    static inline void unbind() noexcept
     {
         glBindRenderbuffer (Target, 0);
     }

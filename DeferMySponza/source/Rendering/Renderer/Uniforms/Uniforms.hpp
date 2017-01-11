@@ -99,10 +99,9 @@ class Uniforms final
         /// </summary>
         void bindBlocksToPartition (const size_t partitionIndex) noexcept;
 
-        /// <summary> Informs OpenGL that data between the given offset and size has been changed. </summary>
-        /// <param name="startOffset"> The first byte where the modified data begins. </param>
-        /// <param name="length"> How many bytes have been modified. </param>
-        void notifyModifiedDataRange (const GLintptr startOffset, const GLsizei length) noexcept;
+        /// <summary> Informs OpenGL that the given data range has been written to. </summary>
+        /// <param name="range"> The range of the modified data. </param>
+        void notifyModifiedDataRange (const ModifiedRange& range) noexcept;
 
     private:
 
@@ -162,7 +161,9 @@ template <typename T>
 GLintptr Uniforms::calculateAlignedSize() const noexcept
 {
     constexpr auto size = sizeof (std::remove_pointer_t<T>);
-    return size + alignment - size % alignment;
+    const auto remainder = size % alignment;
+
+    return remainder ? size + alignment - size % alignment : size;
 }
 
 #endif // _RENDERING_UNIFORMS_

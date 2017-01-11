@@ -1,13 +1,33 @@
 #include "Renderer.hpp"
 
 
+// STL headers.
+#include <future>
+
+
 // Engine headers.
 #include <scene/scene.hpp>
 
 
 // Personal headers.
+#include <Rendering/Binders/BufferBinder.hpp>
+#include <Rendering/Binders/FramebufferBinder.hpp>
+#include <Rendering/Binders/VertexArrayBinder.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
 #include <Utility/Algorithm.hpp>
+
+
+struct Renderer::ASyncActions final
+{
+    using Action        = std::future<ModifiedRange>;
+    using MultiAction   = std::future<ModifiedRanges>;
+
+    Action      sceneUniforms, 
+                dynamicTransforms, dynamicMaterialIDs, dynamicDrawCommands,
+                lightDrawCommands, directionalLights;
+
+    MultiAction pointLights, spotLights;
+};
 
 
 void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
@@ -114,7 +134,7 @@ void Renderer::clean() noexcept
     m_dynamics.clear();
     m_materials.clean();
     m_objectDrawing.buffer.clean();
-    m_materialIDs.clean();
+    m_objectMaterialIDs.clean();
     m_objectTransforms.clean();
     m_lightDrawing.buffer.clean();
     m_lightTransforms.clean();
@@ -126,6 +146,12 @@ void Renderer::clean() noexcept
     m_resolution.internalHeight = 0;
     m_resolution.displayWidth   = 0;
     m_resolution.displayHeight  = 0;
+    m_deferredRender            = true;
+
+    for (auto& sync : m_syncs) 
+    {
+        sync = 0;
+    }
 }
 
 
@@ -170,24 +196,21 @@ bool Renderer::buildDynamicObjectBuffers() noexcept
     });
 
     // Now we can allocate enough memory.
-    const auto materialIDSize   = static_cast<GLsizeiptr> (instanceCount * sizeof (GLuint) * m_materialIDs.partitions);
-    const auto transformSize    = static_cast<GLsizeiptr> (instanceCount * sizeof (glm::mat4x3) * m_objectTransforms.partitions);
+    const auto drawCommandSize  = static_cast<GLsizeiptr> (uniqueMeshes.size() * sizeof (MultiDrawElementsIndirectCommand));
+    const auto materialIDSize   = static_cast<GLsizeiptr> (instanceCount * sizeof (GLuint));
+    const auto transformSize    = static_cast<GLsizeiptr> (instanceCount * sizeof (glm::mat4x3));
 
     // Initialise the objects with the correct memory values.
-    if (!(m_objectDrawing.buffer.initialise() && 
-        m_materialIDs.initialise (materialIDSize, false, true, false) && 
+    if (!(m_objectDrawing.buffer.initialise (drawCommandSize, false, true, false) &&
+        m_objectMaterialIDs.initialise (materialIDSize, false, true, false) && 
         m_objectTransforms.initialise (transformSize, false, true, false)))
     {
         return false;
     }
 
-    // Now set up the draw buffer.
-    m_objectDrawing.buffer.allocateImmutableStorage (uniqueMeshes.size() * sizeof (MultiDrawElementsIndirectCommand));
-
+    // Now set up the draw buffer and we're done.
     m_objectDrawing.capacity    = static_cast<GLuint> (uniqueMeshes.size());
-    m_objectDrawing.count       = m_objectDrawing.capacity;
-
-    // We're done!
+    m_objectDrawing.count       = 0;
     return true;
 }
 
@@ -200,22 +223,19 @@ bool Renderer::buildLightBuffers() noexcept
 
     // The final count must allow for the drawing of a full screen quad.
     const auto count            = point.size() + spot.size() + 1;
-    const auto transformSize    = static_cast<GLsizeiptr> (count * sizeof (glm::mat4x3) * m_lightTransforms.partitions);
+    const auto transformSize    = static_cast<GLsizeiptr> (count * sizeof (glm::mat4x3));
+    const auto drawCommandSize  = static_cast<GLsizeiptr> (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
     
     // Now we can initialise the buffers
-    if (!(m_lightDrawing.buffer.initialise() && 
+    if (!(m_lightDrawing.buffer.initialise (drawCommandSize, false, true, false) && 
         m_lightTransforms.initialise (transformSize, false, true, false)))
     {
         return false;
     }
 
     // Finally set up the draw buffer.
-    m_lightDrawing.buffer.allocateImmutableStorage (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
-
     m_lightDrawing.capacity = static_cast<GLuint> (count);
-    m_lightDrawing.count    = m_lightDrawing.capacity;
-
-    // And we're done.
+    m_lightDrawing.count    = 0;
     return true;
 }
 
@@ -235,7 +255,7 @@ bool Renderer::buildGeometry() noexcept
     });
 
     // Now we can try to initialise the geometry object.
-    return m_geometry.initialise (m_materials, staticInstances, m_materialIDs, m_objectTransforms, m_lightTransforms);
+    return m_geometry.initialise (m_materials, staticInstances, m_objectMaterialIDs, m_objectTransforms, m_lightTransforms);
 }
 
 
@@ -306,4 +326,79 @@ void Renderer::fillDynamicInstances() noexcept
 
     // Finally remove any excess memory in the dynamic container.
     m_dynamics.shrink_to_fit();
+}
+
+
+void Renderer::render() noexcept
+{
+    // We must ensure that we aren't writing to data which the GPU is currently reading from. We must avoid this race
+    // condition by checking if the most recent frame that used the current partition has finished accessing the
+    // memory.
+    syncWithGPUIfNecessary();
+
+    // Now we can set the correct partition on the uniforms.
+    m_uniforms.bindBlocksToPartition (m_partition);
+
+    // We need to retrieve light data before we can render.
+    const auto& directional = m_scene->getAllDirectionalLights();
+    const auto& point       = m_scene->getAllPointLights();
+    const auto& spot        = m_scene->getAllSpotLights();
+
+    // Light transforms also need an offset so they're added after the full-screen quad transform.
+    constexpr auto transformOffset = size_t { 1 };
+
+    // We can safely multithread the data streaming operations.
+    auto actions        = ASyncActions { };
+    const auto policy   = m_multiThreaded ? std::launch::async : std::launch::deferred;
+
+    // Now execute the asynchonous tasks.
+    actions.sceneUniforms       = std::async (policy, [&]() { return updateSceneUniforms(); });
+    actions.dynamicDrawCommands = std::async (policy, [&]() { return updateDynamicObjectDrawCommands(); });
+    actions.dynamicTransforms   = std::async (policy, [&]() { return updateDynamicObjectTransforms(); });
+    actions.dynamicMaterialIDs  = std::async (policy, [&]() { return updateDynamicObjectMaterialIDs(); });
+    actions.directionalLights   = std::async (policy, [&]() { return updateDirectionalLights (directional); });
+    actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point, transformOffset); });
+    actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, transformOffset); });
+
+    // We only need to fill the light draw command buffer if we're doing a deferred render.
+    if (m_deferredRender)
+    {
+        actions.lightDrawCommands = std::async (policy, [&]() 
+        { 
+            return updateLightDrawCommands (point.size(), spot.size()); 
+        });
+    }
+
+    // Now perform universal rendering actions. Start by ensuring each material texture unit is bound.
+    m_materials.bindTextures();
+
+    // We need to configure the scene VAO for rendering static objects.
+    auto& sceneVAO = m_geometry.getSceneVAO();
+    sceneVAO.useStaticBuffers();
+
+    // Ensure the VAO is bound.
+    const auto vaoBinder = VertexArrayBinder { sceneVAO.vao };
+
+    if (m_deferredRender)
+    {
+        deferredRender (sceneVAO, actions, directional.size(), point.size(), spot.size());
+    }
+
+    else
+    {
+        forwardRender (sceneVAO, actions);
+    }
+
+    // Render to the screen.
+    glBlitNamedFramebuffer (m_lbuffer.getColourBuffer().getID(), 0,
+        0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
+        0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
+        GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+    // Cleanup.
+    m_materials.unbindTextures();
+
+    // Prepare for the next frame, the fence sync only allows the given parameters.
+    m_syncs[m_partition] = glFenceSync (GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    m_partition = ++m_partition % multiBuffering;
 }

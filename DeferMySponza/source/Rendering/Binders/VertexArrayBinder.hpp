@@ -29,17 +29,17 @@ struct VertexArrayBinder final
         unbind();
     }
 
-    inline void bind (const VertexArray& array) const noexcept
+    static inline void bind (const VertexArray& array) noexcept
     {
         glBindVertexArray (array.getID());
     }
 
-    inline void bind (const GLuint array) const noexcept
+    static inline void bind (const GLuint array) noexcept
     {
         glBindVertexArray (array);
     }
 
-    inline void unbind() const noexcept
+    static inline void unbind() noexcept
     {
         glBindVertexArray (0);
     }

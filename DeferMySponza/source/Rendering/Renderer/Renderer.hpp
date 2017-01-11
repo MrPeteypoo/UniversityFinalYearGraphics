@@ -70,6 +70,7 @@ class Renderer final
 
     private:
 
+        constexpr static auto multiBuffering                = size_t { 1 }; //!< How much multi-buffering should be performed on dynamic buffers.
         constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 }; //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
         constexpr static auto materialsStartingTextureUnit  = GLuint { 4 }; //!< The starting texture unit for the material data.
         constexpr static auto lightVolumeCount              = size_t { 3 }; //!< How many different light volumes exist.
@@ -82,33 +83,45 @@ class Renderer final
             Instances   instances   { };    //!< A list of instances requiring the stored mesh.
 
             MeshInstances (const Mesh& mesh, Instances&& instances) noexcept
-                : mesh (std::move (mesh)), instances (std::move (instances))
-            {
-            }
+                : mesh (std::move (mesh)), instances (std::move (instances)) {}
         };
+
+        struct ModifiedRanges final
+        {
+            ModifiedRange uniforms, transforms;
+        };
+
+        struct ASyncActions;
         
-        using DrawCommands      = MultiDrawCommands<Buffer>;
+        using PMB               = PersistentMappedBuffer<multiBuffering>;
+        using DrawCommands      = MultiDrawCommands<PMB>;
+        using SyncObjects       = std::array<GLsync, multiBuffering>;
         using DrawableObjects   = std::vector<MeshInstances>;
+                
+        scene::Context*     m_scene             { };        //!< Used to render the scene from the correct viewpoint.
+        Uniforms            m_uniforms          { };        //!< Uniform data which is accessible to any program that requests it.
+        Programs            m_programs          { };        //!< Stores the programs used in different rendering passes.
 
-        scene::Context*     m_scene             { };    //!< Used to render the scene from the correct viewpoint.        
-        Programs            m_programs          { };    //!< Stores the programs used in different rendering passes.
-
-        DrawableObjects     m_dynamics          { };    //!< A collection of dynamic mesh instances that need drawing.
-        Materials           m_materials         { };    //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
+        DrawableObjects     m_dynamics          { };        //!< A collection of dynamic mesh instances that need drawing.
+        Materials           m_materials         { };        //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
         
-        DrawCommands        m_objectDrawing     { };    //!< Draw commands for dynamic objects.
-        SinglePMB           m_materialIDs       { };    //!< Material ID instancing data for dynamic objects.
-        SinglePMB           m_objectTransforms  { };    //!< Model transforms for dynamic objects.
+        DrawCommands        m_objectDrawing     { };        //!< Draw commands for dynamic objects.
+        PMB                 m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
+        PMB                 m_objectTransforms  { };        //!< Model transforms for dynamic objects.
 
-        DrawCommands        m_lightDrawing      { };    //!< Draw commands for light volumes.
-        SinglePMB           m_lightTransforms   { };    //!< Model transforms for light volumes.
+        DrawCommands        m_lightDrawing      { };        //!< Draw commands for light volumes.
+        PMB                 m_lightTransforms   { };        //!< Model transforms for light volumes.
 
-        GeometryBuffer      m_gbuffer           { };    //!< The initial framebuffer where geometry is drawn to.
-        LightBuffer         m_lbuffer           { };    //!< A colour buffer where lighting is applied using data stored in the gbuffer.
-        Resolution          m_resolution        { };    //!< The internal and display resolution of drawing operations.
+        GeometryBuffer      m_gbuffer           { };        //!< The initial framebuffer where geometry is drawn to.
+        LightBuffer         m_lbuffer           { };        //!< A colour buffer where lighting is applied using data stored in the gbuffer.
+        Resolution          m_resolution        { };        //!< The internal and display resolution of drawing operations.
 
-        Uniforms            m_uniforms          { };    //!< Uniform data which is accessible to any program that requests it.
-        Geometry            m_geometry          { };    //!< A collection of OpenGL objects which store the scene geometry.
+        Geometry            m_geometry          { };        //!< A collection of OpenGL objects which store the scene geometry.
+        
+        size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
+        SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
+        bool                m_deferredRender    { true };   //!< Whether a deferred or forward render should be performed.
+        bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
 
     private:
 
@@ -156,6 +169,42 @@ class Renderer final
         /// Fills the drawable instances container with non-static instances found in the given scene
         /// </summary> 
         void fillDynamicInstances() noexcept;
+
+        /// <summary> Checks the sync object of the current partition and waits if it hasn't already fired. </summary>
+        void syncWithGPUIfNecessary() const noexcept;
+
+        /// <summary> Performs a forward render of the entire scene. </summary>
+        void forwardRender (SceneVAO& sceneVAO, const ASyncActions& actions) noexcept;
+
+        /// <summary> Performs a deferred render of the entire scene. </summary>
+        void deferredRender (SceneVAO& sceneVAO, const ASyncActions& actions, const size_t directionalLights,
+            const size_t pointLights, const size_t spotlights) noexcept;
+
+        /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>
+        ModifiedRange updateSceneUniforms() noexcept;
+
+        /// <summary> Updates the dynamic object draw command buffer so every instance can be drawn. </summary>
+        ModifiedRange updateDynamicObjectDrawCommands() noexcept;
+
+        /// <summary> Updates the dynamic object transform buffer with the transform of every dynamic object. </summary>
+        ModifiedRange updateDynamicObjectTransforms() noexcept;
+
+        /// <summary> Updates the material IDs buffer with material IDs of every dynamic object. </summary>
+        ModifiedRange updateDynamicObjectMaterialIDs() noexcept;
+
+        /// <summary> Adds a draw command for a full-screen quad and every point and spotlight in the scene. </summary>
+        ModifiedRange updateLightDrawCommands (const size_t pointLights, const size_t spotlights) noexcept;
+
+        /// <summary> Updates the directional light uniform data with the given light data. </summary>
+        ModifiedRange updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept;
+
+        /// <summary> Updates the transform and uniform data for every given point light. </summary>
+        ModifiedRanges updatePointLights (const std::vector<scene::PointLight>& lights, 
+            const size_t transformOffset) noexcept;
+
+        /// <summary> Updates the transform and uniform data for every given spot light. </summary>
+        ModifiedRanges updateSpotlights (const std::vector<scene::SpotLight>& lights, 
+            const size_t transformOffset) noexcept;
 };
 
 #endif // _RENDERING_RENDERER_

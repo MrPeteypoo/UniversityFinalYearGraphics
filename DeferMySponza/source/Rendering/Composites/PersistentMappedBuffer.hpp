@@ -12,6 +12,25 @@
 
 
 /// <summary>
+/// Specifies a range of data that has been modified in a persistently mapped buffer.
+/// </summary>
+struct ModifiedRange final
+{
+    GLintptr    offset  { 0 };  //!< How many bytes into the buffer to modified data.
+    GLsizei     length  { 0 };  //!< How many bytes have been modified.
+
+    ModifiedRange (const GLintptr offset, const GLsizei length) noexcept : offset (offset), length (length) {}
+
+    ModifiedRange()                                             = default;
+    ModifiedRange (ModifiedRange&&)                             = default;
+    ModifiedRange (const ModifiedRange&) noexcept               = default;
+    ModifiedRange& operator= (const ModifiedRange&) noexcept    = default;
+    ModifiedRange& operator= (ModifiedRange&&) noexcept         = default;
+    ~ModifiedRange()                                            = default;
+};
+
+
+/// <summary>
 /// Manages a buffer that is intiaised with immutable storage and then it is mapped persistently, allowing for data
 /// to be written at any time. This is a potentially dangerous object and needs to be handled carefully as to not
 /// write to data which is already in use by the GPU.
@@ -49,19 +68,19 @@ class PersistentMappedBuffer final
         inline GLuint getID() const noexcept            { return m_buffer.getID(); }
 
         /// <summary> Gets the size of the buffer in bytes. </summary>
-        inline GLintptr getSize() const noexcept        { return m_size; }
+        inline GLsizeiptr getSize() const noexcept        { return m_size; }
         
 
         /// <summary> 
         /// Initialise overload where the size is specified instead of the data to fill the buffer with. A buffer can't
         /// be mapped for reading without the write flag also being true with this overload.
         /// </summary>
-        /// <param name="size"> How much data to allocate for the buffer. </param>
+        /// <param name="partition"> How much data to allocate for each partition. </param>
         /// <param name="read"> Will the mapped buffer be used for reading? </param>
         /// <param name="write"> Will the mapped buffer be used for writing? </param>
         /// <param name="coherent"> Should reading and writing of data be synchronised with the GPU? </param>
         /// <returns> Whether the buffer was successfully created or not. </returns>
-        bool initialise (const GLintptr size, const bool read, const bool write, const bool coherent) noexcept;
+        bool initialise (const GLsizeiptr partitionSize, const bool read, const bool write, const bool coherent) noexcept;
 
         /// <summary> 
         /// Attempt to construct and map a buffer with the given parameters. Will fail if the given size is not 
@@ -81,11 +100,11 @@ class PersistentMappedBuffer final
 
 
         /// <summary> Calculates the size of each individual partition in bytes. </summary>
-        inline GLintptr partitionSize() const noexcept                      { return m_size / Partitions; }
+        inline GLsizeiptr partitionSize() const noexcept                      { return m_size / Partitions; }
 
         /// <summary> Calculates the byte offset into the buffer of the given partition. </summary>
         /// <param name="index"> The partition to determine the offset for. </param>
-        inline GLintptr partitionOffset (const size_t index) const noexcept { return index * partitionSize(); }
+        inline GLsizeiptr partitionOffset (const size_t index) const noexcept { return index * partitionSize(); }
 
         /// <summary> 
         /// Gets a pointer to the partition at the given index. Extreme care is required when handling the pointer.
@@ -112,9 +131,8 @@ class PersistentMappedBuffer final
         /// buffers that were initialised as coherent data.
         /// </summary>
         /// <param name="partition"> The partition where data has changed. </param>
-        /// <param name="startOffset"> How many bytes into the partition the modified data begins? </param>
-        /// <param name="length"> How many bytes from the starting offset have been changed? </param>
-        void notifyModifiedDataRange (const size_t partition, const GLintptr startOffset, const GLsizei length) noexcept;
+        /// <param name="range"> The range of data which has been modified. </param>
+        void notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept;
 
     private:
 
@@ -122,7 +140,7 @@ class PersistentMappedBuffer final
 
         Buffer      m_buffer    { };            //!< The persistently mapped buffer.
         GLbyte*     m_mapping   { nullptr };    //!< A pointer provided by the GPU where we can write to.
-        GLintptr    m_size      { 0 };          //!< How large the buffer is.
+        GLsizeiptr  m_size      { 0 };          //!< How large the buffer is.
         bool        m_coherent  { false };      //!< If the PMB is coherent then flush requires will be silently dropped.
 
     private:
@@ -196,7 +214,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     const auto storageFlags = (access & (~GL_MAP_FLUSH_EXPLICIT_BIT));
 
     // Next we can allocate the storage with the correct bits.
-    buffer.allocateImmutableStorage (size, storageFlags);
+    buffer.allocateImmutableStorage (size * Partitions, storageFlags);
 
     // Finally clean up after ourselves and utilise the new data!
     if (m_mapping)
@@ -206,7 +224,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
 
     m_buffer    = std::move (buffer);
     m_mapping   = static_cast<GLbyte*> (m_buffer.mapRange (0, size, access));
-    m_size      = size;
+    m_size      = size * Partitions;
     m_coherent  = coherent;
 
     return true;
@@ -276,11 +294,11 @@ void PMB<Partitions>::clean() noexcept
 
 
 template <size_t Partitions>
-void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const GLintptr startOffset, const GLsizei length) noexcept
+void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept
 {
     if (!m_coherent)
     {
-        glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + startOffset, length);
+        glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + range.offset, range.length);
     }
 }
 
