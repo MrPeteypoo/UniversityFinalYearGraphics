@@ -16,14 +16,10 @@ class GeometryBuffer final
 {
     public:
         
-        constexpr static GLuint positionLocation    { 0 },  //!< The shader layout location for position data.
-                                normalLocation      { 1 },  //!< The shader layout location for normal data.
-                                materialLocation    { 2 },  //!< The shader layout location for material data.
-                                depthLocation       { 3 },  //!< The shader layout location for depth/stencil data.
-                                positionTextureUnit { 0 },  //!< The default texture unit for the position data.
-                                normalTextureUnit   { 1 },  //!< The default texture unit for the normal data.
-                                materialTextureUnit { 2 },  //!< The default texture unit for the material data.
-                                depthTextureUnit    { 3 };  //!< The default texture unit for the depth/stencil data.
+        constexpr static GLuint positionLocation    { 0 };  //!< The shader layout location for position data.
+        constexpr static GLuint normalLocation      { 1 };  //!< The shader layout location for normal data.
+        constexpr static GLuint materialLocation    { 2 };  //!< The shader layout location for material data.
+        constexpr static GLuint depthLocation       { 3 };  //!< The shader layout location for depth/stencil data.
 
     public:
 
@@ -62,8 +58,9 @@ class GeometryBuffer final
         /// </summary>
         /// <param name="width"> How many pixels wide the Gbuffer should be. </param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>
+        /// <param name="startingTextureUnit"> The initial index to apply to stored textures. </param>
         /// <returns> Whether the Gbuffer was successfully created or not. </returns>
-        bool initialise (const GLsizei width, const GLsizei height) noexcept;
+        bool initialise (const GLsizei width, const GLsizei height, const GLuint startingTextureUnit) noexcept;
 
         /// <summary> Deletes the Gbuffer, freeing memory to the GPU. </summary>
         void clean() noexcept;

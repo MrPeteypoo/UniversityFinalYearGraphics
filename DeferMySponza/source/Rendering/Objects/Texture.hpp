@@ -51,11 +51,11 @@ class Texture
         inline GLuint getID() const noexcept                    { return m_texture; }
 
         /// <summary> Gets the enum representing the desired texture unit to bind the texture to. </summary>
-        inline GLenum getDesiredTextureUnit() const noexcept    { return m_unit; }
+        inline GLuint getDesiredTextureUnit() const noexcept    { return m_unit; }
 
         /// <sumamry> Sets the desired texture unit that the texture should be bound to. </summary>
         /// <param name="unit"> The index of the unit to bind to, the limit is at least 80. </param>
-        void setDesiredTextureUnit (const GLuint unit) noexcept { m_unit = GL_TEXTURE0 + unit; }
+        void setDesiredTextureUnit (const GLuint unit) noexcept { m_unit = unit; }
 
 
         /// <summary> Deletes the texture, allowing it to be initialised again. </summary>
@@ -64,7 +64,7 @@ class Texture
     protected:
 
         GLuint m_texture { 0 }; //!< The OpenGL ID representing the texture object.
-        GLenum m_unit    { 0 }; //!< The desired texture unit to bind the texture too.
+        GLuint m_unit    { 0 }; //!< The desired texture unit to bind the texture too.
 };
 
 

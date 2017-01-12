@@ -1,8 +1,8 @@
 #include "Internals.hpp"
 
 
-GLint Materials::Internals::maxTexture = 0;
-GLint Materials::Internals::maxArrayDepth = 0;
+GLuint Materials::Internals::maxTexture = 0;
+GLuint Materials::Internals::maxArrayDepth = 0;
 
 
 Materials::Internals::Internals (Internals&& move) noexcept
@@ -48,8 +48,12 @@ bool Materials::Internals::initialise (const GLuint startingIndex) noexcept
         }
     }
 
-    glGetIntegerv (GL_MAX_TEXTURE_SIZE, &maxTexture);
-    glGetIntegerv (GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayDepth);
+    auto integer = GLint { };
+    glGetIntegerv (GL_MAX_TEXTURE_SIZE, &integer);
+    maxTexture = static_cast<GLuint> (integer);
+    
+    glGetIntegerv (GL_MAX_ARRAY_TEXTURE_LAYERS, &integer);
+    maxArrayDepth = static_cast<GLuint> (integer);
     return true;
 }
 

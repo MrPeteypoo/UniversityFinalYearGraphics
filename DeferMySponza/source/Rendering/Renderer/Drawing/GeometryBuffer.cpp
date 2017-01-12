@@ -8,7 +8,7 @@ bool GeometryBuffer::isInitialised() const noexcept
 }
 
 
-bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noexcept
+bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height, const GLuint startingTextureUnit) noexcept
 {
     // Ensure we don't modify this object if initialisation fails.
     auto fbo            = Framebuffer { };
@@ -18,8 +18,8 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height) noex
     auto depthStencil   = TextureRectangle { };
 
     // Attempt to initialise each object.
-    if (!(fbo.initialise() && positions.initialise (positionTextureUnit) && normals.initialise (normalTextureUnit) &&
-        materials.initialise (materialTextureUnit) && depthStencil.initialise (depthTextureUnit)))
+    if (!(fbo.initialise() && positions.initialise (startingTextureUnit) && normals.initialise (startingTextureUnit + 1) &&
+        materials.initialise (startingTextureUnit + 2) && depthStencil.initialise (startingTextureUnit + 3)))
     {
         return false;
     }

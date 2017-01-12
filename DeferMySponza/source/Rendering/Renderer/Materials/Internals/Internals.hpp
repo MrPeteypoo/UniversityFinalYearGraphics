@@ -35,8 +35,8 @@ class Materials::Internals final
         using TextureIDs    = std::unordered_map<std::string, glm::uvec2>;
         using Counts        = std::unordered_map<size_t, std::unordered_map<size_t, size_t>>;
 
-        static GLint maxTexture;    //!< Tracks the maximum size a texture can be on the current GPU.
-        static GLint maxArrayDepth; //!< Tracks the maximum depth of 2D texture arrays on the current GPU.
+        static GLuint maxTexture;       //!< Tracks the maximum size a texture can be on the current GPU.
+        static GLuint maxArrayDepth;    //!< Tracks the maximum depth of 2D texture arrays on the current GPU.
 
     public:
     

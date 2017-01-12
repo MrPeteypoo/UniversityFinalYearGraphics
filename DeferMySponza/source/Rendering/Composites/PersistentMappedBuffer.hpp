@@ -5,6 +5,7 @@
 
 // STL headers.
 #include <array>
+#include <cassert>
 
 
 // Personal headers.
@@ -72,15 +73,14 @@ class PersistentMappedBuffer final
         
 
         /// <summary> 
-        /// Initialise overload where the size is specified instead of the data to fill the buffer with. A buffer can't
-        /// be mapped for reading without the write flag also being true with this overload.
+        /// Initialise overload where the size is specified instead of the data to fill the buffer with. The contents
+        /// of the buffer will be undefined, therefore write access is enforced with this overload.
         /// </summary>
         /// <param name="partition"> How much data to allocate for each partition. </param>
         /// <param name="read"> Will the mapped buffer be used for reading? </param>
-        /// <param name="write"> Will the mapped buffer be used for writing? </param>
         /// <param name="coherent"> Should reading and writing of data be synchronised with the GPU? </param>
         /// <returns> Whether the buffer was successfully created or not. </returns>
-        bool initialise (const GLsizeiptr partitionSize, const bool read, const bool write, const bool coherent) noexcept;
+        bool initialise (const GLsizeiptr partitionSize, const bool read,const bool coherent) noexcept;
 
         /// <summary> 
         /// Attempt to construct and map a buffer with the given parameters. Will fail if the given size is not 
@@ -119,7 +119,9 @@ class PersistentMappedBuffer final
         /// <param name="partition"> The partition to return the pointer for. </param>
         inline const GLbyte* pointer (const size_t partition) const noexcept
         {
-            return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
+            auto pointer = m_mapping + partitionOffset (partition);
+            assert (pointer != nullptr);
+            return pointer;
         }
 
         /// <summary> 
@@ -129,7 +131,9 @@ class PersistentMappedBuffer final
         /// <param name="partition"> The partition to return the pointer for. </param>
         inline GLbyte* pointer (const size_t partition) noexcept
         {
-            return partition < Partitions ? m_mapping + partitionOffset (partition) : m_mapping;
+            auto pointer = m_mapping + partitionOffset (partition);
+            assert (pointer != nullptr);
+            return pointer;
         }
 
         /// <summary> 
@@ -197,11 +201,11 @@ PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
 
 
 template <size_t Partitions>
-bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bool write, const bool coherent) noexcept
+bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bool coherent) noexcept
 {
     // Read can't be enabled without write permissions because the buffer contents will be undefined. Also ensure the
     // size is valid.
-    if ((read && !write) || (!read && !write) || size == 0)
+    if (size == 0)
     {
         return false;
     }
@@ -214,7 +218,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     }
 
     // We need to allocate immutable storage to persistently map the buffer so we need to determine applicable flags.
-    const auto access = getAccessFlags (read, write, coherent);
+    const auto access = getAccessFlags (read, true, coherent);
 
     // Buffer storage flags don't support GL_MAP_FLUSH_EXPLICIT_BIT so ensure we don't use that.
     const auto storageFlags = (access & (~GL_MAP_FLUSH_EXPLICIT_BIT));
@@ -238,7 +242,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = static_cast<GLbyte*> (pointer);
+    m_mapping   = (GLbyte*) pointer;
     m_size      = totalSize;
     m_flushable = (access & GL_MAP_FLUSH_EXPLICIT_BIT) > 0;
 
@@ -293,8 +297,8 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = static_cast<GLbyte*> (pointer);
-    m_size      = totalSize;
+    m_mapping   = (GLbyte*) pointer;
+    m_size      = size;
     m_flushable = (access & GL_MAP_FLUSH_EXPLICIT_BIT) > 0;
 
     return true;

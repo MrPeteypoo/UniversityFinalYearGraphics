@@ -11,12 +11,11 @@
 /// A simple RAII utility to bind the desired texture object to the desired texture unit. When the binder goes out
 /// of scope the texture will be unbound.
 /// </summary>
-template <GLenum Target>
 struct TextureBinder final
 {
     inline TextureBinder() noexcept = default;
     
-    inline TextureBinder (const TextureT<Target>& texture) noexcept 
+    inline TextureBinder (const Texture& texture) noexcept 
         : m_unit (texture.getDesiredTextureUnit())
     {
         bind (texture.getID());
@@ -27,13 +26,13 @@ struct TextureBinder final
         bind (texture);
     }
     
-    inline TextureBinder (const TextureT<Target>& texture, const GLenum textureUnitOverride) noexcept 
+    inline TextureBinder (const Texture& texture, const GLuint textureUnitOverride) noexcept 
         : m_unit (textureUnitOverride)
     {
         bind (texture.getID());
     }
 
-    inline TextureBinder (const GLuint texture, const GLenum textureUnitOverride) noexcept
+    inline TextureBinder (const GLuint texture, const GLuint textureUnitOverride) noexcept
         : m_unit (textureUnitOverride)
     {
         bind (texture);
@@ -44,26 +43,24 @@ struct TextureBinder final
         unbind();
     }
 
-    inline void bind (const TextureT<Target>& texture) const noexcept
+    inline void bind (const Texture& texture) const noexcept
     {
         bind (texture.getID());
     }
 
     inline void bind (const GLuint texture) const noexcept
     {
-        glActiveTexture (m_unit);
-        glBindTexture (Target, texture);
+        glBindTextureUnit (m_unit, texture);
     }
 
     inline void unbind() const noexcept
     {
-        glActiveTexture (m_unit);
-        glBindTexture (Target, 0);
+        glBindTextureUnit (m_unit, 0);
     }
 
     private:
 
-       const GLenum m_unit { GL_TEXTURE0 }; //!< The texture unit being bound to.
+       const GLuint m_unit { 0 }; //!< The texture unit being bound to.
 };
 
 #endif // _RENDERING_OBJECTS_TEXTURE_BINDER_

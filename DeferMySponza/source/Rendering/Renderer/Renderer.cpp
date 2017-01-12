@@ -211,9 +211,9 @@ bool Renderer::buildDynamicObjectBuffers() noexcept
     const auto transformSize    = static_cast<GLsizeiptr> (instanceCount * sizeof (glm::mat4x3));
 
     // Initialise the objects with the correct memory values.
-    if (!(m_objectDrawing.buffer.initialise (drawCommandSize, false, true, false) &&
-        m_objectMaterialIDs.initialise (materialIDSize, false, true, false) && 
-        m_objectTransforms.initialise (transformSize, false, true, false)))
+    if (!(m_objectDrawing.buffer.initialise (drawCommandSize, false, false) &&
+        m_objectMaterialIDs.initialise (materialIDSize, false, false) && 
+        m_objectTransforms.initialise (transformSize, false, false)))
     {
         return false;
     }
@@ -237,8 +237,8 @@ bool Renderer::buildLightBuffers() noexcept
     const auto drawCommandSize  = static_cast<GLsizeiptr> (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
     
     // Now we can initialise the buffers
-    if (!(m_lightDrawing.buffer.initialise (drawCommandSize, false, true, false) && 
-        m_lightTransforms.initialise (transformSize, false, true, false)))
+    if (!(m_lightDrawing.buffer.initialise (drawCommandSize, false, false) && 
+        m_lightTransforms.initialise (transformSize, false, false)))
     {
         return false;
     }
@@ -276,7 +276,7 @@ bool Renderer::buildFramebuffers() noexcept
     const auto height   = m_resolution.internalHeight;
 
     // Now we can initialise the framebuffers.
-    return  m_gbuffer.initialise (width, height) &&
+    return  m_gbuffer.initialise (width, height, gbufferStartingTextureUnit) &&
             m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGB8, width, height);
 }
 
@@ -401,7 +401,11 @@ void Renderer::render() noexcept
     m_materials.unbindTextures();
 
     // Prepare for the next frame, the fence sync only allows the given parameters.
-    m_syncs[m_partition++].initialise();
+    if (!m_syncs[m_partition++].initialise())
+    {
+        assert (false);
+    }
+
     m_partition %= multiBuffering;
 }
 

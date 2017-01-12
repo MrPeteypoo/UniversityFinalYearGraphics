@@ -27,7 +27,7 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
 
     // Ensure the buffers initialise.
     if (!(staticBlocks.initialise() && 
-        m_dynamicBlocks.initialise (calculateDynamicBlockSize(), false, true, false)))
+        dynamicBlocks.initialise (calculateDynamicBlockSize(), false, false)))
     {
         return false;
     }
@@ -126,13 +126,13 @@ bool Uniforms::buildStaticBlocks (Buffer& staticBlocks,
 
     // We need to know how many texture arrays exist.
     auto textures       = Textures { };
-    const auto first    = materials.getFirstTextureUnit() - GL_TEXTURE0;
-    const auto last     = materials.getLastTextureUnit() - GL_TEXTURE0;
+    const auto first    = materials.getFirstTextureUnit();
+    const auto last     = materials.getLastTextureUnit();
     
     // Retrieve the gbuffer data.
-    textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit() - GL_TEXTURE0;
-    textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit() - GL_TEXTURE0;
-    textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit() - GL_TEXTURE0;
+    textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit();
+    textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit();
+    textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
 
     // Retrieve the texture array data.
     for (auto unit = first; unit <= last; ++unit)
@@ -178,7 +178,6 @@ void Uniforms::resetBlockData() noexcept
 {
     // Ask for a pointer to the specified partition.
     auto pointer = m_dynamicBlocks.pointer (m_partition);
-    assert (pointer);
 
     // Create a helper.
     const auto setBlockData = [=] (auto& block, const auto offset)

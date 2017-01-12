@@ -13,6 +13,13 @@ void MyView::windowViewWillStart (tygra::Window*) noexcept
     {
         std::cerr << "Renderer failed to initialise." << std::endl;
     }
+
+    GLint test;
+    glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &test);
+    std::cout << "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " << test << std::endl;
+    
+    glGetIntegerv (GL_MAX_TEXTURE_IMAGE_UNITS, &test);
+    std::cout << "GL_MAX_TEXTURE_IMAGE_UNITS: " << test << std::endl;
 }
 
 

@@ -52,10 +52,10 @@ class Materials final
         MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
 
         /// <summary> Retrieves the texture unit of the first texture array. </summary>
-        GLenum getFirstTextureUnit() const noexcept;
+        GLuint getFirstTextureUnit() const noexcept;
 
         /// <summary> Retrieves the texture unit of the last texture array. </summary>
-        GLenum getLastTextureUnit() const noexcept;
+        GLuint getLastTextureUnit() const noexcept;
 
 
         /// <summary> 
