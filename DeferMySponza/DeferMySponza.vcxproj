@@ -327,6 +327,7 @@
     <ClInclude Include="source\Misc\MyController.hpp" />
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
     <ClInclude Include="source\MyView\Internals\Material.hpp" />
@@ -372,8 +373,6 @@
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
-    <ClInclude Include="source\Utility\OpenGL\ToDelete.hpp" />
-    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp" />
     <ClInclude Include="source\Utility\Scene.hpp" />
     <ClInclude Include="source\Utility\TSL.hpp" />
     <ClInclude Include="source\Utility\TypeTraits.hpp" />
@@ -395,6 +394,7 @@
     <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
     <ClCompile Include="source\Rendering\Objects\Framebuffer.cpp" />
     <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Sync.cpp" />
     <ClCompile Include="source\Rendering\Objects\Texture.cpp" />
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
@@ -412,8 +412,6 @@
     <ClCompile Include="source\Rendering\Renderer\Renderer.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Uniforms\Uniforms.cpp" />
     <ClCompile Include="source\Utility\OpenGL\Textures.cpp" />
-    <ClCompile Include="source\Utility\OpenGL\ToDelete.cpp" />
-    <ClCompile Include="source\Utility\OpenGL\Buffers.cpp" />
     <ClCompile Include="source\Utility\Scene.cpp" />
     <ClCompile Include="source\Utility\TSL.cpp" />
   </ItemGroup>

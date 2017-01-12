@@ -2,10 +2,13 @@
 
 
 // STL headers.
+#include <cassert>
+#include <chrono>
 #include <future>
 
 
 // Engine headers.
+#include <glm/gtc/matrix_transform.hpp>
 #include <scene/scene.hpp>
 
 
@@ -14,19 +17,28 @@
 #include <Rendering/Binders/FramebufferBinder.hpp>
 #include <Rendering/Binders/VertexArrayBinder.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
+#include <Rendering/Renderer/Uniforms/DirectionalLight.hpp>
+#include <Rendering/Renderer/Uniforms/FullBlock.hpp>
+#include <Rendering/Renderer/Uniforms/PointLight.hpp>
+#include <Rendering/Renderer/Uniforms/Scene.hpp>
+#include <Rendering/Renderer/Uniforms/Spotlight.hpp>
 #include <Utility/Algorithm.hpp>
+#include <Utility/Scene.hpp>
+
+
+// Namespaces.
+using namespace std::chrono_literals;
 
 
 struct Renderer::ASyncActions final
 {
-    using Action        = std::future<ModifiedRange>;
-    using MultiAction   = std::future<ModifiedRanges>;
+    using Action                = std::future<ModifiedRange>;
+    using DynamicObjectAction   = std::future<ModifiedDynamicObjectRanges>;
+    using LightVolumeAction     = std::future<ModifiedLightVolumeRanges>;
 
-    Action      sceneUniforms, 
-                dynamicTransforms, dynamicMaterialIDs, dynamicDrawCommands,
-                lightDrawCommands, directionalLights;
-
-    MultiAction pointLights, spotLights;
+    Action              sceneUniforms, lightDrawCommands, directionalLights;
+    DynamicObjectAction dynamicObjects;
+    LightVolumeAction   pointLights, spotLights;
 };
 
 
@@ -51,9 +63,11 @@ void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
 
 void Renderer::setDisplayResolution (const glm::ivec2& resolution) noexcept
 {
-    // Nothing extra needs doing as display resolution only effects the final blitting.
+    // After updating the resolution we need to update the viewport.
     m_resolution.displayWidth   = resolution.x;
     m_resolution.displayHeight  = resolution.y;
+    
+    glViewport (0, 0, resolution.x, resolution.y);
 }
 
 
@@ -147,11 +161,7 @@ void Renderer::clean() noexcept
     m_resolution.displayWidth   = 0;
     m_resolution.displayHeight  = 0;
     m_deferredRender            = true;
-
-    for (auto& sync : m_syncs) 
-    {
-        sync = 0;
-    }
+    std::for_each (m_syncs, [] (auto& sync) { sync.clean(); });
 }
 
 
@@ -279,23 +289,17 @@ bool Renderer::buildUniforms() noexcept
         return false;
     }
 
-    // Now we can bind the uniform blocks to each program.
+    // Now we can bind the uniform blocks to each program and we're done!
     m_uniforms.bindBlocksToProgram (m_programs);
-
-    // And we're done!
     return true;
 }
 
 
 void Renderer::fillDynamicInstances() noexcept
 {
-    // Ensure the target vector is clean.
-    m_dynamics.clear();
-
     // We need to iterate through mesh IDs and retrieve the dynamic instances for each.
     const auto& sceneMeshes = m_geometry.getMeshes();
-
-    // Reserve enough memory to speed the process up.
+    m_dynamics.clear();
     m_dynamics.reserve (sceneMeshes.size());
 
     for (const auto& pair : sceneMeshes)
@@ -353,9 +357,7 @@ void Renderer::render() noexcept
 
     // Now execute the asynchonous tasks.
     actions.sceneUniforms       = std::async (policy, [&]() { return updateSceneUniforms(); });
-    actions.dynamicDrawCommands = std::async (policy, [&]() { return updateDynamicObjectDrawCommands(); });
-    actions.dynamicTransforms   = std::async (policy, [&]() { return updateDynamicObjectTransforms(); });
-    actions.dynamicMaterialIDs  = std::async (policy, [&]() { return updateDynamicObjectMaterialIDs(); });
+    actions.dynamicObjects      = std::async (policy, [&]() { return updateDynamicObjects(); });
     actions.directionalLights   = std::async (policy, [&]() { return updateDirectionalLights (directional); });
     actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point, transformOffset); });
     actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, transformOffset); });
@@ -365,7 +367,7 @@ void Renderer::render() noexcept
     {
         actions.lightDrawCommands = std::async (policy, [&]() 
         { 
-            return updateLightDrawCommands (point.size(), spot.size()); 
+            return updateLightDrawCommands (static_cast<GLuint> (point.size()), static_cast<GLuint> (spot.size())); 
         });
     }
 
@@ -399,6 +401,237 @@ void Renderer::render() noexcept
     m_materials.unbindTextures();
 
     // Prepare for the next frame, the fence sync only allows the given parameters.
-    m_syncs[m_partition] = glFenceSync (GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    m_partition = ++m_partition % multiBuffering;
+    m_syncs[m_partition++].initialise();
+    m_partition %= multiBuffering;
+}
+
+
+void Renderer::deferredRender (SceneVAO& sceneVAO, const ASyncActions& actions, 
+    const size_t directionalLights, const size_t pointLights, const size_t spotlights) noexcept
+{
+
+}
+
+
+void Renderer::forwardRender (SceneVAO& sceneVAO, const ASyncActions& actions) noexcept
+{
+
+}
+
+
+void Renderer::syncWithGPUIfNecessary() const noexcept
+{
+    // Don't attempt to wait if the sync object hasn't been initialised.
+    auto& sync = m_syncs[m_partition];
+
+    if (sync.isInitialised())
+    {
+        // Don't force a wait if we don't need to.
+        if (!sync.checkIfSignalled())
+        {
+            // We have to force a wait so we don't cause a data race.
+            constexpr auto oneSecond = std::chrono::duration_cast<std::chrono::nanoseconds> (1s).count();
+            assert (sync.waitForSignal (true, oneSecond));
+        }
+    }
+}
+
+
+ModifiedRange Renderer::updateSceneUniforms() noexcept
+{
+    // Retrieve the pointer to the uniforms so we can modify them.
+    auto scene = m_uniforms.getWritableSceneData();
+
+    // We'll need the camera to modify the data and we need to calculate the aspect ratio
+    const auto& camera      = m_scene->getCamera();
+    const auto camPosition  = util::toGLM (camera.getPosition());
+    const auto camDirection = util::toGLM (camera.getDirection());
+    const auto upDirection  = util::toGLM (m_scene->getUpDirection());
+    const auto aspectRatio  = m_resolution.internalWidth / static_cast<float> (m_resolution.internalHeight);
+
+    // Now we can write the data.
+    scene.data->projection = glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), aspectRatio, 
+        camera.getNearPlaneDistance(), camera.getFarPlaneDistance());
+
+    scene.data->view            = glm::lookAt (camPosition, camPosition + camDirection, upDirection);
+    scene.data->cameraPosition  = camPosition;
+    scene.data->ambience        = util::toGLM (m_scene->getAmbientLightIntensity());
+
+    return { scene.offset, sizeof (Scene) };
+}
+
+
+Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
+{
+    // Retrieve the necessary pointers. We also need to keep track of how many instances there are.
+    auto drawCommandBuffer  = (MultiDrawElementsIndirectCommand*) m_objectDrawing.buffer.pointer (m_partition);
+    auto transformBuffer    = (glm::mat4x3*) m_objectTransforms.pointer (m_partition);
+    auto materialIDBuffer   = (MaterialID*) m_objectMaterialIDs.pointer (m_partition);
+    auto baseInstance       = GLuint { 0 };
+
+    // Create lambda functions to update the data.
+    const auto addDrawCommand = [&] (const auto index, const Mesh& mesh, const MeshInstances::Instances& instances)
+    {
+        const auto instanceCount = static_cast<GLuint> (instances.size());
+        drawCommandBuffer[index] = { mesh.elementCount, instanceCount, mesh.elementsIndex, mesh.verticesIndex, baseInstance };
+
+        // Ensure we increment the base instance.
+        baseInstance += instanceCount;
+    };
+
+    const auto addTransform = [&] (const auto index, const scene::Instance& instance)
+    {
+        transformBuffer[index]  = util::toGLM (instance.getTransformationMatrix());
+    };
+
+    const auto addMaterialID = [&] (const auto index, const scene::Instance& instance)
+    {
+        materialIDBuffer[index] = m_materials[instance.getMaterialId()];
+    };
+
+    const auto addTransformAndMaterialID = [&] (const auto index, const scene::Instance& instance)
+    {
+        addTransform (index, instance);
+        addMaterialID (index, instance);
+    };
+
+    // If we're on a single thread we should just iterate through the list once otherwise we may reduce performance.
+    if (!m_multiThreaded)
+    {
+        forEachDynamicMeshInstance (addTransformAndMaterialID, addDrawCommand);
+    }
+
+    // Distribute the load with multiple cores. We'll iterate the contents multiple times but it should be faster.
+    else
+    {
+        const auto transforms   = std::async (std::launch::async, [&] { forEachDynamicMeshInstance (addTransform); });
+        const auto materialIDs  = std::async (std::launch::async, [&] { forEachDynamicMeshInstance (addMaterialID); });
+        forEachDynamicMesh (addDrawCommand);
+        transforms.wait();
+        materialIDs.wait();
+    }
+
+    // Now configure the draw commands and return our modified data ranges.
+    m_objectDrawing.count = static_cast<GLsizei> (m_dynamics.size());
+    return 
+    { 
+        { m_objectDrawing.buffer.partitionOffset (m_partition), static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_objectDrawing.count) },
+        { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (glm::mat4x3) * baseInstance) },
+        { m_objectMaterialIDs.partitionOffset (m_partition),    static_cast<GLsizeiptr> (sizeof (MaterialID) * baseInstance) }
+    };
+}
+
+
+ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const GLuint spotlights) noexcept
+{
+    // The first index is dedicated to the a full-screen quad. We also need the pointer to write to the buffer.
+    constexpr auto quads    = GLuint { 1 };
+    const auto bufferOffset = m_lightDrawing.buffer.partitionOffset (m_partition);
+    auto lightCommands      = (MultiDrawElementsIndirectCommand*) m_lightDrawing.buffer.pointer (m_partition);
+
+    // Cache the shape meshes.
+    const auto& quad    = m_geometry.getQuad();
+    const auto& sphere  = m_geometry.getSphere();
+    const auto& cone    = m_geometry.getCone();
+
+    // Finally add each draw command for the light volumes.
+    lightCommands[0] = { quad.elementCount, quads, quad.elementsIndex, quad.verticesIndex, 0 };
+    lightCommands[1] = { sphere.elementCount, pointLights, sphere.elementsIndex, sphere.verticesIndex, quads };
+    lightCommands[2] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, quads + pointLights };
+    
+    // Now return the modified range.
+    m_lightDrawing.count = 3;
+    return { bufferOffset, static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_lightDrawing.count) };
+}
+
+
+ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept
+{
+    auto uniforms = m_uniforms.getWritableDirectionalLightData();
+    return processLightUniforms (uniforms, lights, [] (const scene::DirectionalLight& scene, DirectionalLight& uniform)
+    {
+        uniform.direction = util::toGLM (scene.getDirection());
+        uniform.intensity = util::toGLM (scene.getIntensity());
+    });
+}
+
+
+Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vector<scene::PointLight>& lights, 
+            const size_t transformOffset) noexcept
+{
+    // We need lambdas for translating scene to uniform information.
+    const auto uniforms = [] (const scene::PointLight& scene, PointLight& uniform)
+    {
+        uniform.position    = util::toGLM (scene.getPosition());
+        uniform.range       = scene.getRange();
+        uniform.intensity   = util::toGLM (scene.getIntensity());
+    };
+
+    const auto transforms = [] (const scene::PointLight& scene, glm::mat4x3& transform)
+    {
+        const auto pos      = scene.getPosition();
+        const auto range    = scene.getRange();
+        transform = 
+        {
+            range,  0.f,    0.f,
+            0.f,    range,  0.f,
+            0.f,    0.f,    range,
+            pos.x,  pos.y,  pos.z
+        };
+    };
+
+    // Only construct transforms if we're going to be using them for deferred rendering.
+    auto block = m_uniforms.getWritablePointLightData();
+
+    if (m_deferredRender)
+    {
+        return processLightVolumes (block, lights, transformOffset, uniforms, transforms);
+    }
+
+    return { processLightUniforms (block, lights, uniforms), { 0, 0 } };
+}
+
+
+Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vector<scene::SpotLight>& lights, 
+            const size_t transformOffset) noexcept
+{
+    // We need lambdas for translating scene to uniform information.
+    const auto uniforms = [] (const scene::SpotLight& scene, Spotlight& uniform)
+    {
+        uniform.position    = util::toGLM (scene.getPosition());
+        uniform.coneAngle   = scene.getConeAngleDegrees();
+        uniform.direction   = util::toGLM (scene.getDirection());
+        uniform.range       = scene.getRange();
+        uniform.intensity   = util::toGLM (scene.getIntensity());
+    };
+
+    const auto up = util::toGLM (m_scene->getUpDirection());
+    const auto transforms = [=] (const scene::SpotLight& scene, glm::mat4x3& transform)
+    {
+        const auto pos      = util::toGLM (scene.getPosition());
+        const auto dir      = util::toGLM (scene.getDirection());
+        const auto angle    = scene.getConeAngleDegrees();
+        const auto height   = scene.getRange();
+        const auto radius   = height * std::tanf (angle / 2.f);
+        const auto rotation = glm::lookAt (pos, pos + dir, up);
+        const auto model    = glm::mat4x3
+        {
+            radius, 0.f,    0.f,
+            0.f,    height, 0.f,
+            0.f,    0.f,    radius,
+            pos.x,  pos.y,  pos.z
+        };
+
+        transform = model * rotation;
+    };
+
+    // Only construct transforms if we're going to be using them for deferred rendering.
+    auto block = m_uniforms.getWritableSpotlightData();
+
+    if (m_deferredRender)
+    {
+        return processLightVolumes (block, lights, transformOffset, uniforms, transforms);
+    }
+
+    return { processLightUniforms (block, lights, uniforms), { 0, 0 } };
 }

@@ -7,7 +7,7 @@
 
 namespace util
 {
-    void addTSLMeshData (std::vector<glm::vec3>& vertices, std::vector<GLuint>& elements, 
+    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<GLuint>& elements, 
         const tsl::IndexedMeshPtr& meshPointer) noexcept
     {
         // Retrieve the data for the mesh.
@@ -16,6 +16,11 @@ namespace util
         const auto vertexCount      = mesh->vertexCount();
         const auto shapeElements    = mesh->indexArray();
         const auto elementCount     = mesh->indexCount();
+
+        // Modify the mesh first.
+        meshBeingAdded.verticesIndex    = static_cast<GLuint> (vertices.size());
+        meshBeingAdded.elementsIndex    = static_cast<GLuint> (elements.size());
+        meshBeingAdded.elementCount     = static_cast<GLuint> (elementCount);
 
         // Add each position.
         std::for_each (shapeVertices, shapeVertices + vertexCount, 

@@ -12,10 +12,9 @@
 /// </summary>
 struct Mesh final
 {
-    GLintptr    verticesIndex   { 0 };  //!< The index of a VBO where the vertices for the mesh begin.
-    GLuint      elementsIndex   { 0 };  //!< The index of a VBO where the elements for the mesh start.
-    void*       elementsOffset  { 0 };  //!< The offset to the first element in a VBO in bytes.
-    GLsizei     elementCount    { 0 };  //!< Indicates how many elements there are.
+    GLuint  verticesIndex   { 0 };  //!< The index of a VBO where the vertices for the mesh begin.
+    GLuint  elementsIndex   { 0 };  //!< The index of a VBO where the elements for the mesh start.
+    GLuint  elementCount    { 0 };  //!< Indicates how many elements there are.
     
     Mesh() noexcept                         = default;
     Mesh (Mesh&&) noexcept                  = default;

@@ -85,9 +85,8 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
 
     // Iterate through each mesh adding the vertices, elements and mapping to their corresponding container.
     auto mesh           = Mesh { };
-    auto vertexIndex    = GLintptr { 0 };
+    auto vertexIndex    = GLuint { 0 };
     auto elementsIndex   = GLuint { 0 };
-    auto elementOffset  = size_t { 0 };
     
 	for (const auto& sceneMesh : meshes)
     {
@@ -97,9 +96,8 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
         
         // Set the mesh parameters, the element offset must be a pointer type.
         mesh.verticesIndex  = vertexIndex;
-        mesh.elementsIndex   = elementsIndex;
-        mesh.elementsOffset = (void*) elementOffset;
-        mesh.elementCount   = static_cast<GLsizei> (meshElements.size());
+        mesh.elementsIndex  = elementsIndex;
+        mesh.elementCount   = static_cast<GLuint> (meshElements.size());
 
         // Now we can add the mesh to the map and the vertices/elements to the vectors.
         internals.sceneMeshes[sceneMesh.getId()] = mesh;
@@ -107,9 +105,8 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
         elements.insert (std::end (elements), std::begin (meshElements), std::end (meshElements));
 
         // The vertexIndex needs an actual index value whereas elementOffset needs to be in bytes.
-        vertexIndex     += meshVertices.size();
-        elementsIndex   += static_cast<GLuint> (meshElements.size());
-        elementOffset   += meshElements.size() * sizeof (GLuint);
+        vertexIndex     += static_cast<GLuint> (meshVertices.size());
+        elementsIndex   += mesh.elementCount;
     }
 
     // Now we can fill the mesh and element buffer. We will leave them with no access flags so they can be static.
@@ -141,23 +138,11 @@ void Geometry::buildLighting (Internals& internals, Mesh& quad, Mesh& sphere, Me
     // Add the quad to the vectors.
     vertices.insert (std::end (vertices), std::begin (quadVertices), std::end (quadVertices));
     elements.insert (std::end (elements), std::begin (quadElements), std::end (quadElements));
-    quad.elementCount = static_cast<GLsizei> (elements.size());
+    quad.elementCount = static_cast<GLuint> (elements.size());
 
-    // Now add the sphere.
-    sphere.verticesIndex    = static_cast<GLintptr> (vertices.size());
-    sphere.elementsIndex    = static_cast<GLuint> (elements.size());
-    sphere.elementsOffset   = (void*) (sphere.elementsIndex * sizeof (GLuint));
-
-    util::addTSLMeshData (vertices, elements, tsl::createSpherePtr (1.f, 12));
-    sphere.elementCount = static_cast<GLsizei> (elements.size() - sphere.elementsIndex);
-
-    // Now add the cone.
-    cone.verticesIndex  = static_cast<GLintptr> (vertices.size());
-    cone.elementsIndex  = static_cast<GLuint> (elements.size());
-    cone.elementsOffset = (void*) (cone.elementsIndex * sizeof (GLuint));
-    
-    util::addTSLMeshData (vertices, elements, tsl::createConePtr (1.f, 1.f, 12));
-    cone.elementCount = static_cast<GLsizei> (elements.size() - cone.elementsIndex);
+    // Now add the sphere and cone.
+    util::addTSLMeshData (sphere, vertices, elements, tsl::createSpherePtr (1.f, 12));
+    util::addTSLMeshData (cone, vertices, elements, tsl::createConePtr (1.f, 1.f, 12));
 
     // Finally fill the GPU buffers.
     internals.buffers[internals.lightVerticesIndex].immutablyFillWith (vertices);

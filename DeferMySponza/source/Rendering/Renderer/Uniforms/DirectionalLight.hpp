@@ -4,7 +4,7 @@
 #define         _RENDERING_UNIFORMS_DIRECTIONAL_LIGHT_
 
 // Engine headers.
-#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
@@ -16,8 +16,10 @@
 /// </summary>
 struct DirectionalLight final
 {
-    glm::vec4 direction { 0.f };    //!< The direction of the light in world-space. The 'w' component is alignment padding.
-    glm::vec4 intensity { 0.f };    //!< The colour/intensity of the light. The 'w' component is alignment padding.
+    public:     glm::vec3 direction { 0.f };    //!< The direction of the light in world-space.
+    private:    float padding1;
+    public:     glm::vec3 intensity { 0.f };    //!< The colour/intensity of the light.
+    private:    float padding2;
 };
 
 

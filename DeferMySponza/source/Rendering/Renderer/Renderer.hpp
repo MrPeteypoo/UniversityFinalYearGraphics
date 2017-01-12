@@ -15,6 +15,7 @@
 // Personal headers.
 #include <Rendering/Composites/DrawCommands.hpp>
 #include <Rendering/Objects/Buffer.hpp>
+#include <Rendering/Objects/Sync.hpp>
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
 #include <Rendering/Renderer/Drawing/LightBuffer.hpp>
 #include <Rendering/Renderer/Drawing/Resolution.hpp>
@@ -86,16 +87,29 @@ class Renderer final
                 : mesh (std::move (mesh)), instances (std::move (instances)) {}
         };
 
-        struct ModifiedRanges final
+        struct ModifiedDynamicObjectRanges final
+        {
+            ModifiedRange drawCommands, transforms, materialIDs;
+
+            ModifiedDynamicObjectRanges() = default;
+            ModifiedDynamicObjectRanges (const ModifiedRange& a, const ModifiedRange& b, const ModifiedRange& c)
+                : drawCommands (a), transforms (b), materialIDs (c) { }
+        };
+
+        struct ModifiedLightVolumeRanges final
         {
             ModifiedRange uniforms, transforms;
+            
+            ModifiedLightVolumeRanges() = default;
+            ModifiedLightVolumeRanges (const ModifiedRange& a, const ModifiedRange& b)
+                : uniforms (a), transforms (b) { }
         };
 
         struct ASyncActions;
         
         using PMB               = PersistentMappedBuffer<multiBuffering>;
         using DrawCommands      = MultiDrawCommands<PMB>;
-        using SyncObjects       = std::array<GLsync, multiBuffering>;
+        using SyncObjects       = std::array<Sync, multiBuffering>;
         using DrawableObjects   = std::vector<MeshInstances>;
                 
         scene::Context*     m_scene             { };        //!< Used to render the scene from the correct viewpoint.
@@ -183,28 +197,155 @@ class Renderer final
         /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>
         ModifiedRange updateSceneUniforms() noexcept;
 
-        /// <summary> Updates the dynamic object draw command buffer so every instance can be drawn. </summary>
-        ModifiedRange updateDynamicObjectDrawCommands() noexcept;
-
-        /// <summary> Updates the dynamic object transform buffer with the transform of every dynamic object. </summary>
-        ModifiedRange updateDynamicObjectTransforms() noexcept;
-
-        /// <summary> Updates the material IDs buffer with material IDs of every dynamic object. </summary>
-        ModifiedRange updateDynamicObjectMaterialIDs() noexcept;
+        /// <summary> Updates the draw commands, transforms and materail IDs of dynamic objects. </summary>
+        ModifiedDynamicObjectRanges updateDynamicObjects() noexcept;
 
         /// <summary> Adds a draw command for a full-screen quad and every point and spotlight in the scene. </summary>
-        ModifiedRange updateLightDrawCommands (const size_t pointLights, const size_t spotlights) noexcept;
+        ModifiedRange updateLightDrawCommands (const GLuint pointLights, const GLuint spotlights) noexcept;
 
         /// <summary> Updates the directional light uniform data with the given light data. </summary>
         ModifiedRange updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept;
 
         /// <summary> Updates the transform and uniform data for every given point light. </summary>
-        ModifiedRanges updatePointLights (const std::vector<scene::PointLight>& lights, 
+        ModifiedLightVolumeRanges updatePointLights (const std::vector<scene::PointLight>& lights, 
             const size_t transformOffset) noexcept;
 
         /// <summary> Updates the transform and uniform data for every given spot light. </summary>
-        ModifiedRanges updateSpotlights (const std::vector<scene::SpotLight>& lights, 
+        ModifiedLightVolumeRanges updateSpotlights (const std::vector<scene::SpotLight>& lights, 
             const size_t transformOffset) noexcept;
+
+        /// <summary> 
+        /// Calls the given functions for each dynamic mesh. The function should take a size_t, Mesh and 
+        /// MeshInstances::Instances parameter. All of which should be constant.
+        /// </summary>
+        template <typename... Funcs>
+        void forEachDynamicMesh (Funcs&&... funcs) const noexcept;
+
+        /// <summary>
+        /// Calls the given function for each dynamic instance. The function should take a size_t and 
+        /// scene::InstanceId parameter. All of which should be constant if references. Extra functions will be passed
+        /// to forEachDynamicMesh to be called on each mesh.
+        /// </summary>
+        template <typename Func, typename... MeshFuncs>
+        void forEachDynamicMeshInstance (const Func& func, MeshFuncs&&... meshFuncs) const noexcept;
+
+        /// <summary> Calls the given function, passing the index, mesh and instances as parameters. </summary>
+        template <typename A, typename B, typename Func>
+        void processMesh (const A index, const B& meshInstances, const Func& func) const noexcept
+        {
+            func (index, meshInstances.mesh, meshInstances.instances);
+        }
+        
+        /// <summary> Calls the given functions, passing the index, mesh and instances as parameters. </summary>
+        template <typename A, typename B, typename Func, typename... Funcs>
+        void processMesh (const A index, const B& meshInstances, const Func& func, Funcs&&... funcs) const noexcept
+        {
+            processMesh (index, meshInstances, func);
+            processMesh (index, meshInstances, std::forward<Funcs> (funcs)...);
+        }
+
+        /// <summary> 
+        /// Processes each of the given lights under the assumption that uniform data is being modified. The given
+        /// function will be called on each object and it should take a scene light and a uniform light as parameters.
+        /// <summary>
+        template <typename Lights, typename UniformBlock, typename Func>
+        ModifiedRange processLightUniforms (UniformBlock& uniforms, const Lights& lights, const Func& func) const noexcept;
+
+        /// <summary>
+        /// Processes each of the given lights under the assumption that uniform data AND transform data is being
+        /// modified. Both functions should take a scene light and uniform light of the given light type as parameters.
+        /// </summary>
+        template <typename Lights, typename UniformBlock, typename FuncA, typename FuncB>
+        ModifiedLightVolumeRanges processLightVolumes (UniformBlock& uniforms, const Lights& lights, 
+            const size_t transformOffset, const FuncA& uniFunc, const FuncB& transFunc) const noexcept;
 };
+
+
+template <typename... Funcs>
+void Renderer::forEachDynamicMesh (Funcs&&... funcs) const noexcept
+{
+    auto index = size_t { 0 };
+    for (const auto& meshInstances : m_dynamics)
+    {
+        processMesh (index, meshInstances, std::forward<Funcs> (funcs)...);
+        ++index;
+    }
+}
+
+
+template <typename Func, typename... MeshFuncs>
+void Renderer::forEachDynamicMeshInstance (const Func& func, MeshFuncs&&... meshFuncs) const noexcept
+{
+    // Maintain a count whilst looping through every instance.
+    auto index = size_t { 0 };
+    forEachDynamicMesh ([&] (const auto meshIndex, const auto& mesh, const auto& instances)
+    {
+        for (const auto instanceID : instances)
+        {
+            func (index++, m_scene->getInstanceById (instanceID));
+        }
+    }, std::forward<MeshFuncs> (meshFuncs)...);
+}
+
+
+template <typename Lights, typename UniformBlock, typename Func>
+ModifiedRange Renderer::processLightUniforms (UniformBlock& uniforms, const Lights& lights, const Func& func) const noexcept
+{
+    // Set the count and iterate through each light.
+    const auto count = static_cast<GLuint> (lights.size());
+    uniforms.data->count = count;
+
+    for (GLuint i { 0 }; i < count; ++i)
+    {
+        auto& sceneLight    = lights[i];
+        auto& uniformLight  = uniforms.data->objects[i];
+
+        func (sceneLight, uniformLight);
+    }
+
+    // We need to know the size of the data we've written to.
+    constexpr auto countSize = sizeof (uniforms.data->count);
+    constexpr auto lightSize = sizeof (uniforms.data->objects[0]);
+
+    return { uniforms.offset, static_cast<GLsizeiptr> (countSize + lightSize * count) };
+}
+
+
+template <typename Lights, typename UniformBlock, typename FuncA, typename FuncB>
+Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock& uniforms, const Lights& lights, 
+    const size_t transformOffset, const FuncA& uniFunc, const FuncB& transFunc) const noexcept
+{
+    // We need the transform buffer pointer to write to.
+    auto transforms = (glm::mat4x3*) m_lightTransforms.pointer (m_partition);
+
+    // Set the count and iterate through each light.
+    const auto count = static_cast<GLuint> (lights.size());
+    uniforms.data->count = count;
+
+    for (GLuint i { 0 }; i < count; ++i)
+    {
+        const auto& sceneLight  = lights[i];
+        auto& uniformLight      = uniforms.data->objects[i];
+        auto& transform         = transforms[transformOffset + i];
+
+        uniFunc (sceneLight, uniformLight);
+        transFunc (sceneLight, transform);
+    }
+
+    // We need to know the size of the data we've written to.
+    constexpr auto countSize    = sizeof (uniforms.data->count);
+    constexpr auto lightSize    = sizeof (uniforms.data->objects[0]);
+    constexpr auto matrixSize   = sizeof (glm::mat4x3);
+
+    // We need to take into account the partition offset and transform offset of the transform buffer.
+    const auto partitionOffset  = m_lightTransforms.partitionOffset (m_partition);
+    const auto matrixOffset     = static_cast<GLintptr> (partitionOffset + matrixSize * transformOffset);
+
+    return 
+    { 
+        { uniforms.offset, static_cast<GLsizeiptr> (countSize + lightSize * count) },
+        { matrixOffset, static_cast<GLsizeiptr> (matrixSize * count) }
+    };
+}
 
 #endif // _RENDERING_RENDERER_

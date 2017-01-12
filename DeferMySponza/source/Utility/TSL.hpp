@@ -13,12 +13,18 @@
 #include <tsl/geometry.hpp>
 
 
+// Personal headers.
+#include <Rendering/Renderer/Geometry/Mesh.hpp>
+
+
 namespace util
 {
     /// <summary> Adds TSL mesh to the given vertices and elements vector. </summary>
+    /// <param name="meshBeingAdded"> The mesh to set the data for. </param>
     /// <param name="vertices"> The vertices vector to add vertices to. </param>
     /// <param name="elements"> The elements vector to add elements to. </param>
-    void addTSLMeshData (std::vector<glm::vec3>& vertices, std::vector<GLuint>& elements, 
+    /// <param name="meshPointer"> A mesh pointer containing triangle data. </param>
+    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<GLuint>& elements, 
         const tsl::IndexedMeshPtr& meshPointer) noexcept;
 
     /// <summary> Constructs a glm::vec3 from a tsl::Vector3. </summary>

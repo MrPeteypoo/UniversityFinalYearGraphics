@@ -17,7 +17,7 @@
 struct ModifiedRange final
 {
     GLintptr    offset  { 0 };  //!< How many bytes into the buffer to modified data.
-    GLsizei     length  { 0 };  //!< How many bytes have been modified.
+    GLsizeiptr  length  { 0 };  //!< How many bytes have been modified.
 
     ModifiedRange (const GLintptr offset, const GLsizei length) noexcept : offset (offset), length (length) {}
 
@@ -100,11 +100,17 @@ class PersistentMappedBuffer final
 
 
         /// <summary> Calculates the size of each individual partition in bytes. </summary>
-        inline GLsizeiptr partitionSize() const noexcept                      { return m_size / Partitions; }
+        inline GLsizeiptr partitionSize() const noexcept                    
+        { 
+            return m_size / Partitions; 
+        }
 
         /// <summary> Calculates the byte offset into the buffer of the given partition. </summary>
         /// <param name="index"> The partition to determine the offset for. </param>
-        inline GLsizeiptr partitionOffset (const size_t index) const noexcept { return index * partitionSize(); }
+        inline GLintptr partitionOffset (const size_t index) const noexcept 
+        { 
+            return index * partitionSize(); 
+        }
 
         /// <summary> 
         /// Gets a pointer to the partition at the given index. Extreme care is required when handling the pointer.
@@ -141,7 +147,7 @@ class PersistentMappedBuffer final
         Buffer      m_buffer    { };            //!< The persistently mapped buffer.
         GLbyte*     m_mapping   { nullptr };    //!< A pointer provided by the GPU where we can write to.
         GLsizeiptr  m_size      { 0 };          //!< How large the buffer is.
-        bool        m_coherent  { false };      //!< If the PMB is coherent then flush requires will be silently dropped.
+        bool        m_flushable { false };      //!< If the PMB is not coherent but is writable we need to support flushing.
 
     private:
         
@@ -179,11 +185,11 @@ PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
         m_buffer    = std::move (move.m_buffer);
         m_mapping   = move.m_mapping;
         m_size      = move.m_size;
-        m_coherent  = move.m_coherent;
+        m_flushable = move.m_flushable;
 
-        move.m_mapping  = nullptr;
-        move.m_size     = 0U;
-        move.m_coherent = false;
+        move.m_mapping      = nullptr;
+        move.m_size         = 0U;
+        move.m_flushable    = false;
     }
 
     return *this;
@@ -195,7 +201,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
 {
     // Read can't be enabled without write permissions because the buffer contents will be undefined. Also ensure the
     // size is valid.
-    if ((read && !write) || (!read && !write) || size % Partitions != 0 || size == 0)
+    if ((read && !write) || (!read && !write) || size == 0)
     {
         return false;
     }
@@ -214,7 +220,16 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     const auto storageFlags = (access & (~GL_MAP_FLUSH_EXPLICIT_BIT));
 
     // Next we can allocate the storage with the correct bits.
-    buffer.allocateImmutableStorage (size * Partitions, storageFlags);
+    const auto totalSize = size * Partitions;
+    buffer.allocateImmutableStorage (totalSize, storageFlags);
+
+    // Ensure we can map the buffer.
+    auto pointer = buffer.mapRange (0, size, access);
+
+    if (!pointer)
+    {
+        return false;
+    }
 
     // Finally clean up after ourselves and utilise the new data!
     if (m_mapping)
@@ -223,9 +238,9 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = static_cast<GLbyte*> (m_buffer.mapRange (0, size, access));
-    m_size      = size * Partitions;
-    m_coherent  = coherent;
+    m_mapping   = static_cast<GLbyte*> (pointer);
+    m_size      = totalSize;
+    m_flushable = (access & GL_MAP_FLUSH_EXPLICIT_BIT) > 0;
 
     return true;
 }
@@ -263,6 +278,14 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
         return false;
     }
 
+    // Ensure we can map the buffer.
+    auto pointer = buffer.mapRange (0, size, access);
+
+    if (!pointer)
+    {
+        return false;
+    }
+
     // Finally clean up after ourselves and utilise the new data!
     if (m_mapping)
     {
@@ -270,9 +293,9 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
     }
 
     m_buffer    = std::move (buffer);
-    m_mapping   = static_cast<GLbyte*> (m_buffer.mapRange (0, size, access));
-    m_size      = size;
-    m_coherent  = coherent;
+    m_mapping   = static_cast<GLbyte*> (pointer);
+    m_size      = totalSize;
+    m_flushable = (access & GL_MAP_FLUSH_EXPLICIT_BIT) > 0;
 
     return true;
 }
@@ -288,7 +311,7 @@ void PMB<Partitions>::clean() noexcept
         m_buffer.clean();
         m_mapping   = nullptr;
         m_size      = 0U;
-        m_coherent  = false;
+        m_flushable = false;
     }
 }
 
@@ -296,7 +319,7 @@ void PMB<Partitions>::clean() noexcept
 template <size_t Partitions>
 void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept
 {
-    if (!m_coherent)
+    if (m_flushable)
     {
         glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + range.offset, range.length);
     }

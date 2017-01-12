@@ -228,13 +228,18 @@ bool Materials::bufferTextures (Internals& internals, TexturesToBuffer& textures
         for (size_t components { 1 }; components <= 4; ++components)
         {
             // Cache the image array.
-            auto& images = dimensionMap.second[components];
+            auto& images            = dimensionMap.second[components];
+            const auto imageCount   = extra.vector.size() + images.vector.size();
+
+            if (imageCount == 0)
+            {
+                continue;
+            }
 
             // Check whether the current configuration has a dedicated texture unit.
             const auto indexAndArray    = internals.get (components, dimensions);
             const auto index            = indexAndArray.first;
             const auto textureArray     = indexAndArray.second;
-            const auto imageCount       = extra.vector.size() + images.vector.size();
             const auto format           = util::internalFormat (components);
             const auto levels           = static_cast<GLsizei> (5);
 

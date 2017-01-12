@@ -18,6 +18,9 @@ GLint Uniforms::alignment = 0;
 
 bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials& materials) noexcept
 {
+    // Ensure we have a correct alignment value.
+    glGetIntegerv (GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
+
     // Don't modify the current object unless we need to.
     auto staticBlocks   = decltype (m_staticBlocks) { };
     auto dynamicBlocks  = decltype (m_dynamicBlocks) { };
@@ -28,9 +31,6 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
     {
         return false;
     }
-
-    // Ensure we have a correct alignment value.
-    glGetIntegerv (GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
 
     // Fill the static block buffers.
     if (!buildStaticBlocks (staticBlocks, geometryBuffer, materials))
@@ -130,9 +130,9 @@ bool Uniforms::buildStaticBlocks (Buffer& staticBlocks,
     const auto last     = materials.getLastTextureUnit() - GL_TEXTURE0;
     
     // Retrieve the gbuffer data.
-    textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit();
-    textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit();
-    textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
+    textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit() - GL_TEXTURE0;
+    textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit() - GL_TEXTURE0;
+    textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit() - GL_TEXTURE0;
 
     // Retrieve the texture array data.
     for (auto unit = first; unit <= last; ++unit)
@@ -178,6 +178,7 @@ void Uniforms::resetBlockData() noexcept
 {
     // Ask for a pointer to the specified partition.
     auto pointer = m_dynamicBlocks.pointer (m_partition);
+    assert (pointer);
 
     // Create a helper.
     const auto setBlockData = [=] (auto& block, const auto offset)
