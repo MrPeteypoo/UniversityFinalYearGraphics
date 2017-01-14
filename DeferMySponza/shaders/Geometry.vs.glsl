@@ -1,7 +1,7 @@
 #version 450
 
 /// The uniform buffer scene specific information.
-layout (std140) uniform scene
+layout (std140) uniform Scene
 {
     mat4    projection;         //!< The projection transform which establishes the perspective of the vertex.
     mat4    view;               //!< The view transform representing where the camera is looking.

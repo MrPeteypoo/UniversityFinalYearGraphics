@@ -12,14 +12,19 @@ const Shader Shaders::default = Shader { };
 bool Shaders::initialise() noexcept
 {
     // TODO: Load shaders from configuration file.
-    return  compile (geometryVS,            GL_VERTEX_SHADER) &&
-            compile (lightVolumeVS,         GL_VERTEX_SHADER) &&
-            compile (forwardRenderFS,       GL_FRAGMENT_SHADER) &&
-            compile (geometryFS,            GL_FRAGMENT_SHADER) &&
-            compile (lightingPassFS,        GL_FRAGMENT_SHADER) &&
-            compile (lightsFS,              GL_FRAGMENT_SHADER) &&
-            compile (materialFetcherFS,     GL_FRAGMENT_SHADER) &&
-            compile (reflectionModelsFS,    GL_FRAGMENT_SHADER);
+    bool success = true;
+    const auto compileShaders = [&] (const auto& strings, const auto shaderType)
+    {
+        for (const auto& string : strings)
+        {
+            success = compile (string, shaderType) && success;
+        }
+    };
+    
+    compileShaders (vertexShaderStrings, GL_VERTEX_SHADER);
+    compileShaders (fragmentShaderStrings, GL_FRAGMENT_SHADER);
+
+    return success;
 }
 
 

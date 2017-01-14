@@ -1,6 +1,18 @@
 ﻿#version 450
 
-layout (std140) uniform scene
+/// Contains the properties of the material to be applied to the current fragment.
+struct Material
+{
+    float   smoothness;     //!< Effects the distribution of specular light over the surface.
+    float   reflectance;    //!< Effects the fresnel effect of dieletric surfaces.
+    float   conductivity;   //!< Conductive surfaces absorb incoming light, causing them to be fully specular.
+    float   transparency;   //!< How transparent the surface is.
+    
+    vec3    albedo;         //!< The base colour of the material.
+    vec3    normalMap;      //!< The normal map of the material.
+} material;
+
+layout (std140) uniform Scene
 {
     mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
     mat4 view;          //!< The view transform representing where the camera is looking.
@@ -41,7 +53,7 @@ void main()
     // Accumulate the contribution of every light.
     const vec3 lighting =   directionalLightContributions (N, V) +
                             pointLightContributions (Q, N, V) +
-                            spotLightContributions (Q, N, V);
+                            spotlightContributions (Q, N, V);
     
     // Put the equation together and we get...
     const vec3 colour = scene.ambience + lighting;

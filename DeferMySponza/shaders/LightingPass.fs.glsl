@@ -1,13 +1,13 @@
 ﻿#version 450
 
-layout (std140) uniform gbuffer
+layout (std140) uniform GBuffer
 {
-    sampler2DRect​ positions;   //!< Contains the world position of objects at every pixel.
-    sampler2DRect​ normals;     //!< Contains the world normal of objects at every pixel.
-    sampler2DRect​ materials;   //!< Contains the texture co-ordinate and material ID of objects at every pixel.
+    uniform sampler2DRect positions;   //!< Contains the world position of objects at every pixel.
+    uniform sampler2DRect normals;     //!< Contains the world normal of objects at every pixel.
+    uniform sampler2DRect materials;   //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 } gbuffer;
 
-layout (std140) uniform scene
+layout (std140) uniform Scene
 {
     mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
     mat4 view;          //!< The view transform representing where the camera is looking.
@@ -28,7 +28,7 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
 
 
 // Forward declarations.
-layout (index = 0) subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
+subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
 vec3 viewDirection (const in vec3 position);
 
 
@@ -57,7 +57,7 @@ void main()
 /**
     Calculates the ambient and directional light contributions.
 */
-subroutine (LightingPass)
+layout (index = 0) subroutine (LightingPass)
 vec3 globalLightPass (const in vec3 position, const in vec3 normal)
 {
     // Calculate the direction from the fragment to the viewer.
@@ -68,7 +68,7 @@ vec3 globalLightPass (const in vec3 position, const in vec3 normal)
 /**
     Calculates the lighting contribution of a point light.
 */
-subroutine (LightingPass)
+layout (index = 1) subroutine (LightingPass)
 vec3 pointLightPass (const in vec3 position, const in vec3 normal)
 {
     return pointLightContribution (lightIndex, position, normal, viewDirection (position));
@@ -78,7 +78,7 @@ vec3 pointLightPass (const in vec3 position, const in vec3 normal)
 /**
     Calculates the lighting contribution of a point light.
 */
-subroutine (LightingPass)
+layout (index = 2) subroutine (LightingPass)
 vec3 spotlightPass (const in vec3 position, const in vec3 normal)
 {
     return spotlightContribution (lightIndex, position, normal, viewDirection (position));

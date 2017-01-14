@@ -35,8 +35,7 @@ struct Programs final
     /// <summary> Checks whether the core programs have been loaded. </summary>
     inline bool isInitialised() const noexcept 
     { 
-        return geometry.isInitialised() || globalLight.isInitialised() || 
-            pointLight.isInitialised() || spotlight.isInitialised() || forward.isInitialised();
+        return geometryPass.isInitialised() || lightingPass.isInitialised() || forwardRender.isInitialised();
     }
 
 
@@ -49,6 +48,24 @@ struct Programs final
 
     /// <summary> Detaches all shaders and deletes each program. </summary>
     void clean() noexcept;
+
+
+    template <typename Func>
+    void performActionOnPrograms (const Func& func) const noexcept
+    {
+        func (geometryPass);
+        func (lightingPass);
+        func (forwardRender);
+    }
+
+
+    template <typename Func>
+    void performActionOnPrograms (const Func& func) noexcept
+    {
+        func (geometryPass);
+        func (lightingPass);
+        func (forwardRender);
+    }
 };
 
 #endif // _RENDERING_PROGRAMS_

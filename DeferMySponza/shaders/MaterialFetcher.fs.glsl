@@ -12,12 +12,12 @@ struct Material
     vec3    normalMap;      //!< The normal map of the material.
 };
 
-layout (std140) uniform samplers
+/*layout (std140) uniform Samplers
 {
     const uint      size = 16;                  //!< How many samplers can be contained.
     samplerBuffer   materials;                  //!< Contains every material in the scene.
     sampler2DArray  array[textureArrayCount];   //!< An array of samplers containing different texture formats.
-} samplers;
+} samplers;*/
 
 
 Material fetchMaterialProperties (const in vec2 uvCoordinates, const in float materialID)

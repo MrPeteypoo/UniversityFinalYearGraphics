@@ -75,12 +75,8 @@ void Uniforms::bindBlocksToProgram (const Programs& programs) const noexcept
         bindBlockToProgram (program, PointLights::blockBinding);
         bindBlockToProgram (program, Spotlights::blockBinding);
     };
-    constexpr static auto bob = FullBlock<Spotlight>::max;
-    bindAllBlocks (programs.geometry);
-    bindAllBlocks (programs.globalLight);
-    bindAllBlocks (programs.pointLight);
-    bindAllBlocks (programs.spotlight);
-    bindAllBlocks (programs.forward);
+
+    programs.performActionOnPrograms (bindAllBlocks);
 }
 
 

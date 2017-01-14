@@ -24,4 +24,10 @@ const auto lightsFS             = "content:///Lights.fs.glsl"s;
 const auto materialFetcherFS    = "content:///MaterialFetcher.fs.glsl"s;
 const auto reflectionModelsFS   = "content:///ReflectionModels.fs.glsl"s;
 
+const std::string vertexShaderStrings[]     = { geometryVS, lightVolumeVS };
+const std::string fragmentShaderStrings[]   = 
+{
+    forwardRenderFS, geometryFS, lightingPassFS, lightsFS, materialFetcherFS, reflectionModelsFS
+};
+
 #endif // !defined _RENDERER_HARD_CODED_SHADERS_

@@ -50,7 +50,5 @@ bool Programs::initialise (const Shaders& shaders) noexcept
 
 void Programs::clean() noexcept
 {
-    geometryPass.clean();
-    lightingPass.clean();
-    forwardRender.clean();
+    performActionOnPrograms ([] (Program& program) { program.clean(); });
 }

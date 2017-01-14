@@ -78,7 +78,7 @@ vec3 calculateReflectance (const in vec3 L, const in vec3 N, const in vec3 V, co
     The most basic diffuse lighting model. Lambertian diffuse causes a relatively uniform reflectance by disregarding
     surface roughness.
 */
-vec3 lambertDiffuse (const in vec3 E, const in float LDotN);
+vec3 lambertDiffuse (const in vec3 E, const in float LDotN)
 {
     return E * material.albedo * LDotN;
 }
@@ -90,13 +90,12 @@ vec3 lambertDiffuse (const in vec3 E, const in float LDotN);
 vec3 blinnPhongSpecular (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E)
 {
     // First we need to interpret PBS parameters for the shading. Blinn-Phong also multiplies the shininess by four.
-
     const float maxShininess    = 128.f;
     const float shininess       = material.conductivity * maxShininess * 4.0;
     const vec3  specularColour  = vec3 (material.smoothness);
 
     // We need to determine the half vector between the light and view directions.
-    const vec3  H       = normalize (L, V);
+    const vec3  H       = normalize (L + V);
     const float HDotN   = max (dot (H, N), 0.0);
 
     // Finally calculate the specularity of the fragment.

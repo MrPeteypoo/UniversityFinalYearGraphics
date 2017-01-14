@@ -14,7 +14,7 @@ struct PointLight
     float   range;      //!< The maximum range of the light.
 
     vec3    intensity;  //!< The colour and brightness of the light.
-    float   aConstant   //!< The constant co-efficient for the attenuation formula.
+    float   aConstant;  //!< The constant co-efficient for the attenuation formula.
     
     float   aLinear;    //!< The linear co-efficient for the attenuation formula.
     float   aQuadratic; //!< The quadratic co-efficient for the attenuation formula.
@@ -31,31 +31,34 @@ struct Spotlight
 
     vec3    intensity;      //!< The colour and brightness of the light.
     float   concentration;  //!< Effects how focused the light is and how it distributes away from the centre.
-    float   aConstant       //!< The constant co-efficient for the attenuation formula.
+    float   aConstant;      //!< The constant co-efficient for the attenuation formula.
     
     float   aLinear;        //!< The linear co-efficient for the attenuation formula.
     float   aQuadratic;     //!< The quadratic co-efficient for the attenuation formula.
 };
 
-layout (std140) uniform directionalLights
+layout (std140) uniform DirectionalLights
 {
-    const uint          size = 341;     //!< The amount of lights that can be contained.
-    uint                count;          //!< How many lights exist in the scene.
-    DirectionalLight    lights[size];   //!< A collection of light data.
+    #define DirectionalLightsMax 341
+    
+    uint                count;                          //!< How many lights exist in the scene.
+    DirectionalLight    lights[DirectionalLightsMax];   //!< A collection of light data.
 } directionalLights;
 
-layout (std140) uniform pointLights
+layout (std140) uniform PointLights
 {
-    const uint  size = 292;     //!< The amount of lights that can be contained.
-    uint        count;          //!< How many lights exist in the scene.
-    PointLight  lights[size]    //!< A collection of light data.
+    #define PointLightsMax 292
+    
+    uint        count;                  //!< How many lights exist in the scene.
+    PointLight  lights[PointLightsMax]; //!< A collection of light data.
 } pointLights;
 
-layout (std140) uniform spotlights
+layout (std140) uniform Spotlights
 {
-    const uint  size = 215;     //!< The amount of lights that can be contained.
-    uint        count;          //!< How many lights exist in the scene.
-    Spotlight   lights[size]    //!< A collection of light data.
+    #define SpotlightsMax 215
+    
+    uint        count;                  //!< How many lights exist in the scene.
+    Spotlight   lights[SpotlightsMax];  //!< A collection of light data.
 } spotlights;
 
 
@@ -71,7 +74,7 @@ vec3 directionalLightContribution (const in uint index, const in vec3 normal, co
     // Directional lights don't need attenuation.
     const DirectionalLight light = directionalLights.lights[index];
     const vec3 L = -light.direction;
-    const vec3 E = light.intensity
+    const vec3 E = light.intensity;
 
     return calculateReflectance (L, normal, view, E);
 }
@@ -143,7 +146,7 @@ vec3 directionalLightContributions (const in vec3 normal, const in vec3 view)
 
     for (uint i = 0; i < directionalLights.count; ++i)
     {
-        lighting += directionalLightContribution (i, N, V);
+        lighting += directionalLightContribution (i, normal, view);
     }
 
     return lighting;
@@ -159,7 +162,7 @@ vec3 pointLightContributions (const in vec3 position, const in vec3 normal, cons
 
     for (uint i = 0; i < pointLights.count; ++i)
     {
-        lighting += pointLightContribution (material, i, Q, N, V);
+        lighting += pointLightContribution (i, position, normal, view);
     }
 
     return lighting;
@@ -175,7 +178,7 @@ vec3 spotlightContributions (const in vec3 position, const in vec3 normal, const
 
     for (uint i = 0; i < spotlights.count; ++i)
     {
-        lighting += spotlightContribution (i, Q, N, V);
+        lighting += spotlightContribution (i, position, normal, view);
     }
 
     return lighting;
