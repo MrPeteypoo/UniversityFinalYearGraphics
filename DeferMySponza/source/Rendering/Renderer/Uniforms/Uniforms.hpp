@@ -10,7 +10,8 @@
 
 // Personal headers.
 #include <Rendering/Composites/PersistentMappedBuffer.hpp>
-#include <Rendering/Renderer/Uniforms/Blocks/Textures.hpp>
+#include <Rendering/Renderer/Uniforms/Individual/Samplers.hpp>
+#include <Rendering/Renderer/GlobalConfig.hpp>
 
 
 // Forward declarations.
@@ -45,12 +46,10 @@ class Uniforms final
         };
 
         // Aliases.
-        using GBuffer           = Data<Textures::GBuffer,           0>;
-        using Samplers          = Data<Textures::Samplers,          1>;
-        using Scene             = Data<Scene,                       2>;
-        using DirectionalLights = Data<FullBlock<DirectionalLight>, 3>;
-        using PointLights       = Data<FullBlock<PointLight>,       4>;
-        using Spotlights        = Data<FullBlock<Spotlight>,        5>;
+        using Scene             = Data<Scene,                       0>;
+        using DirectionalLights = Data<FullBlock<DirectionalLight>, 1>;
+        using PointLights       = Data<FullBlock<PointLight>,       2>;
+        using Spotlights        = Data<FullBlock<Spotlight>,        3>;
 
     public:
 
@@ -90,8 +89,8 @@ class Uniforms final
         void clean() noexcept;
 
 
-        /// <summary> Attempts to bind every block to the given program. </summary>
-        void bindBlocksToProgram (const Programs& programs) const noexcept;
+        /// <summary> Attempts to bind every block and individual uniform to the given program. </summary>
+        void bindUniformsToPrograms (const Programs& programs) const noexcept;
 
         /// <summary> 
         /// Resets the bound range of each dynamic uniform block to the given partition. This will invalidate any
@@ -107,24 +106,21 @@ class Uniforms final
 
         using BlockNames = std::unordered_map<GLuint, const char*>;
         
-        Scene               m_scene;            //!< Contains universal data about the scene.
-        DirectionalLights   m_directional;      //!< Contains the parameters of every directional light in the scene.
-        PointLights         m_point;            //!< Contains the parameters of many point lights in the scene.
-        Spotlights          m_spot;             //!< Contains the parameters of many spotlights in the scene.
+        Scene               m_scene;        //!< Contains universal data about the scene.
+        DirectionalLights   m_directional;  //!< Contains the parameters of every directional light in the scene.
+        PointLights         m_point;        //!< Contains the parameters of many point lights in the scene.
+        Spotlights          m_spot;         //!< Contains the parameters of many spotlights in the scene.
+        Samplers            m_samplers;     //!< Contains the data required to set uniform samplers.
 
-        Buffer              m_staticBlocks;     //!< Contains static uniform buffer data such as Gbuffer and array textures.
-        SinglePMB           m_dynamicBlocks;    //!< A multi-buffered uniform buffer object containing uniform block data.
-        size_t              m_partition;        //!< The currently cound partition.
+        GlobalConfig::PMB   m_blocks;       //!< A multi-buffered uniform buffer object containing uniform block data.
 
         /// <summary> Maps block binding indices to block names as found in shaders. </summary>
         const BlockNames m_blockNames
         {
-            { GBuffer::blockBinding,            "gbuffer" },
-            { Samplers::blockBinding,           "samplers" },
-            { Scene::blockBinding,              "scene" },
-            { DirectionalLights::blockBinding,  "directionalLights" },
-            { PointLights::blockBinding,        "pointLights" },
-            { Spotlights::blockBinding,         "spotlights" },
+            { Scene::blockBinding,              "Scene" },
+            { DirectionalLights::blockBinding,  "DirectionalLights" },
+            { PointLights::blockBinding,        "PointLights" },
+            { Spotlights::blockBinding,         "Spotlights" },
         };
         
         static GLint alignment; //!< How many bytes the uniform buffer blocks must be aligned to.
@@ -138,19 +134,15 @@ class Uniforms final
         template <typename T>
         GLintptr calculateAlignedSize() const noexcept;
 
-        /// <summary> Build data for static blocks and bind each block correctly. </summary>
-        /// <returns> Whether the static block buffer was built correctly. </returns>
-        bool buildStaticBlocks (Buffer& staticBlocks, 
+        /// <summary> Sets the data of each sampler to match the given gbuffer and materials objects. </summary>
+        void retrieveSamplerData (Samplers& samplers, 
             const GeometryBuffer& gbuffer, const Materials& materials) const noexcept;
 
         /// <summary> Binds an individual block to an individual program. </summary>
         void bindBlockToProgram (const Program& program, const GLuint blockBinding) const noexcept;
 
         /// <summary> Resets the pointer and offset of every stored data block. </summary>
-        void resetBlockData() noexcept;
-
-        /// <summary> Binds each UBO block containing static data to their associated index. </summary>
-        void rebindStaticBlocks() const noexcept;
+        void resetBlockData (const size_t partition) noexcept;
 
         /// <summary> Binds each block to ranges in the current partition. </summary>
         void rebindDynamicBlocks() const noexcept;

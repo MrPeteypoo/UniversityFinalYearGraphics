@@ -22,29 +22,20 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
     glGetIntegerv (GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
 
     // Don't modify the current object unless we need to.
-    auto staticBlocks   = decltype (m_staticBlocks) { };
-    auto dynamicBlocks  = decltype (m_dynamicBlocks) { };
+    auto blocks = decltype (m_blocks) { };
 
     // Ensure the buffers initialise.
-    if (!(staticBlocks.initialise() && 
-        dynamicBlocks.initialise (calculateDynamicBlockSize(), false, false)))
-    {
-        return false;
-    }
-
-    // Fill the static block buffers.
-    if (!buildStaticBlocks (staticBlocks, geometryBuffer, materials))
+    if (!blocks.initialise (calculateDynamicBlockSize(), false, false))
     {
         return false;
     }
 
     // We can make use of the data now.
-    m_staticBlocks  = std::move (staticBlocks);
-    m_dynamicBlocks = std::move (dynamicBlocks);
+    m_blocks = std::move (blocks);
 
     // Don't forget to bind the blocks to the current partition.
-    rebindStaticBlocks();
     bindBlocksToPartition (0);
+    retrieveSamplerData (m_samplers, geometryBuffer, materials);
 
     // Success!
     return true;
@@ -53,10 +44,8 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
 
 void Uniforms::clean() noexcept
 {
-    m_staticBlocks.clean();
-    m_dynamicBlocks.clean();
+    m_blocks.clean();
 
-    m_partition     = 0;
     m_scene         = decltype (m_scene) { };
     m_directional   = decltype (m_directional) { };
     m_point         = decltype (m_point) { };
@@ -64,16 +53,47 @@ void Uniforms::clean() noexcept
 }
 
 
-void Uniforms::bindBlocksToProgram (const Programs& programs) const noexcept
+void Uniforms::bindUniformsToPrograms (const Programs& programs) const noexcept
 {
-    const auto bindAllBlocks = [&] (const Program& program)
+    // Construct a vector with the texture unit values of each texture array.
+    const auto count    = m_samplers.textureSamplerCount;
+    auto start          = m_samplers.textures.unit;
+    auto values         = std::vector<GLint> (count);
+
+    std::generate (std::begin (values), std::end (values), [&] () { return start++; });
+
+    // Construct lambdas to add each uniform and all blocks.
+    const auto bindSampler = [] (const Program& program, const Samplers::Sampler& sampler)
     {
-        bindBlockToProgram (program, GBuffer::blockBinding);
-        bindBlockToProgram (program, Samplers::blockBinding);
+        const auto location = glGetUniformLocation (program.getID(), sampler.name);
+        
+        if (location >= 0)
+        {
+            glProgramUniform1i (program.getID(), location, sampler.unit);
+        }
+    };
+
+    const auto bindAllBlocks = [&, count] (const Program& program)
+    {
+        // Bind each block.
         bindBlockToProgram (program, Scene::blockBinding);
         bindBlockToProgram (program, DirectionalLights::blockBinding);
         bindBlockToProgram (program, PointLights::blockBinding);
         bindBlockToProgram (program, Spotlights::blockBinding);
+
+        // Bind the individual uniforms.
+        bindSampler (program, m_samplers.gbufferPositions);
+        bindSampler (program, m_samplers.gbufferPositions);
+        bindSampler (program, m_samplers.gbufferPositions);
+        bindSampler (program, m_samplers.gbufferPositions);
+
+        // And finally the texture arrays.
+        const auto location = glGetUniformLocation (program.getID(), m_samplers.textures.name);
+
+        if (location >= 0)
+        {
+            glProgramUniform1iv (program.getID(), location, count, values.data());
+        }
     };
 
     programs.performActionOnPrograms (bindAllBlocks);
@@ -82,11 +102,8 @@ void Uniforms::bindBlocksToProgram (const Programs& programs) const noexcept
 
 void Uniforms::bindBlocksToPartition (const size_t partitionIndex) noexcept
 {
-    // Set the partition value.
-    m_partition = partitionIndex;
-
     // Reset each block data object.
-    resetBlockData();
+    resetBlockData (partitionIndex);
 
     // Now rebind each dynamic buffer.
     rebindDynamicBlocks();
@@ -95,7 +112,7 @@ void Uniforms::bindBlocksToPartition (const size_t partitionIndex) noexcept
 
 void Uniforms::notifyModifiedDataRange (const ModifiedRange& range) noexcept
 {
-    m_dynamicBlocks.notifyModifiedDataRange (m_partition, range);
+    m_blocks.notifyModifiedDataRange (range);
 }
 
 
@@ -110,50 +127,18 @@ GLintptr Uniforms::calculateDynamicBlockSize() const noexcept
 }
 
 
-bool Uniforms::buildStaticBlocks (Buffer& staticBlocks, 
+void Uniforms::retrieveSamplerData (Samplers& samplers, 
             const GeometryBuffer& gbuffer, const Materials& materials) const noexcept
 {
-    // We don't want to allow access to glBufferSubData so we must place the data in a temporary buffer because the
-    // alignment value can't be known at compile time.
-    auto tempBuffer = Buffer { };
-    if (!tempBuffer.initialise())
-    {
-        return false;
-    }
-
     // Retrieve the gbuffer data.
-    auto textures       = Textures { };
-    textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit();
-    textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit();
-    textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
+    samplers.gbufferPositions.unit  = gbuffer.getPositionTexture().getDesiredTextureUnit();
+    samplers.gbufferNormals.unit    = gbuffer.getNormalTexture().getDesiredTextureUnit();
+    samplers.gbufferMaterials.unit  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
 
     // Retrieve the sampler data.
-    const auto first    = materials.getFirstTextureUnit();
-    const auto last     = materials.getLastTextureUnit();
-
-    textures.samplers.materials = first;
-    for (auto unit = first + 1; unit <= last; ++unit)
-    {
-        textures.samplers.arrays[unit - first].item = unit;
-    }
-
-    // Now we can buffer the data.
-    tempBuffer.immutablyFillWith (textures);
-
-    // Taking into account alignment requirements we need to calculate offsets.
-    const auto alignedOffset    = calculateAlignedSize<Textures::GBuffer>();
-    const auto storageSize      = alignedOffset + sizeof (Textures::Samplers);
-
-    // We don't need any client-side access to the memory so specify no flags.
-    staticBlocks.allocateImmutableStorage (storageSize, 0);
-
-    // Copy the data, taking into account the alignment requirements of the UBO blocks.
-    glCopyNamedBufferSubData (tempBuffer.getID(), staticBlocks.getID(), 0, 0, sizeof (Textures::GBuffer));
-    glCopyNamedBufferSubData (tempBuffer.getID(), staticBlocks.getID(), 
-        sizeof (Textures::GBuffer), alignedOffset, sizeof (Textures::Samplers));
-
-    // Success!
-    return true;
+    samplers.materials.unit         = materials.getMaterialTextureUnit();
+    samplers.textures.unit          = materials.getTextureArrayStartingUnit();
+    samplers.textureSamplerCount    = materials.getTextureArrayCount();
 }
 
 
@@ -171,10 +156,10 @@ void Uniforms::bindBlockToProgram (const Program& program, const GLuint blockBin
 }
 
 
-void Uniforms::resetBlockData() noexcept
+void Uniforms::resetBlockData (const size_t partition) noexcept
 {
     // Ask for a pointer to the specified partition.
-    auto pointer = m_dynamicBlocks.pointer (m_partition);
+    auto pointer = m_blocks.pointer (partition);
 
     // Create a helper.
     const auto setBlockData = [=] (auto& block, const auto offset)
@@ -185,7 +170,7 @@ void Uniforms::resetBlockData() noexcept
     };
 
     // We also need the base offset.
-    const auto baseOffset = m_dynamicBlocks.partitionOffset (m_partition);
+    const auto baseOffset = m_blocks.partitionOffset (partition);
 
     // Now set the value of each object.
     setBlockData (m_scene,          baseOffset);
@@ -195,32 +180,26 @@ void Uniforms::resetBlockData() noexcept
 }
 
 
-void Uniforms::rebindStaticBlocks() const noexcept
-{
-    // Only the texture blocks are static.
-    glBindBufferRange (GL_UNIFORM_BUFFER, GBuffer::blockBinding, m_staticBlocks.getID(), 
-        0, sizeof (Textures::GBuffer));
-
-    glBindBufferRange (GL_UNIFORM_BUFFER, Samplers::blockBinding, m_staticBlocks.getID(), 
-        calculateAlignedSize<Textures::GBuffer>(), sizeof (Textures::Samplers));
-}
-
-
 void Uniforms::rebindDynamicBlocks() const noexcept
 {
     // We have four dynamic blocks.
-    constexpr auto count = GLsizei { 4 };
+    const auto count = static_cast<GLsizei> (m_blockNames.size());
 
     // They all exist in the same buffer.
-    const auto buffer = m_dynamicBlocks.getID();
+    const auto buffer = m_blocks.getID();
 
     // And they start at the index of the scene block.
     constexpr auto index = Scene::blockBinding;
     
     // Construct the parameters we need for glBindBuffersRange().
-    const GLuint    buffers[count]  = { buffer, buffer, buffer, buffer };
-    const GLintptr  offsets[count]  = { m_scene.offset, m_directional.offset, m_point.offset, m_spot.offset };
-    const GLintptr  sizes[count]    = { sizeof (*m_scene.data), sizeof (*m_directional.data), sizeof (*m_point.data), sizeof (*m_spot.data) };
+    const GLuint    buffers[]  = { buffer, buffer, buffer, buffer };
+    const GLintptr  offsets[]  = { m_scene.offset, m_directional.offset, m_point.offset, m_spot.offset };
+    const GLintptr  sizes[]    = { sizeof (*m_scene.data), sizeof (*m_directional.data), sizeof (*m_point.data), sizeof (*m_spot.data) };
+
+    // Ensure we have valid sizes.
+    assert (sizeof (buffers) / sizeof (GLuint) == count && 
+            sizeof (offsets) / sizeof (GLintptr) == count && 
+            sizeof (sizes) / sizeof (GLintptr) == count);
 
     // Bind each block.
     glBindBuffersRange (GL_UNIFORM_BUFFER, index, count, buffers, offsets, sizes);

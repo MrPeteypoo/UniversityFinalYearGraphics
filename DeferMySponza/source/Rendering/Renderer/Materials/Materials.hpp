@@ -51,11 +51,14 @@ class Materials final
         /// <returns> The material ID if successful, the maximum value if not found. </returns> 
         MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
 
-        /// <summary> Retrieves the texture unit of the first texture array. </summary>
-        GLuint getFirstTextureUnit() const noexcept;
+        /// <summary> Retrieves the texture unit of the material buffer. </summary>
+        GLint getMaterialTextureUnit() const noexcept;
 
-        /// <summary> Retrieves the texture unit of the last texture array. </summary>
-        GLuint getLastTextureUnit() const noexcept;
+        /// <summary> Retrieves the texture unit of the first texture array. </summary>
+        GLint getTextureArrayStartingUnit() const noexcept;
+
+        /// <summary> Retrieves the total number of texture arrays. </summary>
+        GLint getTextureArrayCount() const noexcept;
 
 
         /// <summary> 

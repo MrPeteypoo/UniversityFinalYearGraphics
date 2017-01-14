@@ -45,15 +45,21 @@ MaterialID Materials::operator[] (const scene::MaterialId sceneID) const noexcep
 }
 
 
-GLuint Materials::getFirstTextureUnit() const noexcept
+GLint Materials::getMaterialTextureUnit() const noexcept
 {
     return m_internals->materials.texture.getDesiredTextureUnit();
 }
 
 
-GLuint Materials::getLastTextureUnit() const noexcept
+GLint Materials::getTextureArrayStartingUnit() const noexcept
 {
-    return m_internals->rgba.back().getDesiredTextureUnit();
+    return m_internals->rgb.front().getDesiredTextureUnit();
+}
+
+
+GLint Materials::getTextureArrayCount() const noexcept
+{
+    return static_cast<GLint> (m_internals->rgb.size() + m_internals->rgba.size());
 }
 
 

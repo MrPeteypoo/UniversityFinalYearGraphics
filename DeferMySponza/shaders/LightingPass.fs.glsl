@@ -1,12 +1,5 @@
 ﻿#version 450
 
-layout (std140) uniform GBuffer
-{
-    uniform sampler2DRect positions;   //!< Contains the world position of objects at every pixel.
-    uniform sampler2DRect normals;     //!< Contains the world normal of objects at every pixel.
-    uniform sampler2DRect materials;   //!< Contains the texture co-ordinate and material ID of objects at every pixel.
-} gbuffer;
-
 layout (std140) uniform Scene
 {
     mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
@@ -15,6 +8,10 @@ layout (std140) uniform Scene
     vec3 camera;        //!< Contains the position of the camera in world space.
     vec3 ambience;      //!< The ambient lighting in the scene.
 } scene;
+
+uniform sampler2DRect gbufferPositions;  //!< Contains the world position of objects at every pixel.
+uniform sampler2DRect gbufferNormals;   //!< Contains the world normal of objects at every pixel.
+uniform sampler2DRect gbufferMaterials; //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 
 flat    in  uint    lightIndex;     //!< The index of the light volume being rendered. 
         out vec3    reflectedLight; //!< The light contribution of the lighting pass.
@@ -41,13 +38,16 @@ layout (location = 0) subroutine uniform LightingPass lightingPass; //!< Determi
 */
 void main()
 {
+    // Get the co-ordinate of the current pixel/fragment.
+    const ivec2 fragment = ivec2 (gl_FragCoord.rg);
+
     // Retrieve the location properties of the current fragment.
-    const vec3 Q = texelFetch (gbuffer.positions, gl_FragCoord.rg).rgb;
-    const vec3 N = texelFetch (gbuffer.normals, gl_FragCoord.rg).rgb;
+    const vec3 Q = texelFetch (gbufferPositions, fragment).rgb;
+    const vec3 N = texelFetch (gbufferNormals, fragment).rgb;
 
     // The UV components are texture co-ordinates and the third component is a material ID.
-    const vec3 material = texelFetch (gbuffer.materials, gl_FragCoord.rg).rgb;
-    setFragmentMaterial (gbufferMat.xy, gbufferMat.z);
+    const vec3 material = texelFetch (gbufferMaterials, fragment).rgb;
+    setFragmentMaterial (material.xy, material.z);
     
     // Apply lighting.
     reflectedLight = lightingPass (Q, N);
@@ -61,7 +61,7 @@ layout (index = 0) subroutine (LightingPass)
 vec3 globalLightPass (const in vec3 position, const in vec3 normal)
 {
     // Calculate the direction from the fragment to the viewer.
-    return scene.ambience + directionalLightContributions (N, viewDirection (position));
+    return scene.ambience + directionalLightContributions (normal, viewDirection (position));
 }
 
 

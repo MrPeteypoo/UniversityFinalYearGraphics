@@ -172,10 +172,13 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\FullBlock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Textures.hpp">
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\ArrayItem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\ArrayItem.hpp">
+    <ClInclude Include="source\Rendering\Renderer\GlobalConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Individual\Samplers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

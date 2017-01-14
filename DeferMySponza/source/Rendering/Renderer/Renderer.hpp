@@ -13,7 +13,6 @@
 
 
 // Personal headers.
-#include <Rendering/Composites/DrawCommands.hpp>
 #include <Rendering/Objects/Buffer.hpp>
 #include <Rendering/Objects/Sync.hpp>
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
@@ -23,6 +22,7 @@
 #include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Rendering/Renderer/Programs/Programs.hpp>
 #include <Rendering/Renderer/Uniforms/Uniforms.hpp>
+#include <Rendering/Renderer/GlobalConfig.hpp>
 
 
 /// <summary>
@@ -71,7 +71,6 @@ class Renderer final
 
     private:
 
-        constexpr static auto multiBuffering                = size_t { 5 }; //!< How much multi-buffering should be performed on dynamic buffers.
         constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 }; //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
         constexpr static auto materialsStartingTextureUnit  = GLuint { 4 }; //!< The starting texture unit for the material data.
         constexpr static auto lightVolumeCount              = size_t { 3 }; //!< How many different light volumes exist.
@@ -106,11 +105,10 @@ class Renderer final
         };
 
         struct ASyncActions;
-        
-        using PMB               = PersistentMappedBuffer<multiBuffering>;
-        using DrawCommands      = MultiDrawCommands<PMB>;
-        using SyncObjects       = std::array<Sync, multiBuffering>;
+
         using DrawableObjects   = std::vector<MeshInstances>;
+        using DrawCommands      = MultiDrawCommands<GlobalConfig::PMB>;
+        using SyncObjects       = std::array<Sync, GlobalConfig::multiBuffering>;
                 
         scene::Context*     m_scene             { };        //!< Used to render the scene from the correct viewpoint.
         Uniforms            m_uniforms          { };        //!< Uniform data which is accessible to any program that requests it.
@@ -120,11 +118,11 @@ class Renderer final
         Materials           m_materials         { };        //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
         
         DrawCommands        m_objectDrawing     { };        //!< Draw commands for dynamic objects.
-        PMB                 m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
-        PMB                 m_objectTransforms  { };        //!< Model transforms for dynamic objects.
+        GlobalConfig::PMB   m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
+        GlobalConfig::PMB   m_objectTransforms  { };        //!< Model transforms for dynamic objects.
 
         DrawCommands        m_lightDrawing      { };        //!< Draw commands for light volumes.
-        PMB                 m_lightTransforms   { };        //!< Model transforms for light volumes.
+        GlobalConfig::PMB   m_lightTransforms   { };        //!< Model transforms for light volumes.
 
         GeometryBuffer      m_gbuffer           { };        //!< The initial framebuffer where geometry is drawn to.
         LightBuffer         m_lbuffer           { };        //!< A colour buffer where lighting is applied using data stored in the gbuffer.
@@ -343,8 +341,8 @@ Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock&
 
     return 
     { 
-        { uniforms.offset, static_cast<GLsizeiptr> (countSize + lightSize * count) },
-        { matrixOffset, static_cast<GLsizeiptr> (matrixSize * count) }
+        { uniforms.offset,  static_cast<GLsizeiptr> (countSize + lightSize * count) },
+        { matrixOffset,     static_cast<GLsizeiptr> (matrixSize * count) }
     };
 }
 

@@ -313,7 +313,7 @@ bool Renderer::buildUniforms() noexcept
     }
 
     // Now we can bind the uniform blocks to each program and we're done!
-    m_uniforms.bindBlocksToProgram (m_programs);
+    m_uniforms.bindUniformsToPrograms (m_programs);
     return true;
 }
 
@@ -429,7 +429,7 @@ void Renderer::render() noexcept
         assert (false);
     }
 
-    m_partition %= multiBuffering;
+    m_partition %= GlobalConfig::multiBuffering;
 }
 
 

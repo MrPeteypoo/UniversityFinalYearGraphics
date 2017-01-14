@@ -1,6 +1,10 @@
 #include "Shaders.hpp"
 
 
+// STL headers.
+#include <iostream>
+
+
 // Personal headers.
 #include <Rendering/Renderer/Programs/HardCodedShaders.hpp>
 
@@ -17,6 +21,7 @@ bool Shaders::initialise() noexcept
     {
         for (const auto& string : strings)
         {
+            std::cout << "Compiling '" << string << "'..." << std::endl;
             success = compile (string, shaderType) && success;
         }
     };

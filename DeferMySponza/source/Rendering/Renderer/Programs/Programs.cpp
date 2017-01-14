@@ -1,6 +1,10 @@
 #include "Programs.hpp"
 
 
+// STL headers.
+#include <iostream>
+
+
 // Personal headers.
 #include <Rendering/Renderer/Programs/HardCodedShaders.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
@@ -33,8 +37,21 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     forward.attachShader (shaders.find (materialFetcherFS));
     forward.attachShader (shaders.find (reflectionModelsFS));
 
+    // Track the success of linking each program.
+    auto success = true;
+
+    const auto linkProgram = [&success] (const Program& program, const std::string& name)
+    {
+        std::cout << "Linking '" << name << "'..." << std::endl;
+        success = program.link() && success;
+    };
+
     // Check they link properly.
-    if (!(geo.link() && light.link() && forward.link()))
+    linkProgram (geo, "GeometryPass");
+    linkProgram (light, "LightingPass");
+    linkProgram (forward, "ForwardRender");
+
+    if (!success)
     {
         return false;
     }
@@ -42,7 +59,7 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     // We've successfully compiled each program.
     geometryPass    = std::move (geo);
     lightingPass    = std::move (light);
-    forward         = std::move (forward);
+    forwardRender   = std::move (forward);
 
     return true;
 }
