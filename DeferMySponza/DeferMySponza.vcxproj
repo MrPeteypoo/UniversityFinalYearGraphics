@@ -363,13 +363,14 @@
     <ClInclude Include="source\Rendering\Renderer\Programs\Shaders.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Drawing\Resolution.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Renderer.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\FullBlock.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Textures.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\FullBlock.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Textures.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\ArrayItem.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Uniforms.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\DirectionalLight.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\PointLight.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Scene.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Spotlight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\DirectionalLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\PointLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\Spotlight.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
@@ -378,12 +379,14 @@
     <ClInclude Include="source\Utility\TypeTraits.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\FullScreenQuad.vs.glsl" />
+    <None Include="shaders\ForwardRender.fs.glsl" />
+    <None Include="shaders\ReflectionModels.fs.glsl" />
+    <None Include="shaders\Lights.fs.glsl" />
+    <None Include="shaders\LightVolume.vs.glsl" />
     <None Include="shaders\Geometry.fs.glsl" />
     <None Include="shaders\Geometry.vs.glsl" />
-    <None Include="shaders\GlobalLight.fs.glsl" />
-    <None Include="shaders\PointLight.fs.glsl" />
-    <None Include="shaders\Spotlight.fs.glsl" />
+    <None Include="shaders\LightingPass.fs.glsl" />
+    <None Include="shaders\MaterialFetcher.fs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />

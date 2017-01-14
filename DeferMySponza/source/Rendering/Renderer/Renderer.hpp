@@ -71,7 +71,7 @@ class Renderer final
 
     private:
 
-        constexpr static auto multiBuffering                = size_t { 1 }; //!< How much multi-buffering should be performed on dynamic buffers.
+        constexpr static auto multiBuffering                = size_t { 5 }; //!< How much multi-buffering should be performed on dynamic buffers.
         constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 }; //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
         constexpr static auto materialsStartingTextureUnit  = GLuint { 4 }; //!< The starting texture unit for the material data.
         constexpr static auto lightVolumeCount              = size_t { 3 }; //!< How many different light volumes exist.

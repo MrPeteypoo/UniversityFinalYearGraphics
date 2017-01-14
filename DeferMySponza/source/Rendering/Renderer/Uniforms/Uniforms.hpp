@@ -10,7 +10,7 @@
 
 // Personal headers.
 #include <Rendering/Composites/PersistentMappedBuffer.hpp>
-#include <Rendering/Renderer/Uniforms/Textures.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/Textures.hpp>
 
 
 // Forward declarations.
@@ -46,7 +46,7 @@ class Uniforms final
 
         // Aliases.
         using GBuffer           = Data<Textures::GBuffer,           0>;
-        using TextureArrays     = Data<Textures::Arrays,            1>;
+        using Samplers          = Data<Textures::Samplers,          1>;
         using Scene             = Data<Scene,                       2>;
         using DirectionalLights = Data<FullBlock<DirectionalLight>, 3>;
         using PointLights       = Data<FullBlock<PointLight>,       4>;
@@ -120,7 +120,7 @@ class Uniforms final
         const BlockNames m_blockNames
         {
             { GBuffer::blockBinding,            "gbuffer" },
-            { TextureArrays::blockBinding,      "textures" },
+            { Samplers::blockBinding,           "samplers" },
             { Scene::blockBinding,              "scene" },
             { DirectionalLights::blockBinding,  "directionalLights" },
             { PointLights::blockBinding,        "pointLights" },

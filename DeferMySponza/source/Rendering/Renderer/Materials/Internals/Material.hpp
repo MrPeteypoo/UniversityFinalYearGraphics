@@ -18,8 +18,8 @@ struct Material final
     glm::uvec2  normal      { 0, 1 };   //!< The sampler index and depth to use when looking up the normal map of the material.
     glm::uvec2  unused      { 0 };      //!< Currently unused.
     
-    Material()                                      = default;
-    Material (Material&&)                           = default;
+    Material() noexcept                             = default;
+    Material (Material&&) noexcept                  = default;
     Material (const Material&) noexcept             = default;
     Material& operator= (const Material&) noexcept  = default;
     Material& operator= (Material&&) noexcept       = default;

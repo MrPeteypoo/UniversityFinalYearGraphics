@@ -9,39 +9,40 @@
 bool Programs::initialise (const Shaders& shaders) noexcept
 {
     // Create temporary objects.
-    Program geo, global, point, spot;
+    Program geo, light, forward;
 
     // Initialise each temporary object.
-    if (!(geo.initialise(), global.initialise(), point.initialise(), spot.initialise()))
+    if (!(geo.initialise() && light.initialise() && forward.initialise()))
     {
         return false;
     }
 
     // Attach the requires shaders to each program.
-    // TODO: Shader attachment is disgusting.
-    geo.attachShader (shaders.compiled.find (geometryVS)->second);
-    geo.attachShader (shaders.compiled.find (geometryFS)->second);
+    geo.attachShader (shaders.find (geometryVS));
+    geo.attachShader (shaders.find (geometryFS));
     
-    global.attachShader (shaders.compiled.find (fullScreenQuadVS)->second);
-    global.attachShader (shaders.compiled.find (globalLightFS)->second);
+    light.attachShader (shaders.find (lightVolumeVS));
+    light.attachShader (shaders.find (lightingPassFS));
+    light.attachShader (shaders.find (lightsFS));
+    light.attachShader (shaders.find (materialFetcherFS));
+    light.attachShader (shaders.find (reflectionModelsFS));
     
-    point.attachShader (shaders.compiled.find (geometryVS)->second);
-    point.attachShader (shaders.compiled.find (pointLightFS)->second);
-    
-    spot.attachShader (shaders.compiled.find (geometryVS)->second);
-    spot.attachShader (shaders.compiled.find (spotlightFS)->second);
+    forward.attachShader (shaders.find (geometryVS));
+    forward.attachShader (shaders.find (forwardRenderFS));
+    forward.attachShader (shaders.find (lightsFS));
+    forward.attachShader (shaders.find (materialFetcherFS));
+    forward.attachShader (shaders.find (reflectionModelsFS));
 
     // Check they link properly.
-    if (!(geo.link() && global.link() && point.link() && spot.link()))
+    if (!(geo.link() && light.link() && forward.link()))
     {
         return false;
     }
 
     // We've successfully compiled each program.
-    geometry    = std::move (geo);
-    globalLight = std::move (global);
-    pointLight  = std::move (point);
-    spotlight   = std::move (spot);
+    geometryPass    = std::move (geo);
+    lightingPass    = std::move (light);
+    forward         = std::move (forward);
 
     return true;
 }
@@ -49,8 +50,7 @@ bool Programs::initialise (const Shaders& shaders) noexcept
 
 void Programs::clean() noexcept
 {
-    geometry.clean();
-    globalLight.clean();
-    pointLight.clean();
-    spotlight.clean();
+    geometryPass.clean();
+    lightingPass.clean();
+    forwardRender.clean();
 }

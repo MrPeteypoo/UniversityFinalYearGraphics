@@ -120,8 +120,8 @@ class PersistentMappedBuffer final
         inline const GLbyte* pointer (const size_t partition) const noexcept
         {
             auto pointer = m_mapping + partitionOffset (partition);
-            assert (pointer != nullptr);
-            return pointer;
+            assert (pointer);
+            return partition < Partitions ? pointer : m_mapping;
         }
 
         /// <summary> 
@@ -132,10 +132,10 @@ class PersistentMappedBuffer final
         inline GLbyte* pointer (const size_t partition) noexcept
         {
             auto pointer = m_mapping + partitionOffset (partition);
-            assert (pointer != nullptr);
-            return pointer;
+            assert (pointer);
+            return partition < Partitions ? pointer : m_mapping;
         }
-
+        
         /// <summary> 
         /// Notifies OpenGL that it can find modified data at the specified range. Not required for coherent 
         /// buffers that were initialised as coherent data.
@@ -143,6 +143,13 @@ class PersistentMappedBuffer final
         /// <param name="partition"> The partition where data has changed. </param>
         /// <param name="range"> The range of data which has been modified. </param>
         void notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept;
+
+        /// <summary> 
+        /// Notifies OpenGL that it can find modified data at the specified range. Not required for coherent 
+        /// buffers that were initialised as coherent data.
+        /// </summary>
+        /// <param name="range"> The range of data which has been modified, includes partition offset. </param>
+        void notifyModifiedDataRange (const ModifiedRange& range) noexcept;
 
     private:
 
@@ -326,6 +333,16 @@ void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const Mod
     if (m_flushable)
     {
         glFlushMappedNamedBufferRange (getID(), partitionOffset (partition) + range.offset, range.length);
+    }
+}
+
+
+template <size_t Partitions>
+void PMB<Partitions>::notifyModifiedDataRange (const ModifiedRange& range) noexcept
+{
+    if (m_flushable)
+    {
+        glFlushMappedNamedBufferRange (getID(), range.offset, range.length);
     }
 }
 

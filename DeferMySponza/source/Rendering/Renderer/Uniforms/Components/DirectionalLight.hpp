@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_UNIFORMS_DIRECTIONAL_LIGHT_
-#define         _RENDERING_UNIFORMS_DIRECTIONAL_LIGHT_
+#if !defined    _RENDERING_UNIFORMS_COMPONENTS_DIRECTIONAL_LIGHT_
+#define         _RENDERING_UNIFORMS_COMPONENTS_DIRECTIONAL_LIGHT_
 
 // Engine headers.
 #include <glm/vec3.hpp>
@@ -14,7 +14,7 @@
 /// <summary>
 /// A directional light as it appears in a uniform block.
 /// </summary>
-struct DirectionalLight final
+struct DirectionalLight
 {
     public:     glm::vec3 direction { 0.f };    //!< The direction of the light in world-space.
     private:    float padding1;
@@ -26,4 +26,4 @@ struct DirectionalLight final
 // Undo the alignment.
 #pragma pack (pop)
 
-#endif // _RENDERING_UNIFORMS_DIRECTIONAL_LIGHT_
+#endif // _RENDERING_UNIFORMS_COMPONENTS_DIRECTIONAL_LIGHT_

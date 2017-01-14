@@ -11,12 +11,17 @@
 using namespace std::string_literals;
 
 
-const auto geometryVS       = "content:///Geometry.vs.glsl"s;
-const auto fullScreenQuadVS = "content:///FullScreenQuad.vs.glsl"s;
+// Vertex shaders.
+const auto geometryVS           = "content:///Geometry.vs.glsl"s;
+const auto lightVolumeVS        = "content:///LightVolume.vs.glsl"s;
 
-const auto geometryFS       = "content:///Geometry.fs.glsl"s;
-const auto globalLightFS    = "content:///GlobalLight.fs.glsl"s;
-const auto pointLightFS     = "content:///PointLight.fs.glsl"s;
-const auto spotlightFS      = "content:///Spotlight.fs.glsl"s;
+
+// Fragment shaders.
+const auto forwardRenderFS      = "content:///ForwardRender.fs.glsl"s;
+const auto geometryFS           = "content:///Geometry.fs.glsl"s;
+const auto lightingPassFS       = "content:///LightingPass.fs.glsl"s;
+const auto lightsFS             = "content:///Lights.fs.glsl"s;
+const auto materialFetcherFS    = "content:///MaterialFetcher.fs.glsl"s;
+const auto reflectionModelsFS   = "content:///ReflectionModels.fs.glsl"s;
 
 #endif // !defined _RENDERER_HARD_CODED_SHADERS_

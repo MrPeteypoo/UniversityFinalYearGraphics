@@ -67,7 +67,9 @@ bool Sync::checkIfSignalled() const noexcept
 
 bool Sync::waitForSignal (const bool flushGPU, const GLuint64 timeout) const noexcept
 {
-    return flushGPU ? waitOnCPUThread (GL_SYNC_FLUSH_COMMANDS_BIT, timeout) : waitOnCPUThread (0, timeout);
+    return flushGPU ? 
+        waitOnCPUThread (GL_SYNC_FLUSH_COMMANDS_BIT, timeout) : 
+        waitOnCPUThread (0, timeout);
 }
 
 

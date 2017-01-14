@@ -7,6 +7,10 @@
 #include <tgl/tgl.h>
 
 
+// Personal headers.
+#include <Rendering/Renderer/Uniforms/Components/ArrayItem.hpp>
+
+
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
 #pragma pack (push, 4)
 
@@ -29,13 +33,14 @@ struct Textures final
     /// <summary> 
     /// Enables the texturing objects with GL_RGB and GL_RGBA textures.
     /// </summary>
-    struct Arrays final
+    struct Samplers final
     {
-        GLint arrays[16];   //!< We use 8 arrays for GL_RGB and 8 arrays for GL_RGBA.
+        GLint            materials { 0 };   //!< A texture buffer containing every material in the scene.
+        ArrayItem<GLint> arrays[16];        //!< We use 8 arrays for GL_RGB and 8 arrays for GL_RGBA.
     };
 
-    GBuffer gbuffer;
-    Arrays  arrays;
+    GBuffer     gbuffer;
+    Samplers    samplers;
 };
 
 

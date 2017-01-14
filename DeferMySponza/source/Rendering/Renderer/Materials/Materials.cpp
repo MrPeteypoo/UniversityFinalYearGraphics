@@ -47,7 +47,7 @@ MaterialID Materials::operator[] (const scene::MaterialId sceneID) const noexcep
 
 GLuint Materials::getFirstTextureUnit() const noexcept
 {
-    return m_internals->rgb.front().getDesiredTextureUnit();
+    return m_internals->materials.texture.getDesiredTextureUnit();
 }
 
 

@@ -154,25 +154,28 @@
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Scene.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\FullBlock.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\DirectionalLight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Spotlight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\PointLight.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\Uniforms\Textures.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Objects\Sync.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\Spotlight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\PointLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\DirectionalLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\FullBlock.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Textures.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\ArrayItem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -183,16 +186,22 @@
     <None Include="shaders\Geometry.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\FullScreenQuad.vs.glsl">
+    <None Include="shaders\ForwardRender.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\GlobalLight.fs.glsl">
+    <None Include="shaders\Lights.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\PointLight.fs.glsl">
+    <None Include="shaders\MaterialFetcher.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\Spotlight.fs.glsl">
+    <None Include="shaders\ReflectionModels.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\LightingPass.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\LightVolume.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

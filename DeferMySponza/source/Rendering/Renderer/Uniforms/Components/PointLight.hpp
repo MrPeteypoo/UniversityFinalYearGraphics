@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_UNIFORMS_POINT_LIGHT_
-#define         _RENDERING_UNIFORMS_POINT_LIGHT_
+#if !defined    _RENDERING_UNIFORMS_COMPONENTS_POINT_LIGHT_
+#define         _RENDERING_UNIFORMS_COMPONENTS_POINT_LIGHT_
 
 // Engine headers.
 #include <glm/vec3.hpp>
@@ -14,7 +14,7 @@
 /// <summary> 
 /// A point light as it appears in a uniform block.
 /// </summary>
-struct PointLight final
+struct PointLight
 {
     glm::vec3   position    { 0.f };    //!< The position of the light in world-space.
     float       range       { 0.f };    //!< The range of the point light.
@@ -30,4 +30,4 @@ struct PointLight final
 // Undo the alignment.
 #pragma pack (pop)
 
-#endif // _RENDERING_UNIFORMS_POINT_LIGHT_
+#endif // _RENDERING_UNIFORMS_COMPONENTS_POINT_LIGHT_

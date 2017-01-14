@@ -5,11 +5,11 @@
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
 #include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Rendering/Renderer/Programs/Programs.hpp>
-#include <Rendering/Renderer/Uniforms/DirectionalLight.hpp>
-#include <Rendering/Renderer/Uniforms/FullBlock.hpp>
-#include <Rendering/Renderer/Uniforms/PointLight.hpp>
-#include <Rendering/Renderer/Uniforms/Scene.hpp>
-#include <Rendering/Renderer/Uniforms/Spotlight.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/Scene.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/FullBlock.hpp>
+#include <Rendering/Renderer/Uniforms/Components/DirectionalLight.hpp>
+#include <Rendering/Renderer/Uniforms/Components/PointLight.hpp>
+#include <Rendering/Renderer/Uniforms/Components/Spotlight.hpp>
 
 
 // Initialise the static int.
@@ -69,17 +69,18 @@ void Uniforms::bindBlocksToProgram (const Programs& programs) const noexcept
     const auto bindAllBlocks = [&] (const Program& program)
     {
         bindBlockToProgram (program, GBuffer::blockBinding);
-        bindBlockToProgram (program, TextureArrays::blockBinding);
+        bindBlockToProgram (program, Samplers::blockBinding);
         bindBlockToProgram (program, Scene::blockBinding);
         bindBlockToProgram (program, DirectionalLights::blockBinding);
         bindBlockToProgram (program, PointLights::blockBinding);
         bindBlockToProgram (program, Spotlights::blockBinding);
     };
-    
+    constexpr static auto bob = FullBlock<Spotlight>::max;
     bindAllBlocks (programs.geometry);
     bindAllBlocks (programs.globalLight);
     bindAllBlocks (programs.pointLight);
     bindAllBlocks (programs.spotlight);
+    bindAllBlocks (programs.forward);
 }
 
 
@@ -124,20 +125,20 @@ bool Uniforms::buildStaticBlocks (Buffer& staticBlocks,
         return false;
     }
 
-    // We need to know how many texture arrays exist.
-    auto textures       = Textures { };
-    const auto first    = materials.getFirstTextureUnit();
-    const auto last     = materials.getLastTextureUnit();
-    
     // Retrieve the gbuffer data.
+    auto textures       = Textures { };
     textures.gbuffer.positions  = gbuffer.getPositionTexture().getDesiredTextureUnit();
     textures.gbuffer.normals    = gbuffer.getNormalTexture().getDesiredTextureUnit();
     textures.gbuffer.materials  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
 
-    // Retrieve the texture array data.
-    for (auto unit = first; unit <= last; ++unit)
+    // Retrieve the sampler data.
+    const auto first    = materials.getFirstTextureUnit();
+    const auto last     = materials.getLastTextureUnit();
+
+    textures.samplers.materials = first;
+    for (auto unit = first + 1; unit <= last; ++unit)
     {
-        textures.arrays.arrays[unit - first] = unit;
+        textures.samplers.arrays[unit - first].item = unit;
     }
 
     // Now we can buffer the data.
@@ -145,7 +146,7 @@ bool Uniforms::buildStaticBlocks (Buffer& staticBlocks,
 
     // Taking into account alignment requirements we need to calculate offsets.
     const auto alignedOffset    = calculateAlignedSize<Textures::GBuffer>();
-    const auto storageSize      = alignedOffset + sizeof (Textures::Arrays);
+    const auto storageSize      = alignedOffset + sizeof (Textures::Samplers);
 
     // We don't need any client-side access to the memory so specify no flags.
     staticBlocks.allocateImmutableStorage (storageSize, 0);
@@ -153,7 +154,7 @@ bool Uniforms::buildStaticBlocks (Buffer& staticBlocks,
     // Copy the data, taking into account the alignment requirements of the UBO blocks.
     glCopyNamedBufferSubData (tempBuffer.getID(), staticBlocks.getID(), 0, 0, sizeof (Textures::GBuffer));
     glCopyNamedBufferSubData (tempBuffer.getID(), staticBlocks.getID(), 
-        sizeof (Textures::GBuffer), alignedOffset, sizeof (Textures::Arrays));
+        sizeof (Textures::GBuffer), alignedOffset, sizeof (Textures::Samplers));
 
     // Success!
     return true;
@@ -204,8 +205,8 @@ void Uniforms::rebindStaticBlocks() const noexcept
     glBindBufferRange (GL_UNIFORM_BUFFER, GBuffer::blockBinding, m_staticBlocks.getID(), 
         0, sizeof (Textures::GBuffer));
 
-    glBindBufferRange (GL_UNIFORM_BUFFER, TextureArrays::blockBinding, m_staticBlocks.getID(), 
-        calculateAlignedSize<Textures::GBuffer>(), sizeof (Textures::Arrays));
+    glBindBufferRange (GL_UNIFORM_BUFFER, Samplers::blockBinding, m_staticBlocks.getID(), 
+        calculateAlignedSize<Textures::GBuffer>(), sizeof (Textures::Samplers));
 }
 
 

@@ -12,6 +12,7 @@
 
 // Personal headers.
 #include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
+#include <Utility/Maths.hpp>
 
 
 // Namespaces.
@@ -106,7 +107,8 @@ namespace util
             // We will treat "shiny" materials as if they're conductive.
             if (sceneMaterial.isShiny())
             {
-                material.physics[conductivity] = 255;
+                const auto shininess = util::max (sceneMaterial.getShininess() / 128.f, 1.f);
+                material.physics[conductivity] = static_cast<GLubyte> (255 * shininess);
             }
 
             // The albedo should just be the diffuse colour.

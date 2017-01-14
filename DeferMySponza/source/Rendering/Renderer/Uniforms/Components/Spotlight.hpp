@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_UNIFORMS_SPOTLIGHT_
-#define         _RENDERING_UNIFORMS_SPOTLIGHT_
+#if !defined    _RENDERING_UNIFORMS_COMPONENTS_SPOTLIGHT_
+#define         _RENDERING_UNIFORMS_COMPONENTS_SPOTLIGHT_
 
 // Engine headers.
 #include <glm/vec3.hpp>
@@ -14,7 +14,7 @@
 /// <summary>
 /// A spotlight as it appears in a uniform block.
 /// </summary>
-struct Spotlight final
+struct Spotlight
 {
     glm::vec3   position        { 0.f };    //!< The position of the light in world-space.
     float       coneAngle       { 90.f };   //!< The angle of the cone.
@@ -28,10 +28,11 @@ struct Spotlight final
     float       aConstant       { 0.75f };  //!< The constant co-efficient for the attenutation formula.
     float       aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
     float       aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
+
 };
 
 
 // Undo the alignment.
 #pragma pack (pop)
 
-#endif // _RENDERING_UNIFORMS_SPOTLIGHT_
+#endif // _RENDERING_UNIFORMS_COMPONENTS_SPOTLIGHT_

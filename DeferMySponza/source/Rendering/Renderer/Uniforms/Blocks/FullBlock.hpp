@@ -3,12 +3,12 @@
 #if !defined    _RENDERING_UNIFORMS_FULL_BLOCK_
 #define         _RENDERING_UNIFORMS_FULL_BLOCK_
 
-// STL headers.
-#include <type_traits>
-
-
 // Engine headers.
 #include <tgl/tgl.h>
+
+
+// Personal headers.
+#include <Rendering/Renderer/Uniforms/Components/ArrayItem.hpp>
 
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
@@ -24,11 +24,11 @@ struct FullBlockWithoutPadding
 {
     constexpr static auto uboSize   = 16'384;
     constexpr static auto available = uboSize - sizeof (GLuint);
-    constexpr static auto max       = available / sizeof (T);
-    constexpr static auto excess    = available % sizeof (T);
+    constexpr static auto max       = available / sizeof (ArrayItem<T>);
+    constexpr static auto excess    = available % sizeof (ArrayItem<T>);
     
-    GLuint  count { 0 };    //!< The number of objects that have data written to them.
-    T       objects[max];   //!< The total number of objects that can fit into a UBO block (minus the count).
+    GLuint          count { 0 };    //!< The number of objects that have data written to them.
+    ArrayItem<T>    objects[max];   //!< The total number of objects that can fit into a UBO block (minus the count).
 };
 
 
@@ -39,6 +39,7 @@ template <typename T>
 struct FullBlockWithPadding : public FullBlockWithoutPadding<T>
 {
     private:
+
         GLbyte padding[excess]; //!< The amount of excess bytes that need to be inserted to fill the UBO block.
 };
 

@@ -17,11 +17,11 @@
 #include <Rendering/Binders/FramebufferBinder.hpp>
 #include <Rendering/Binders/VertexArrayBinder.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
-#include <Rendering/Renderer/Uniforms/DirectionalLight.hpp>
-#include <Rendering/Renderer/Uniforms/FullBlock.hpp>
-#include <Rendering/Renderer/Uniforms/PointLight.hpp>
-#include <Rendering/Renderer/Uniforms/Scene.hpp>
-#include <Rendering/Renderer/Uniforms/Spotlight.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/Scene.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/FullBlock.hpp>
+#include <Rendering/Renderer/Uniforms/Components/DirectionalLight.hpp>
+#include <Rendering/Renderer/Uniforms/Components/PointLight.hpp>
+#include <Rendering/Renderer/Uniforms/Components/Spotlight.hpp>
 #include <Utility/Algorithm.hpp>
 #include <Utility/Scene.hpp>
 
@@ -39,6 +39,29 @@ struct Renderer::ASyncActions final
     Action              sceneUniforms, lightDrawCommands, directionalLights;
     DynamicObjectAction dynamicObjects;
     LightVolumeAction   pointLights, spotLights;
+    
+    ASyncActions() noexcept                                 = default;
+    ASyncActions (ASyncActions&&) noexcept                  = default;
+    ASyncActions& operator= (ASyncActions&&) noexcept       = default;
+    ASyncActions (const ASyncActions&) noexcept             = delete;
+    ASyncActions& operator= (const ASyncActions&) noexcept  = delete;
+    ~ASyncActions()
+    {
+        const auto waitIfValid = [] (const auto& action)
+        {
+            if (action.valid())
+            {
+                action.wait();
+            }
+        };
+        
+        waitIfValid (sceneUniforms);
+        waitIfValid (lightDrawCommands);
+        waitIfValid (directionalLights);
+        waitIfValid (dynamicObjects);
+        waitIfValid (pointLights);
+        waitIfValid (spotLights);
+    }
 };
 
 
@@ -435,7 +458,8 @@ void Renderer::syncWithGPUIfNecessary() const noexcept
         {
             // We have to force a wait so we don't cause a data race.
             constexpr auto oneSecond = std::chrono::duration_cast<std::chrono::nanoseconds> (1s).count();
-            assert (sync.waitForSignal (true, oneSecond));
+            const auto result = sync.waitForSignal (true, oneSecond);
+            assert (result);
         }
     }
 }
