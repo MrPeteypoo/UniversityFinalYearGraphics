@@ -1,7 +1,7 @@
 #include "LightingVAO.hpp"
 
 
-// Namespaces
+// Namespaces.
 using namespace types;
 
 
@@ -22,8 +22,7 @@ void LightingVAO::configureAttributes() noexcept
                             3, GL_FLOAT, 0);
 
     // The model transform must be added as multiple separate columns.
-    constexpr auto isMat4x4         = sizeof (ModelTransform) % sizeof (glm::vec3) > 0;
-    constexpr auto componentCount   = GLint { isMat4x4 ? sizeof (glm::vec4) / sizeof (GLfloat) : sizeof (glm::vec3) / sizeof (GLfloat) };
+    constexpr auto componentCount   = GLint { sizeof (glm::vec3) / sizeof (GLfloat) };
     constexpr auto attributeStride  = GLuint { componentCount * sizeof (GLfloat) };
     vao.setAttributeFormat (modelTransformAttributeIndex, modelTransformAttributeCount, attributeStride,
                             VertexArray::AttributeLayout::Float32, componentCount, GL_FLOAT, 0);

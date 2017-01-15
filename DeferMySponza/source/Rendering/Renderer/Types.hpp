@@ -17,14 +17,14 @@ class PersistentMappedBuffer;
 
 namespace types
 {
-    constexpr static auto multiBuffering = size_t { 2 }; //!< How much multi-buffering should be performed on dynamic buffers.
+    constexpr static auto multiBuffering = size_t { 1 }; //!< How much multi-buffering should be performed on dynamic buffers.
 
     using PMB               = PersistentMappedBuffer<multiBuffering>;
     using VertexPosition    = glm::vec3;
     using VertexNormal      = glm::vec3;
     using VertexUV          = glm::vec2;
-    using MaterialID        = GLuint;
-    using ModelTransform    = glm::mat4;
+    using MaterialID        = GLint;
+    using ModelTransform    = glm::mat4x3;
     using Element           = GLuint;
 }
 

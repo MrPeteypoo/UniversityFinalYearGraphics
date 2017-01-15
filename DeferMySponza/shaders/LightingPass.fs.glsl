@@ -18,7 +18,7 @@ flat    in  uint    lightIndex;     //!< The index of the light volume being ren
 
 
 // External functions.
-void setFragmentMaterial (const in vec2 uvCoordinates, const in float materialID);
+void setFragmentMaterial (const in vec2 uvCoordinates, const in int materialID);
 vec3 directionalLightContributions (const in vec3 normal, const in vec3 view);
 vec3 pointLightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
 vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
@@ -47,7 +47,7 @@ void main()
 
     // The UV components are texture co-ordinates and the third component is a material ID.
     const vec3 material = texelFetch (gbufferMaterials, fragment).rgb;
-    setFragmentMaterial (material.xy, material.z);
+    setFragmentMaterial (material.xy, int (material.z));
     
     // Apply lighting.
     reflectedLight = lightingPass (Q, N);

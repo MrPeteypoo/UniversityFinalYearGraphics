@@ -12,17 +12,33 @@ struct Material
     vec3    normalMap;      //!< The normal map of the material.
 };
 
-uniform samplerBuffer   materials;      //!< Contains every material in the scene.
+uniform isamplerBuffer  materials;      //!< Contains every material in the scene.
 uniform sampler2DArray  textures[16];   //!< An array of samplers containing different texture formats.
 
-Material fetchMaterialProperties (const in vec2 uvCoordinates, const in float materialID)
+
+Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int materialID)
 {
+    // Materials can contain up to three maps, requiring two texel fetches.
+    const int texelCount    = 2;
+    const int materialIndex = materialID * texelCount;
+
+    // Now we can fetch each component.
+    const uvec4 propertiesAndAlbedo = texelFetch (materials, materialIndex);
+    const uvec2 normal              = texelFetch (materials, materialIndex + 1).xy;
+
+    // Components are array-depth pairs, this allows us to retrieve the correct map.
+    const vec3 properties   = texture (textures[propertiesAndAlbedo.x], vec3 (uvCoordinates, propertiesAndAlbedo.y)).xyz;
+    const vec4 albedo       = texture (textures[propertiesAndAlbedo.z], vec3 (uvCoordinates, propertiesAndAlbedo.w));
+    const vec3 normalMap    = texture (textures[normal.x], vec3 (uvCoordinates, normal.y)).rgb;
+
+    // Finally we can construct the material.
     Material mat;
-    mat.smoothness = 1.0;
-    mat.reflectance = 1.0;
-    mat.conductivity = 0.0;
-    mat.transparency = 1.0;
-    mat.albedo = vec3 (1.0);
-    mat.normalMap = vec3 (0.0);
+    mat.smoothness      = properties.x;
+    mat.reflectance     = properties.y;
+    mat.conductivity    = properties.z;
+
+    mat.transparency    = albedo.a;
+    mat.albedo          = albedo.rgb;
+    mat.normalMap       = normalMap;
     return mat;
 }

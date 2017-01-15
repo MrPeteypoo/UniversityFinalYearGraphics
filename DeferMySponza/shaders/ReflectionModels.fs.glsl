@@ -14,7 +14,7 @@ struct Material
 
 
 // Externals.
-Material fetchMaterialProperties (const in vec2 uvCoordinates, const in float materialID);
+Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int materialID);
 
 
 // Forward declarations.
@@ -28,7 +28,7 @@ vec3 microfacetSpecular (const in vec3 L, const in vec3 N, const in vec3 V, cons
 /**
     Sets the global instance of the material data used by reflection models.
 */
-void setFragmentMaterial (const in vec2 uvCoordinates, const in float materialID)
+void setFragmentMaterial (const in vec2 uvCoordinates, const in int materialID)
 {
     // Set our global material to the value returned by the material fetcher.
     material = fetchMaterialProperties (uvCoordinates, materialID);

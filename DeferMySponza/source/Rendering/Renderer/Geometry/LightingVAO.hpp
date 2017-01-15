@@ -22,7 +22,7 @@ struct LightingVAO final
     constexpr static auto positionAttributeIndex        = GLuint { 0 }; //!< The attribute index for vertex position.
     constexpr static auto modelTransformAttributeIndex  = GLuint { 1 }; //!< The attribute index for instanced model transforms.
 
-    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec4) }; //!< Model transforms require multiple attributes.
+    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec3) }; //!< Model transforms require multiple attributes.
     
 
     LightingVAO() noexcept                                  = default;

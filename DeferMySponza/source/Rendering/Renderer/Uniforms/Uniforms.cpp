@@ -152,8 +152,8 @@ void Uniforms::bindBlockToProgram (const Program& program, const GLuint blockBin
 
 void Uniforms::resetBlockData (const size_t partition) noexcept
 {
-    // Ask for a pointer to the specified partition.
-    auto pointer = m_blocks.pointer (partition);
+    // Ask for a pointer to the first partition.
+    auto pointer = m_blocks.pointer();
 
     // Create a helper.
     const auto setBlockData = [=] (auto& block, const auto offset)

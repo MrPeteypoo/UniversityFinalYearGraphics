@@ -33,7 +33,7 @@ struct SceneVAO final
     constexpr static auto materialIDAttributeIndex      = GLuint { 3 }; //!< The attribute index for instanced material IDs.
     constexpr static auto modelTransformAttributeIndex  = GLuint { 4 }; //!< The attribute index for instanced model transforms.
 
-    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec4) }; //!< The model transform requires multiple attributes.
+    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec3) }; //!< The model transform requires multiple attributes.
     
 
     SceneVAO() noexcept                             = default;

@@ -366,12 +366,6 @@ void Renderer::render() noexcept
     // memory.
     syncWithGPUIfNecessary();
 
-    if (m_partition != 0)
-    {
-        ++m_partition %= multiBuffering;
-        return;
-    }
-
     // Now we can set the correct partition on the uniforms.
     m_uniforms.bindBlocksToPartition (m_partition);
 
@@ -433,12 +427,12 @@ void Renderer::render() noexcept
     m_materials.unbindTextures();
 
     // Prepare for the next frame, the fence sync only allows the given parameters.
-    if (!m_syncs[m_partition++].initialise())
+    if (!m_syncs[m_partition].initialise())
     {
         assert (false);
     }
 
-    m_partition %= multiBuffering;
+    ++m_partition %= multiBuffering;
 }
 
 
@@ -467,6 +461,9 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     m_uniforms.notifyModifiedDataRange (actions.spotLights.get().uniforms);
     
     // Now we can render static objects.
+    const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
+    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
+
     m_geometry.getStaticGeometryCommands().draw();
 
     // Prepare for dynamic objects.
@@ -478,6 +475,7 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
 
     // Now we can draw!
+    activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
     m_objectDrawing.draw();
 }
 
@@ -576,10 +574,12 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     }
 
     // Now configure the draw commands and return our modified data ranges.
-    m_objectDrawing.count = static_cast<GLsizei> (m_dynamics.size());
+    const auto drawingOffset    = m_objectDrawing.buffer.partitionOffset (m_partition);
+    m_objectDrawing.start       = drawingOffset;
+    m_objectDrawing.count       = static_cast<GLsizei> (m_dynamics.size());
     return 
     { 
-        { m_objectDrawing.buffer.partitionOffset (m_partition), static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_objectDrawing.count) },
+        { drawingOffset,                                        static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_objectDrawing.count) },
         { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (ModelTransform) * baseInstance) },
         { m_objectMaterialIDs.partitionOffset (m_partition),    static_cast<GLsizeiptr> (sizeof (MaterialID) * baseInstance) }
     };
@@ -604,6 +604,7 @@ ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const
     lightCommands[2] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, quads + pointLights };
     
     // Now return the modified range.
+    m_lightDrawing.start = bufferOffset;
     m_lightDrawing.count = 3;
     return { bufferOffset, static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_lightDrawing.count) };
 }

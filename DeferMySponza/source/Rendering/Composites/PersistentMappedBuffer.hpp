@@ -117,7 +117,7 @@ class PersistentMappedBuffer final
         /// If an invalid index is given then the start of the buffer will be returned.
         /// </summary>
         /// <param name="partition"> The partition to return the pointer for. </param>
-        inline const GLbyte* pointer (const size_t partition) const noexcept
+        inline const GLbyte* pointer (const size_t partition = 0) const noexcept
         {
             auto pointer = m_mapping + partitionOffset (partition);
             assert (pointer);
@@ -129,7 +129,7 @@ class PersistentMappedBuffer final
         /// If an invalid index is given then the start of the buffer will be returned.
         /// </summary>
         /// <param name="partition"> The partition to return the pointer for. </param>
-        inline GLbyte* pointer (const size_t partition) noexcept
+        inline GLbyte* pointer (const size_t partition = 0) noexcept
         {
             auto pointer = m_mapping + partitionOffset (partition);
             assert (pointer);

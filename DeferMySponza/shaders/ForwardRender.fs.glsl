@@ -25,13 +25,13 @@ layout (std140) uniform Scene
         in  vec3    worldNormal;    //!< The fragments normal vector in world space.
         in  vec3    baryPoint;      //!< The barycentric co-ordinate of the current fragment, useful for wireframe rendering.
         in  vec2    texturePoint;   //!< The interpolated co-ordinate to use for the texture sampler.
-flat    in  uint    materialID;     //!< Used in fetching instance-specific data from the uniforms.
+flat    in  int     materialID;     //!< Used in fetching instance-specific data from the uniforms.
 
         out vec4    fragmentColour; //!< The calculated colour of the fragment.
 
 
 /// External functions.
-void setFragmentMaterial (const in vec2 uvCoordinates, const in float materialID);
+void setFragmentMaterial (const in vec2 uvCoordinates, const in int materialID);
 vec3 directionalLightContributions (const in vec3 normal, const in vec3 view);
 vec3 pointLightContributions (const in vec3 position, const in vec3 normal, const in vec3 view);
 vec3 spotlightContributions (const in vec3 position, const in vec3 normal, const in vec3 view);
@@ -51,15 +51,13 @@ void main()
     setFragmentMaterial (texturePoint, materialID);
 
     // Accumulate the contribution of every light.
-    /*const vec3 lighting =   directionalLightContributions (N, V) +
+    const vec3 lighting =   directionalLightContributions (N, V) +
                             pointLightContributions (Q, N, V) +
-                            spotlightContributions (Q, N, V);*/
-
-    const vec3 lighting = 0.5 + 0.5 * N;
+                            spotlightContributions (Q, N, V);
     
     // Put the equation together and we get...
-    const vec3 colour = lighting;
+    const vec3 colour = scene.ambience;// * lighting;
     
     // Output the calculated fragment colour.
-    fragmentColour = vec4 (colour, 1.0);
+    fragmentColour = vec4 (material.albedo, material.transparency);
 }

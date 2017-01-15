@@ -112,9 +112,12 @@ namespace util
             }
 
             // The albedo should just be the diffuse colour.
-            material.albedo[0] = static_cast<GLubyte> (255 * diffuse.x);
+            /*material.albedo[0] = static_cast<GLubyte> (255 * diffuse.x);
             material.albedo[1] = static_cast<GLubyte> (255 * diffuse.y);
-            material.albedo[2] = static_cast<GLubyte> (255 * diffuse.z);
+            material.albedo[2] = static_cast<GLubyte> (255 * diffuse.z);*/
+            material.albedo[0] = 128;
+            material.albedo[1] = 64;
+            material.albedo[2] = 12;
 
             // Now do any material specific overloading.
             switch (sceneMaterial.getId())

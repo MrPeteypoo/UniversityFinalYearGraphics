@@ -75,6 +75,15 @@ struct MultiDrawCommands final
     void draw() const noexcept
     {
         const auto binder = BufferBinder<GL_DRAW_INDIRECT_BUFFER> (buffer.getID());
+        drawWithoutBinding();
+    }
+
+    /// <summary> 
+    /// Performs a draw command with the stored offset and count values. Assumes the buffer has already been bound to
+    /// GL_DRAW_INDIRECT_BUFFER.
+    /// </summary>
+    void drawWithoutBinding() const noexcept
+    {
         glMultiDrawElementsIndirect (mode, type, (void*) start, count, 0);
     }
 };
