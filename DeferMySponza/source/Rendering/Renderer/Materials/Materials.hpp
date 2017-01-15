@@ -18,15 +18,12 @@
 
 // Personal headers.
 #include <Rendering/Renderer/Materials/Internals/Material.hpp>
+#include <Rendering/Renderer/Types.hpp>
 #include <Rendering/Objects/Texture.hpp>
 
 
 // Forward declarations.
 struct PBSMaterial;
-
-
-// Aliases.
-using MaterialID = GLuint;
 
 
 /// <summary>
@@ -49,7 +46,7 @@ class Materials final
         /// <summary> Gets the material ID associated with the scene ID given. </summary>
         /// <param name="sceneID"> The scene::MaterialId to retrieve the MaterialID for. </param>
         /// <returns> The material ID if successful, the maximum value if not found. </returns> 
-        MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
+        types::MaterialID operator[] (const scene::MaterialId sceneID) const noexcept;
 
         /// <summary> Retrieves the texture unit of the material buffer. </summary>
         GLint getMaterialTextureUnit() const noexcept;
@@ -84,7 +81,7 @@ class Materials final
 
         class Internals;
 
-        using MaterialIDs   = std::unordered_map<scene::MaterialId, MaterialID>;
+        using MaterialIDs   = std::unordered_map<scene::MaterialId, types::MaterialID>;
         using Pimpl         = std::unique_ptr<Internals>;
 
         MaterialIDs     m_materialIDs   { };    //!< Maps scene material IDs to stored GPU material IDs.

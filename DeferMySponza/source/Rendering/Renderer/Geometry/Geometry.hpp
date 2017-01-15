@@ -98,8 +98,9 @@ class Geometry final
         template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
         bool initialise (const Materials& materials, 
             const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
-            const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
-            const PMB<LightingPartitions>& lightingTransforms) noexcept;
+            const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs, 
+            const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms,
+            const PersistentMappedBuffer<LightingPartitions>& lightingTransforms) noexcept;
 
         /// <summary> Destroys every stored object and returns to a clean state. </summary>
         void clean() noexcept;
@@ -169,8 +170,9 @@ class Geometry final
 template <size_t MaterialIDPartitions, size_t TransformPartitions, size_t LightingPartitions>
 bool Geometry::initialise (const Materials& materials, 
     const std::map<scene::MeshId, std::vector<scene::Instance>>& staticInstances,
-    const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms,
-    const PMB<LightingPartitions>& lightingTransforms) noexcept
+    const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs,
+    const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms,
+    const PersistentMappedBuffer<LightingPartitions>& lightingTransforms) noexcept
 {
     // We need to create replacement objects to initialise.
     auto scene          = SceneVAO { };

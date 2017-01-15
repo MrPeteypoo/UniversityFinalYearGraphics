@@ -5,6 +5,7 @@
 
 // Personal headers.
 #include <Rendering/Objects/VertexArray.hpp>
+#include <Rendering/Renderer/Types.hpp>
 
 
 /// <summary> 
@@ -21,7 +22,7 @@ struct LightingVAO final
     constexpr static auto positionAttributeIndex        = GLuint { 0 }; //!< The attribute index for vertex position.
     constexpr static auto modelTransformAttributeIndex  = GLuint { 1 }; //!< The attribute index for instanced model transforms.
 
-    constexpr static auto modelTransformAttributeCount  = GLuint { 3 }; //!< Model transforms require three attributes.
+    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec4) }; //!< Model transforms require multiple attributes.
     
 
     LightingVAO() noexcept                                  = default;
@@ -35,7 +36,7 @@ struct LightingVAO final
     /// <summary> Attachs the given buffers to the VAO based on the compile-time indices in the class. </summary>
     template <size_t Partitions>
     void attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
-        const PMB<Partitions>& modelTransforms) noexcept;
+        const PersistentMappedBuffer<Partitions>& modelTransforms) noexcept;
 
     /// <summary> Sets the binding points and formatting of attributes in the VAO. </summary>
     void configureAttributes() noexcept;
@@ -49,13 +50,11 @@ struct LightingVAO final
 
 template <size_t Partitions>
 void LightingVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
-        const PMB<Partitions>& modelTransforms) noexcept
+        const PersistentMappedBuffer<Partitions>& modelTransforms) noexcept
 {
-    // Vertex position is stored as a vec3.
-    constexpr auto meshesStride = GLuint { sizeof (glm::vec3) };
-
-    // Model transforms are Matrix 4x3.
-    constexpr auto modelStride = GLuint { sizeof (glm::mat4x3) };
+    // Calculate our strides.
+    constexpr auto meshesStride = GLuint { sizeof (types::VertexPosition) };
+    constexpr auto modelStride  = GLuint { sizeof (ModelTransform) };
 
     // Instancing data contains one item per instance.
     constexpr auto divisor = GLuint { 1 };

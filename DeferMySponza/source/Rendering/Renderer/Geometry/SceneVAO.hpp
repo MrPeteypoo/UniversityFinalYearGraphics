@@ -3,8 +3,15 @@
 #if !defined    _RENDERING_RENDERER_GEOMETRY_SCENE_VAO_
 #define         _RENDERING_RENDERER_GEOMETRY_SCENE_VAO_
 
+// Engine headers.
+#include <glm/mat4x3.hpp>
+
+
 // Personal headers.
 #include <Rendering/Objects/VertexArray.hpp>
+#include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
+#include <Rendering/Renderer/Materials/Materials.hpp>
+#include <Rendering/Renderer/Types.hpp>
 
 
 /// <summary> 
@@ -15,8 +22,8 @@ struct SceneVAO final
     VertexArray vao { }; //!< A VAO containing all renderable meshes in the scene.
 
     constexpr static auto meshesBufferIndex             = GLuint { 0 }; //!< The binding index where the mesh buffer for all objects will be bound.
-    constexpr static auto staticTransformsBufferIndex   = GLuint { 1 }; //!< The binding index where the transform buffer for static objects will be bound.
-    constexpr static auto staticMaterialIDsBufferIndex  = GLuint { 2 }; //!< The binding index where the material IDs buffer for dynamic objects will be bound.
+    constexpr static auto staticMaterialIDsBufferIndex  = GLuint { 1 }; //!< The binding index where the material IDs buffer for dynamic objects will be bound.
+    constexpr static auto staticTransformsBufferIndex   = GLuint { 2 }; //!< The binding index where the transform buffer for static objects will be bound.
     constexpr static auto dynamicMaterialIDsBufferIndex = GLuint { 3 }; //!< The base binding index where the material IDs for dynamic objects will be bound.
     constexpr static auto dynamicTransformsBufferIndex  = GLuint { 4 }; //!< The base binding index, which will be adjusted by the amount of buffering of the material IDs buffer, where the transform buffer for dynamic objects will start being bound.
     
@@ -26,7 +33,7 @@ struct SceneVAO final
     constexpr static auto materialIDAttributeIndex      = GLuint { 3 }; //!< The attribute index for instanced material IDs.
     constexpr static auto modelTransformAttributeIndex  = GLuint { 4 }; //!< The attribute index for instanced model transforms.
 
-    constexpr static auto modelTransformAttributeCount  = GLuint { 3 }; //!< The model transform requires three attributes.
+    constexpr static auto modelTransformAttributeCount  = GLuint { sizeof (types::ModelTransform) / sizeof (glm::vec4) }; //!< The model transform requires multiple attributes.
     
 
     SceneVAO() noexcept                             = default;
@@ -41,7 +48,8 @@ struct SceneVAO final
     template <size_t MaterialIDPartitions, size_t TransformPartitions>
     void attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
         const Buffer& staticTransforms, const Buffer& staticMaterialIDs,
-        const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms) noexcept;
+        const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs, 
+        const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms) noexcept;
 
     /// <summary> Sets the binding points and formatting of attributes in the VAO. </summary>
     void configureAttributes() noexcept;
@@ -67,16 +75,13 @@ struct SceneVAO final
 template <size_t MaterialIDPartitions, size_t TransformPartitions>
 void SceneVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
     const Buffer& staticTransforms, const Buffer& staticMaterialIDs,
-    const PMB<MaterialIDPartitions>& dynamicMaterialIDs, const PMB<TransformPartitions>& dynamicTransforms) noexcept
+    const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs, 
+    const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms) noexcept
 {
-    // Position, normal and texture co-ordinates are passed for every vertex.
-    constexpr auto meshesStride = GLuint { sizeof (glm::vec3) * 2 + sizeof (glm::vec2) };
-
-    // Material ID is an integer.
-    constexpr auto materialIDStride = GLuint { sizeof (GLuint) };
-
-    // Model transforms are a 4x3 matrix.
-    constexpr auto modelStride = GLuint { sizeof (glm::mat4x3) };
+    // We need to calculate our strides.
+    constexpr auto meshesStride     = GLuint {  sizeof (Vertex) };
+    constexpr auto materialIDStride = GLuint { sizeof (types::MaterialID) };
+    constexpr auto modelStride      = GLuint { sizeof (types::ModelTransform) };
 
     // Instancing data contains one item per instance.
     constexpr auto divisor = GLuint { 1 };

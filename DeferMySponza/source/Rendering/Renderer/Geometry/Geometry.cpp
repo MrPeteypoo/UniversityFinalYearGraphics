@@ -14,8 +14,13 @@
 // Personal headers.
 #include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
 #include <Rendering/Renderer/Materials/Materials.hpp>
+#include <Rendering/Renderer/Types.hpp>
 #include <Utility/Scene.hpp>
 #include <Utility/TSL.hpp>
+
+
+// Namespace inclusions.
+using namespace types;
 
 
 Geometry::Geometry() noexcept
@@ -73,7 +78,7 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
 
     // We'll need a temporary vectors to store the vertex and element data. 
     auto vertices       = std::vector<Vertex> { };
-    auto elements       = std::vector<GLuint> { };
+    auto elements       = std::vector<Element> { };
     auto vertexCount    = size_t { 0 };
     auto elementCount   = size_t { 0 };
 
@@ -118,22 +123,26 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
 void Geometry::buildLighting (Internals& internals, Mesh& quad, Mesh& sphere, Mesh& cone) const noexcept
 {
     // Light volumes only contain a position but all shapes will be stored in the same buffer like scene meshes.
-    auto vertices = std::vector<glm::vec3> { };
-    auto elements = std::vector<GLuint> { };
+    auto vertices = std::vector<VertexPosition> { };
+    auto elements = std::vector<Element> { };
 
     // Reserve 512KiB for shape vertices and elements, this will likely be more than enough.
     constexpr auto reservation = 256'000;
-    vertices.reserve (reservation / sizeof (glm::vec3));
-    elements.reserve (reservation / sizeof (GLuint));
+    vertices.reserve (reservation / sizeof (VertexPosition));
+    elements.reserve (reservation / sizeof (Element));
 
     // Quads are very simple shapes.
-    constexpr auto quadVertices = std::array<glm::vec3, 4> 
+    constexpr auto quadVertices = std::array<VertexPosition, 4> 
     { 
-        glm::vec3 { -1, -1, 0 }, glm::vec3 { 1, -1, 0 },
-        glm::vec3 { -1,  1, 0 }, glm::vec3 { 1,  1, 0 }
+        VertexPosition { -1, -1, 0 }, VertexPosition { 1, -1, 0 },
+        VertexPosition { -1,  1, 0 }, VertexPosition { 1,  1, 0 }
     };
 
-    constexpr auto quadElements = std::array<GLuint, 6> { 0, 1, 2, 1, 3, 2 };
+    constexpr auto quadElements = std::array<Element, 6> 
+    {
+        Element { 0 }, Element { 1 }, Element { 2 },
+        Element { 1 }, Element { 3 }, Element { 2 }
+    };
 
     // Add the quad to the vectors.
     vertices.insert (std::end (vertices), std::begin (quadVertices), std::end (quadVertices));
@@ -156,7 +165,7 @@ void Geometry::fillStaticBuffers (Internals& internals, DrawCommands& drawComman
     // We'll need vectors to store each piece of data that needs buffering.
     auto commands       = std::vector<MultiDrawElementsIndirectCommand> { };
     auto materialIDs    = std::vector<MaterialID> { };
-    auto transforms     = std::vector<glm::mat4x3> { };
+    auto transforms     = std::vector<ModelTransform> { };
 
     // We can immediately reserve enough memory for the draw commands.
     commands.reserve (staticInstances.size());
@@ -176,10 +185,10 @@ void Geometry::fillStaticBuffers (Internals& internals, DrawCommands& drawComman
         // Add the draw command.
         const auto mesh = internals.sceneMeshes[meshID];
         commands.emplace_back (
-            static_cast<GLuint> (mesh.elementCount),
+            mesh.elementCount,
             static_cast<GLuint> (instances.size()),
             mesh.elementsIndex,
-            static_cast<GLuint> (mesh.verticesIndex),
+            mesh.verticesIndex,
             static_cast<GLuint> (materialIDs.size())
         );
 

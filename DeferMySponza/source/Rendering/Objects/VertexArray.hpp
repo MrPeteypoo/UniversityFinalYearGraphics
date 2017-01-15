@@ -73,7 +73,7 @@ class VertexArray final
         /// <param name="stride"> The strides to be applied to each partition. </param>
         /// <param name="divisor"> If applicable, specifies how many instances will use the same data. </param>
         template <size_t Partitions>
-        void attachPersistentMappedBuffer (const PMB<Partitions>& buffer, GLuint initialBufferIndex, 
+        void attachPersistentMappedBuffer (const PersistentMappedBuffer<Partitions>& buffer, GLuint initialBufferIndex, 
             GLsizei stride, GLuint divisor = 0) noexcept;
 
         /// <summary> Enables or disables the vertex attribute at the given index. </summary>
@@ -112,7 +112,7 @@ class VertexArray final
         /// <param name="relativeOffset"> The amount of bytes to the first element in the offsetted vertex buffer. </param>
         /// <param name="isNormalised"> Whether the data will be normalised or not. Only applies to Float32. </param>
         void setAttributeFormat (GLuint attributeIndex, AttributeLayout layout,
-            GLint size, GLenum type, GLuint relativeOffset, GLboolean isNormalised = false) noexcept;
+            GLint size, GLenum type, GLuint relativeOffset, GLboolean isNormalised = GL_FALSE) noexcept;
 
         /// <summary> 
         /// Specifies the formatting for a number of attributes starting at the given index. Relative offset will be
@@ -126,7 +126,7 @@ class VertexArray final
         /// <param name="isNormalised"> Whether the data will be normalised or not. Only applies to Float32. </param>
         void setAttributeFormat (GLuint startingIndex, GLuint count, GLuint offsetPerAttribute,
             AttributeLayout layout, GLint size, GLenum type, GLuint relativeOffset, 
-            GLboolean isNormalised = false) noexcept;
+            GLboolean isNormalised = GL_FALSE) noexcept;
 
         /// <summary> Specifies the elemnt array buffer to use when drawing with the VAO bound. </summary>
         /// <param name="elementArrayBuffer"> The buffer containing vertex element data. </param>
@@ -139,7 +139,7 @@ class VertexArray final
 
 
 template <size_t Partitions>
-void VertexArray::attachPersistentMappedBuffer (const PMB<Partitions>& buffer, GLuint initialBufferIndex, 
+void VertexArray::attachPersistentMappedBuffer (const PersistentMappedBuffer<Partitions>& buffer, GLuint initialBufferIndex, 
     GLsizei stride, GLuint divisor) noexcept
 {
     // Attach each partition separately.

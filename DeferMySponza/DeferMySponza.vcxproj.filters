@@ -88,16 +88,7 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\MyView\Internals\Material.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Renderer\Geometry\Mesh.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\MyView\Internals\UniformData.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\MyView\MyView.hpp">
@@ -175,13 +166,13 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\ArrayItem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Rendering\Renderer\GlobalConfig.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Individual\Samplers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Rendering\Binders\ProgramBinder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -258,9 +249,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Misc\MyController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\MyView\Internals\UniformData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\MyView\MyView.cpp">

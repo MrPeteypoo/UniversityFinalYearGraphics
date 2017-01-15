@@ -22,7 +22,6 @@
 #include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Rendering/Renderer/Programs/Programs.hpp>
 #include <Rendering/Renderer/Uniforms/Uniforms.hpp>
-#include <Rendering/Renderer/GlobalConfig.hpp>
 
 
 /// <summary>
@@ -107,8 +106,8 @@ class Renderer final
         struct ASyncActions;
 
         using DrawableObjects   = std::vector<MeshInstances>;
-        using DrawCommands      = MultiDrawCommands<GlobalConfig::PMB>;
-        using SyncObjects       = std::array<Sync, GlobalConfig::multiBuffering>;
+        using DrawCommands      = MultiDrawCommands<types::PMB>;
+        using SyncObjects       = std::array<Sync, types::multiBuffering>;
                 
         scene::Context*     m_scene             { };        //!< Used to render the scene from the correct viewpoint.
         Uniforms            m_uniforms          { };        //!< Uniform data which is accessible to any program that requests it.
@@ -118,11 +117,11 @@ class Renderer final
         Materials           m_materials         { };        //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
         
         DrawCommands        m_objectDrawing     { };        //!< Draw commands for dynamic objects.
-        GlobalConfig::PMB   m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
-        GlobalConfig::PMB   m_objectTransforms  { };        //!< Model transforms for dynamic objects.
+        types::PMB          m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
+        types::PMB          m_objectTransforms  { };        //!< Model transforms for dynamic objects.
 
         DrawCommands        m_lightDrawing      { };        //!< Draw commands for light volumes.
-        GlobalConfig::PMB   m_lightTransforms   { };        //!< Model transforms for light volumes.
+        types::PMB          m_lightTransforms   { };        //!< Model transforms for light volumes.
 
         GeometryBuffer      m_gbuffer           { };        //!< The initial framebuffer where geometry is drawn to.
         LightBuffer         m_lbuffer           { };        //!< A colour buffer where lighting is applied using data stored in the gbuffer.
@@ -133,7 +132,7 @@ class Renderer final
         size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
         SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
         bool                m_deferredRender    { false };   //!< Whether a deferred or forward render should be performed.
-        bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
+        bool                m_multiThreaded     { false };   //!< Whether the renderer should be multi-threaded or not.
 
     private:
 
@@ -314,7 +313,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock&
     const size_t transformOffset, const FuncA& uniFunc, const FuncB& transFunc) const noexcept
 {
     // We need the transform buffer pointer to write to.
-    auto transforms = (glm::mat4x3*) m_lightTransforms.pointer (m_partition);
+    auto transforms = (ModelTransform*) m_lightTransforms.pointer (m_partition);
 
     // Set the count and iterate through each light.
     const auto count = static_cast<GLuint> (lights.size());
@@ -333,7 +332,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock&
     // We need to know the size of the data we've written to.
     constexpr auto countSize    = sizeof (uniforms.data->count);
     constexpr auto lightSize    = sizeof (uniforms.data->objects[0]);
-    constexpr auto matrixSize   = sizeof (glm::mat4x3);
+    constexpr auto matrixSize   = sizeof (ModelTransform);
 
     // We need to take into account the partition offset and transform offset of the transform buffer.
     const auto partitionOffset  = m_lightTransforms.partitionOffset (m_partition);

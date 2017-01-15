@@ -30,6 +30,7 @@
 
 // Namespaces.
 using namespace std::chrono_literals;
+using namespace types;
 
 
 struct Renderer::ASyncActions final
@@ -232,8 +233,8 @@ bool Renderer::buildDynamicObjectBuffers() noexcept
 
     // Now we can allocate enough memory.
     const auto drawCommandSize  = static_cast<GLsizeiptr> (uniqueMeshes.size() * sizeof (MultiDrawElementsIndirectCommand));
-    const auto materialIDSize   = static_cast<GLsizeiptr> (instanceCount * sizeof (GLuint));
-    const auto transformSize    = static_cast<GLsizeiptr> (instanceCount * sizeof (glm::mat4x3));
+    const auto materialIDSize   = static_cast<GLsizeiptr> (instanceCount * sizeof (MaterialID));
+    const auto transformSize    = static_cast<GLsizeiptr> (instanceCount * sizeof (ModelTransform));
 
     // Initialise the objects with the correct memory values.
     if (!(m_objectDrawing.buffer.initialise (drawCommandSize, false, false) &&
@@ -258,7 +259,7 @@ bool Renderer::buildLightBuffers() noexcept
 
     // The final count must allow for the drawing of a full screen quad.
     const auto count            = point.size() + spot.size() + 1;
-    const auto transformSize    = static_cast<GLsizeiptr> (count * sizeof (glm::mat4x3));
+    const auto transformSize    = static_cast<GLsizeiptr> (count * sizeof (ModelTransform));
     const auto drawCommandSize  = static_cast<GLsizeiptr> (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
     
     // Now we can initialise the buffers
@@ -269,7 +270,7 @@ bool Renderer::buildLightBuffers() noexcept
     }
 
     // Finally set up the draw buffer.
-    m_lightDrawing.capacity = static_cast<GLuint> (count);
+    m_lightDrawing.capacity = static_cast<GLsizei> (count);
     m_lightDrawing.count    = 0;
     return true;
 }
@@ -365,6 +366,12 @@ void Renderer::render() noexcept
     // memory.
     syncWithGPUIfNecessary();
 
+    if (m_partition != 0)
+    {
+        ++m_partition %= multiBuffering;
+        return;
+    }
+
     // Now we can set the correct partition on the uniforms.
     m_uniforms.bindBlocksToPartition (m_partition);
 
@@ -431,7 +438,7 @@ void Renderer::render() noexcept
         assert (false);
     }
 
-    m_partition %= GlobalConfig::multiBuffering;
+    m_partition %= multiBuffering;
 }
 
 
@@ -463,7 +470,7 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     m_geometry.getStaticGeometryCommands().draw();
 
     // Prepare for dynamic objects.
-    sceneVAO.useDynamicBuffers<GlobalConfig::multiBuffering> (m_partition, m_partition);
+    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition, m_partition);
 
     const auto objectRanges = actions.dynamicObjects.get();
     m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
@@ -471,7 +478,7 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
 
     // Now we can draw!
-    //m_objectDrawing.draw();
+    m_objectDrawing.draw();
 }
 
 
@@ -522,7 +529,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
 {
     // Retrieve the necessary pointers. We also need to keep track of how many instances there are.
     auto drawCommandBuffer  = (MultiDrawElementsIndirectCommand*) m_objectDrawing.buffer.pointer (m_partition);
-    auto transformBuffer    = (glm::mat4x3*) m_objectTransforms.pointer (m_partition);
+    auto transformBuffer    = (ModelTransform*) m_objectTransforms.pointer (m_partition);
     auto materialIDBuffer   = (MaterialID*) m_objectMaterialIDs.pointer (m_partition);
     auto baseInstance       = GLuint { 0 };
 
@@ -538,7 +545,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
 
     const auto addTransform = [&] (const auto index, const scene::Instance& instance)
     {
-        transformBuffer[index]  = util::toGLM (instance.getTransformationMatrix());
+        transformBuffer[index]  = ModelTransform (util::toGLM (instance.getTransformationMatrix()));
     };
 
     const auto addMaterialID = [&] (const auto index, const scene::Instance& instance)
@@ -573,7 +580,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     return 
     { 
         { m_objectDrawing.buffer.partitionOffset (m_partition), static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_objectDrawing.count) },
-        { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (glm::mat4x3) * baseInstance) },
+        { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (ModelTransform) * baseInstance) },
         { m_objectMaterialIDs.partitionOffset (m_partition),    static_cast<GLsizeiptr> (sizeof (MaterialID) * baseInstance) }
     };
 }
@@ -624,16 +631,19 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
         uniform.intensity   = util::toGLM (scene.getIntensity());
     };
 
-    const auto transforms = [] (const scene::PointLight& scene, glm::mat4x3& transform)
+    const auto transforms = [] (const scene::PointLight& scene, ModelTransform& transform)
     {
         const auto pos      = scene.getPosition();
         const auto range    = scene.getRange();
-        transform = 
+        transform = ModelTransform
         {
-            range,  0.f,    0.f,
-            0.f,    range,  0.f,
-            0.f,    0.f,    range,
-            pos.x,  pos.y,  pos.z
+            glm::mat4x3
+            {
+                range,  0.f,    0.f,
+                0.f,    range,  0.f,
+                0.f,    0.f,    range,
+                pos.x,  pos.y,  pos.z,
+            }
         };
     };
 
@@ -663,7 +673,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
     };
 
     const auto up = util::toGLM (m_scene->getUpDirection());
-    const auto transforms = [=] (const scene::SpotLight& scene, glm::mat4x3& transform)
+    const auto transforms = [=] (const scene::SpotLight& scene, ModelTransform& transform)
     {
         const auto pos      = util::toGLM (scene.getPosition());
         const auto dir      = util::toGLM (scene.getDirection());
@@ -671,12 +681,15 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
         const auto height   = scene.getRange();
         const auto radius   = height * std::tanf (angle / 2.f);
         const auto rotation = glm::lookAt (pos, pos + dir, up);
-        const auto model    = glm::mat4x3
+        const auto model    = ModelTransform
         {
-            radius, 0.f,    0.f,
-            0.f,    height, 0.f,
-            0.f,    0.f,    radius,
-            pos.x,  pos.y,  pos.z
+            glm::mat4x3 
+            {
+                radius, 0.f,    0.f,
+                0.f,    height, 0.f,
+                0.f,    0.f,    radius,
+                pos.x,  pos.y,  pos.z,
+            }
         };
 
         transform = model * rotation;

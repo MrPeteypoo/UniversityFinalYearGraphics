@@ -18,6 +18,7 @@
 
 // Namespaces.
 using namespace std::string_literals;
+using namespace types;
 
 
 Materials::Materials() noexcept
@@ -135,7 +136,7 @@ bool Materials::generateMaterials (MaterialIDs& materialIDs, Internals& internal
             return false;
         }
 
-        materialIDs[sceneMaterial.id] = static_cast<GLuint> (materials.size());
+        materialIDs[sceneMaterial.id] = static_cast<MaterialID> (materials.size());
         materials.emplace_back (std::move (successAndMaterial.second));
     }
 

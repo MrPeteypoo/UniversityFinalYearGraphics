@@ -168,7 +168,6 @@ class PersistentMappedBuffer final
 
 
 template <size_t Partitions>
-using PMB       = PersistentMappedBuffer<Partitions>;
 using SinglePMB = PersistentMappedBuffer<1>;
 using DoublePMB = PersistentMappedBuffer<2>;
 using TriplePMB = PersistentMappedBuffer<3>;
@@ -179,14 +178,14 @@ using TriplePMB = PersistentMappedBuffer<3>;
 
 
 template <size_t Partitions>
-PMB<Partitions>::PersistentMappedBuffer (PMB<Partitions>&& move) noexcept
+PersistentMappedBuffer<Partitions>::PersistentMappedBuffer (PersistentMappedBuffer<Partitions>&& move) noexcept
 {
     *this = std::move (move);
 }
 
 
 template <size_t Partitions>
-PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
+PersistentMappedBuffer<Partitions>& PersistentMappedBuffer<Partitions>::operator= (PersistentMappedBuffer<Partitions>&& move) noexcept
 {
     if (this != &move)
     {
@@ -208,7 +207,7 @@ PMB<Partitions>& PMB<Partitions>::operator= (PMB<Partitions>&& move) noexcept
 
 
 template <size_t Partitions>
-bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bool coherent) noexcept
+bool PersistentMappedBuffer<Partitions>::initialise (const GLintptr size, const bool read, const bool coherent) noexcept
 {
     // Read can't be enabled without write permissions because the buffer contents will be undefined. Also ensure the
     // size is valid.
@@ -259,7 +258,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
 
 template <size_t Partitions>
 template <typename T>
-bool PMB<Partitions>::initialise (const T& data, const bool read, const bool write, const bool coherent) noexcept
+bool PersistentMappedBuffer<Partitions>::initialise (const T& data, const bool read, const bool write, const bool coherent) noexcept
 {
     // First of all, ensure at least read or write is enabled.
     if (!read && !write)
@@ -313,7 +312,7 @@ bool PMB<Partitions>::initialise (const T& data, const bool read, const bool wri
 
 
 template <size_t Partitions>
-void PMB<Partitions>::clean() noexcept
+void PersistentMappedBuffer<Partitions>::clean() noexcept
 {
     if (isInitialised())
     {
@@ -328,7 +327,7 @@ void PMB<Partitions>::clean() noexcept
 
 
 template <size_t Partitions>
-void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept
+void PersistentMappedBuffer<Partitions>::notifyModifiedDataRange (const size_t partition, const ModifiedRange& range) noexcept
 {
     if (m_flushable)
     {
@@ -338,7 +337,7 @@ void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const Mod
 
 
 template <size_t Partitions>
-void PMB<Partitions>::notifyModifiedDataRange (ModifiedRange range) noexcept
+void PersistentMappedBuffer<Partitions>::notifyModifiedDataRange (ModifiedRange range) noexcept
 {
     if (m_flushable)
     {
@@ -348,7 +347,7 @@ void PMB<Partitions>::notifyModifiedDataRange (ModifiedRange range) noexcept
 
 
 template <size_t Partitions>
-GLenum PMB<Partitions>::getAccessFlags (const bool read, const bool write, const bool coherent) const noexcept
+GLenum PersistentMappedBuffer<Partitions>::getAccessFlags (const bool read, const bool write, const bool coherent) const noexcept
 {
     auto access = GL_MAP_PERSISTENT_BIT;
     

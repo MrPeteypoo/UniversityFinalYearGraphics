@@ -11,7 +11,7 @@
 // Personal headers.
 #include <Rendering/Composites/PersistentMappedBuffer.hpp>
 #include <Rendering/Renderer/Uniforms/Individual/Samplers.hpp>
-#include <Rendering/Renderer/GlobalConfig.hpp>
+#include <Rendering/Renderer/Types.hpp>
 
 
 // Forward declarations.
@@ -116,7 +116,7 @@ class Uniforms final
         Spotlights          m_spot;         //!< Contains the parameters of many spotlights in the scene.
         Samplers            m_samplers;     //!< Contains the data required to set uniform samplers.
 
-        GlobalConfig::PMB   m_blocks;       //!< A multi-buffered uniform buffer object containing uniform block data.
+        types::PMB          m_blocks;       //!< A multi-buffered uniform buffer object containing uniform block data.
 
         /// <summary> Maps block binding indices to block names as found in shaders. </summary>
         const BlockNames m_blockNames

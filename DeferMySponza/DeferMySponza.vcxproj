@@ -331,14 +331,11 @@
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
-    <ClInclude Include="source\MyView\Internals\Material.hpp" />
     <ClInclude Include="source\Rendering\Binders\VertexArrayBinder.hpp" />
     <ClInclude Include="source\Rendering\Composites\PersistentMappedBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\VertexArray.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\LightingVAO.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Mesh.hpp" />
-    <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
-    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
     <ClInclude Include="source\MyView\MyView.hpp" />
     <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp" />
     <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp" />
@@ -354,7 +351,6 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\Geometry.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Internals.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\SceneVAO.hpp" />
-    <ClInclude Include="source\Rendering\Renderer\GlobalConfig.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Internals.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Material.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp" />
@@ -373,6 +369,7 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\PointLight.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Scene.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\Spotlight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Types.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
     <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
@@ -393,7 +390,6 @@
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Misc\MyController.cpp" />
-    <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
     <ClCompile Include="source\Rendering\Composites\SamplerBuffer.cpp" />
     <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
