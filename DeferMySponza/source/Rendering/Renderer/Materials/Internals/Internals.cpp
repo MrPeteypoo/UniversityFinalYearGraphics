@@ -113,9 +113,15 @@ bool Materials::Internals::areDimensionsSupported (const size_t width, const siz
 
 std::pair<GLuint, Texture2DArray*> Materials::Internals::get (const size_t components, const size_t dimensions) noexcept
 {
-    auto index = size_t { 0 };
+    auto index  = size_t { 0 };
+    auto size   = minimumDimensions;
 
-    for (auto size = minimumDimensions; size <= dimensions; size * 2, ++index) { }
+    // Determine the index of the array based on it's dimensions.
+    while (size <= dimensions)
+    {
+        size *= 2;
+        ++index;
+    }
 
     switch (components)
     {

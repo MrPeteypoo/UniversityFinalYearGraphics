@@ -25,7 +25,7 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
     auto blocks = decltype (m_blocks) { };
 
     // Ensure the buffers initialise.
-    if (!blocks.initialise (calculateDynamicBlockSize(), false, false))
+    if (!blocks.initialise (calculateBlockSize(), false, false))
     {
         return false;
     }
@@ -110,13 +110,7 @@ void Uniforms::bindBlocksToPartition (const size_t partitionIndex) noexcept
 }
 
 
-void Uniforms::notifyModifiedDataRange (const ModifiedRange& range) noexcept
-{
-    m_blocks.notifyModifiedDataRange (range);
-}
-
-
-GLintptr Uniforms::calculateDynamicBlockSize() const noexcept
+GLintptr Uniforms::calculateBlockSize() const noexcept
 {
     const auto sceneBlock       = calculateAlignedSize<decltype (m_scene.data)>();
     const auto dirLightBlock    = calculateAlignedSize<decltype (m_directional.data)>();

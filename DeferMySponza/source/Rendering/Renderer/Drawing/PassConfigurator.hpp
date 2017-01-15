@@ -4,6 +4,7 @@
 #define	        _RENDERING_PASS_CONFIGURATOR_
 
 // Engine headers.
+#include <glm/vec4.hpp>
 #include <tgl/tgl.h>
 
 
@@ -13,6 +14,9 @@
 class PassConfigurator final
 {
     public:
+
+        /// <summary> Prepares OpenGL for a forward rendering an entire frame. </summary>
+        static void forwardRender() noexcept;
 
         /// <summary> Prepares OpenGL for the geometry pass. </summary>
         static void geometryPass() noexcept;
@@ -25,7 +29,8 @@ class PassConfigurator final
 
     private:
 
-        constexpr static GLuint skyStencilValue { 128 }; //!< The stencil value representing the sky.
+        constexpr static GLuint     skyStencilValue { 128 };    //!< The stencil value representing the sky.
+        constexpr static GLfloat    tyroneBlue      { 0.25f };  //!< Ensure we use Tyrone blue for clearing! He's loves his blue!
 };
 
 #endif // _RENDERING_RENDERING_PASS_CONFIGURATOR_

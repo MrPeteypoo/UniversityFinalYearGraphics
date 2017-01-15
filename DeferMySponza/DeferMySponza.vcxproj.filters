@@ -181,6 +181,9 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Individual\Samplers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Binders\ProgramBinder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Geometry.vs.glsl">

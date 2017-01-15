@@ -80,13 +80,13 @@ class Buffer final
         }
 
         /// <summary> 
-        /// A catch-all overload where the passed object will fill the buffer.
+        /// A catch-all overload where the passed object will be used to fill the buffer
         /// </summary>
         /// <returns> The amount of allocated data. </returns>
         template <typename Data>
-        GLsizeiptr immutablyFillWith (Data& data, const GLbitfield flags = 0) noexcept
+        GLsizeiptr immutablyFillWith (const Data* data, const GLbitfield flags = 0) noexcept
         {
-            glNamedBufferStorage (m_buffer, sizeof (Data), &data, flags);
+            glNamedBufferStorage (m_buffer, sizeof (Data), data, flags);
             return sizeof (Data);
         }
 

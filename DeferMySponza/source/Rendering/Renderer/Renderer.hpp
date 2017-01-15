@@ -132,7 +132,7 @@ class Renderer final
         
         size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
         SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
-        bool                m_deferredRender    { true };   //!< Whether a deferred or forward render should be performed.
+        bool                m_deferredRender    { false };   //!< Whether a deferred or forward render should be performed.
         bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
 
     private:
@@ -186,10 +186,10 @@ class Renderer final
         void syncWithGPUIfNecessary() const noexcept;
 
         /// <summary> Performs a forward render of the entire scene. </summary>
-        void forwardRender (SceneVAO& sceneVAO, const ASyncActions& actions) noexcept;
+        void forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Performs a deferred render of the entire scene. </summary>
-        void deferredRender (SceneVAO& sceneVAO, const ASyncActions& actions, const size_t directionalLights,
+        void deferredRender (SceneVAO& sceneVAO, ASyncActions& actions, const size_t directionalLights,
             const size_t pointLights, const size_t spotlights) noexcept;
 
         /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>

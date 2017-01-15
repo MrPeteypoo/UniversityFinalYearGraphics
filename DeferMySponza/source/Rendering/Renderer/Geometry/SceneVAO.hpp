@@ -106,11 +106,11 @@ void SceneVAO::useDynamicBuffers (const size_t materialIDIndex, const size_t tra
     const auto transformPartitionIndex  = adjustedTransformIndex + transformIndex;
 
     // Material IDs require a single attribute.
-    vao.setAttributeBufferBinding (materialIDAttributeIndex, materialIDPartitionIndex);
+    vao.setAttributeBufferBinding (materialIDAttributeIndex, static_cast<GLuint> (materialIDPartitionIndex));
 
     // Model transforms are a 4x3 matrix.
     vao.setAttributeBufferBinding (modelTransformAttributeIndex, modelTransformAttributeCount,
-        transformPartitionIndex);
+        static_cast<GLuint> (transformPartitionIndex));
 }
 
 #endif // _RENDERING_RENDERER_GEOMETRY_SCENE_VAO_

@@ -121,7 +121,7 @@ namespace util
             {
                 // Orange drapes and roof.
                 case 201:
-                    material.albedoMap = "resource:///kappa.pmg"s;
+                    material.albedoMap = "resource:///kappa.png"s;
                     break;
 
                 // Do nothing my lord!

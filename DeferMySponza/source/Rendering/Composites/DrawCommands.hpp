@@ -50,12 +50,12 @@ struct MultiDrawCommands final
     BufferType  buffer      { };                    //!< A buffer containing draw commands.
     GLenum      mode        { GL_TRIANGLES };       //!< The primitive type to use for drawing.
     GLenum      type        { GL_UNSIGNED_INT };    //!< The underlying type of the element array buffer.
-    GLuint      start       { 0 };                  //!< The byte offset to the first draw command in the buffer.
+    size_t      start       { 0 };                  //!< The byte offset to the first draw command in the buffer.
     GLsizei     count       { 0 };                  //!< How many draw commands from the starting offset to call.
     GLsizei     capacity    { 0 };                  //!< The maximum capacity of the draw command buffer, useful for batching.
 
 
-    MultiDrawCommands (const GLenum mode, const GLenum type, const GLuint start, const GLsizei count, 
+    MultiDrawCommands (const GLenum mode, const GLenum type, const size_t start, const GLsizei count, 
         const GLsizei capacity) noexcept
         : mode (mode), type (type), start (start), count (count), capacity (capacity)
     {

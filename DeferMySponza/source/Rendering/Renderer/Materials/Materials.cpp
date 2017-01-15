@@ -203,7 +203,7 @@ std::pair<bool, Materials::TexturesToBuffer> Materials::openTextures (FileLocati
         const auto components   = image.componentsPerPixel();
 
         // Ensure the image loaded properly and is a valid resolution.
-        if (!image.doesContainData() && Internals::areDimensionsSupported (width, height))
+        if (!(image.doesContainData() && Internals::areDimensionsSupported (width, height)))
         {
             return result;
         }
@@ -251,28 +251,24 @@ bool Materials::bufferTextures (Internals& internals, TexturesToBuffer& textures
 
             if (textureArray)
             {
-                // Also ensure we have images to process.
-                if (imageCount != 0)
+                // Allocate enough data if the textures aren't 1x1.
+                if (dimensions != 1)
                 {
-                    // Allocate enough data if the textures aren't 1x1.
-                    if (dimensions != 1)
-                    {
-                        const auto dim      = static_cast<GLsizei> (dimensions);
-                        const auto count    = static_cast<GLsizei> (imageCount); 
-                        textureArray->allocateImmutableStorage (format, dim, dim, count, levels);
-                        textureArray->setParameter (GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                        textureArray->setParameter (GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                        textureArray->setParameter (GL_TEXTURE_WRAP_S, GL_REPEAT);
-                        textureArray->setParameter (GL_TEXTURE_WRAP_T, GL_REPEAT);
-                    }
-                    
-                    addTexturesToArray (internals, *textureArray, index, dimensions, components, images);
-                    addTexturesToArray (internals, *textureArray, index, dimensions, components, extra);
-                    extra.vector.clear();
-
-                    // Now generate mipmaps.
-                    textureArray->generateMipmap();
+                    const auto dim      = static_cast<GLsizei> (dimensions);
+                    const auto count    = static_cast<GLsizei> (imageCount); 
+                    textureArray->allocateImmutableStorage (format, dim, dim, count, levels);
+                    textureArray->setParameter (GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    textureArray->setParameter (GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    textureArray->setParameter (GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    textureArray->setParameter (GL_TEXTURE_WRAP_T, GL_REPEAT);
                 }
+                    
+                addTexturesToArray (internals, *textureArray, index, dimensions, components, images);
+                addTexturesToArray (internals, *textureArray, index, dimensions, components, extra);
+                extra.vector.clear();
+
+                // Now generate mipmaps.
+                textureArray->generateMipmap();
             }
 
             // If we don't have a texture array for this configuration then use the next.

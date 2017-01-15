@@ -149,7 +149,7 @@ class PersistentMappedBuffer final
         /// buffers that were initialised as coherent data.
         /// </summary>
         /// <param name="range"> The range of data which has been modified, includes partition offset. </param>
-        void notifyModifiedDataRange (const ModifiedRange& range) noexcept;
+        void notifyModifiedDataRange (ModifiedRange range) noexcept;
 
     private:
 
@@ -235,7 +235,7 @@ bool PMB<Partitions>::initialise (const GLintptr size, const bool read, const bo
     buffer.allocateImmutableStorage (totalSize, storageFlags);
 
     // Ensure we can map the buffer.
-    auto pointer = buffer.mapRange (0, size, access);
+    auto pointer = buffer.mapRange (0, totalSize, access);
 
     if (!pointer)
     {
@@ -338,7 +338,7 @@ void PMB<Partitions>::notifyModifiedDataRange (const size_t partition, const Mod
 
 
 template <size_t Partitions>
-void PMB<Partitions>::notifyModifiedDataRange (const ModifiedRange& range) noexcept
+void PMB<Partitions>::notifyModifiedDataRange (ModifiedRange range) noexcept
 {
     if (m_flushable)
     {

@@ -32,6 +32,7 @@ void MyView::windowViewDidStop (tygra::Window*) noexcept
 void MyView::windowViewDidReset (tygra::Window*, int width, int height) noexcept
 {
     // Reset the display resolution of the renderer.
+    m_renderer.setInternalResolution ({ width, height });
     m_renderer.setDisplayResolution ({ width, height });
 }
 

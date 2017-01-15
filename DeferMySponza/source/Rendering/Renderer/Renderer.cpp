@@ -15,7 +15,9 @@
 // Personal headers.
 #include <Rendering/Binders/BufferBinder.hpp>
 #include <Rendering/Binders/FramebufferBinder.hpp>
+#include <Rendering/Binders/ProgramBinder.hpp>
 #include <Rendering/Binders/VertexArrayBinder.hpp>
+#include <Rendering/Renderer/Drawing/PassConfigurator.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
 #include <Rendering/Renderer/Uniforms/Blocks/Scene.hpp>
 #include <Rendering/Renderer/Uniforms/Blocks/FullBlock.hpp>
@@ -415,7 +417,7 @@ void Renderer::render() noexcept
     }
 
     // Render to the screen.
-    glBlitNamedFramebuffer (m_lbuffer.getColourBuffer().getID(), 0,
+    glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
         0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
         0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
         GL_COLOR_BUFFER_BIT, GL_LINEAR);
@@ -433,16 +435,43 @@ void Renderer::render() noexcept
 }
 
 
-void Renderer::deferredRender (SceneVAO& sceneVAO, const ASyncActions& actions, 
+void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions, 
     const size_t directionalLights, const size_t pointLights, const size_t spotlights) noexcept
 {
 
 }
 
 
-void Renderer::forwardRender (SceneVAO& sceneVAO, const ASyncActions& actions) noexcept
+void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
+    // We need to use the purpose-made forward render program.
+    const auto activeProgram = ProgramBinder { m_programs.forwardRender };
 
+    // Ensure we bind the off-screen light buffer.
+    const auto activeFramebuffer = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_lbuffer.getFramebuffer() };
+
+    // Prepare the fresh frame.
+    PassConfigurator::forwardRender();
+
+    // Unfortunately forward rendering doesn't benefit from multi-threading too much so we have to synchronise early.
+    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
+    m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
+    m_uniforms.notifyModifiedDataRange (actions.pointLights.get().uniforms);
+    m_uniforms.notifyModifiedDataRange (actions.spotLights.get().uniforms);
+    
+    // Now we can render static objects.
+    m_geometry.getStaticGeometryCommands().draw();
+
+    // Prepare for dynamic objects.
+    sceneVAO.useDynamicBuffers<GlobalConfig::multiBuffering> (m_partition, m_partition);
+
+    const auto objectRanges = actions.dynamicObjects.get();
+    m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
+    m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
+    m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
+
+    // Now we can draw!
+    //m_objectDrawing.draw();
 }
 
 

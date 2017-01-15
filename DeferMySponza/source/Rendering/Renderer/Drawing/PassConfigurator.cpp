@@ -1,6 +1,30 @@
 #include "PassConfigurator.hpp"
 
 
+void PassConfigurator::forwardRender() noexcept
+{
+    // We need to perform the depth test and write the result to the buffer.
+    glEnable (GL_DEPTH_TEST);
+    glDepthMask (GL_TRUE);
+    glDepthFunc (GL_LEQUAL);
+
+    // We don't need the stencil test at all.
+    glDisable (GL_STENCIL_TEST);
+
+    // We don't need blending at all.
+    glDisable (GL_BLEND);
+
+    // Ensure we only draw the front faces of objects.
+    glEnable (GL_CULL_FACE);
+    glCullFace (GL_BACK);
+
+    // Finally clear the frame.
+    glClearDepth (GLdouble { 1 });
+    glClearColor (0.f, 0.f, tyroneBlue, 0.f);
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
 void PassConfigurator::geometryPass() noexcept
 {
     // We need to perform the depth test and write the data.
@@ -39,7 +63,7 @@ void PassConfigurator::globalLightPass() noexcept
     glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 
     // Ensure we clear the previously stored colour data.
-    glClearColor (0.f, 0.f, 0.25f, 1.f);
+    glClearColor (0.f, 0.f, tyroneBlue, 0.f);
     glClear (GL_COLOR_BUFFER_BIT);
 }
 

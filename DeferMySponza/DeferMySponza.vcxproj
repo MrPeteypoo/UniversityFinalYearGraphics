@@ -325,6 +325,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
+    <ClInclude Include="source\Rendering\Binders\ProgramBinder.hpp" />
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />

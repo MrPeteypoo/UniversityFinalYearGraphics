@@ -100,7 +100,11 @@ class Uniforms final
 
         /// <summary> Informs OpenGL that the given data range has been written to. </summary>
         /// <param name="range"> The range of the modified data. </param>
-        void notifyModifiedDataRange (const ModifiedRange& range) noexcept;
+        template <typename Range = std::enable_if_t<std::is_same<Range, ModifiedRange>::value, Range>>
+        void notifyModifiedDataRange (Range&& range) noexcept
+        {
+            m_blocks.notifyModifiedDataRange (std::forward<Range> (range));
+        }
 
     private:
 
@@ -127,8 +131,8 @@ class Uniforms final
 
     private:
 
-        /// <summary> Calculate the amount of memory to allocate for the dynamic blocks UBO. </summary>
-        GLintptr calculateDynamicBlockSize() const noexcept;
+        /// <summary> Calculate the amount of memory to allocate for the blocks UBO. </summary>
+        GLintptr calculateBlockSize() const noexcept;
 
         /// <summary> Determines the size of a type, ensuring it's aligned with a block boundary. </summary>
         template <typename T>

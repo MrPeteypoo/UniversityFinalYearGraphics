@@ -86,7 +86,7 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
     // Iterate through each mesh adding the vertices, elements and mapping to their corresponding container.
     auto mesh           = Mesh { };
     auto vertexIndex    = GLuint { 0 };
-    auto elementsIndex   = GLuint { 0 };
+    auto elementsIndex  = GLuint { 0 };
     
 	for (const auto& sceneMesh : meshes)
     {
