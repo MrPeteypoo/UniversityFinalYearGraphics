@@ -80,7 +80,7 @@ vec3 calculateReflectance (const in vec3 L, const in vec3 N, const in vec3 V, co
 */
 vec3 lambertDiffuse (const in vec3 E, const in float LDotN)
 {
-    return E * material.albedo * LDotN;
+    return material.albedo * E * LDotN;
 }
 
 
@@ -99,5 +99,5 @@ vec3 blinnPhongSpecular (const in vec3 L, const in vec3 N, const in vec3 V, cons
     const float HDotN   = max (dot (H, N), 0.0);
 
     // Finally calculate the specularity of the fragment.
-    return E * specularColour * pow (HDotN, shininess);
+    return shininess > 0.0 ? specularColour * E * pow (HDotN, shininess) : vec3 (0.0);
 }

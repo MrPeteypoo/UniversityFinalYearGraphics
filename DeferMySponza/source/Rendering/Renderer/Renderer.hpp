@@ -132,7 +132,7 @@ class Renderer final
         size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
         SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
         bool                m_deferredRender    { false };   //!< Whether a deferred or forward render should be performed.
-        bool                m_multiThreaded     { false };   //!< Whether the renderer should be multi-threaded or not.
+        bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
 
     private:
 
