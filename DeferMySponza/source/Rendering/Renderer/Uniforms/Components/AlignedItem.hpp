@@ -72,6 +72,12 @@ template <typename T>
 struct AlignedItem<T, false> final : public std::conditional_t<AlignedItemWithoutPadding<T>::unaligned == 0,
     AlignedItemWithoutPadding<T>, AlignedItemWithPadding<T>>
 {
+    AlignedItem& operator= (const T& copy) noexcept
+    {
+        T::operator= (copy);
+        return *this;
+    }
+
     AlignedItem& operator= (T&& forward) noexcept
     {
         T::operator= (std::forward<T> (forward));

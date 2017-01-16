@@ -39,7 +39,7 @@ struct Spotlight
 
 layout (std140) uniform DirectionalLights
 {
-    #define DirectionalLightsMax 341
+    #define DirectionalLightsMax 25
     
     uint                count;                          //!< How many lights exist in the scene.
     DirectionalLight    lights[DirectionalLightsMax];   //!< A collection of light data.
@@ -47,7 +47,7 @@ layout (std140) uniform DirectionalLights
 
 layout (std140) uniform PointLights
 {
-    #define PointLightsMax 292
+    #define PointLightsMax 25
     
     uint        count;                  //!< How many lights exist in the scene.
     PointLight  lights[PointLightsMax]; //!< A collection of light data.
@@ -55,7 +55,7 @@ layout (std140) uniform PointLights
 
 layout (std140) uniform Spotlights
 {
-    #define SpotlightsMax 215
+    #define SpotlightsMax 25
     
     uint        count;                  //!< How many lights exist in the scene.
     Spotlight   lights[SpotlightsMax];  //!< A collection of light data.
@@ -73,8 +73,8 @@ vec3 directionalLightContribution (const in uint index, const in vec3 normal, co
 {
     // Directional lights don't need attenuation.
     const DirectionalLight light = directionalLights.lights[index];
-    const vec3 L = -light.direction.xyz;
-    const vec3 E = light.intensity.xyz;
+    const vec3 L = -light.direction;
+    const vec3 E = light.intensity;
 
     return calculateReflectance (L, normal, view, E);
 }

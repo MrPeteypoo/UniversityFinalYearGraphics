@@ -515,9 +515,9 @@ ModifiedRange Renderer::updateSceneUniforms() noexcept
     scene.data->projection = glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), aspectRatio, 
         camera.getNearPlaneDistance(), camera.getFarPlaneDistance());
 
-    scene.data->view            = glm::lookAt (camPosition, camPosition + camDirection, upDirection);
-    scene.data->cameraPosition  = camPosition;
-    scene.data->ambience        = util::toGLM (m_scene->getAmbientLightIntensity());
+    scene.data->view        = glm::lookAt (camPosition, camPosition + camDirection, upDirection);
+    scene.data->camera      = camPosition;
+    scene.data->ambience    = util::toGLM (m_scene->getAmbientLightIntensity());
 
     return { scene.offset, sizeof (Scene) };
 }

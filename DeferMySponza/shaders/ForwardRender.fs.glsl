@@ -51,13 +51,13 @@ void main()
     setFragmentMaterial (texturePoint, materialID);
 
     // Accumulate the contribution of every light.
-    const vec3 lighting =   directionalLightContributions (N, V);/* +
+    const vec3 lighting =   directionalLightContributions (N, V) +
                             pointLightContributions (Q, N, V) +
-                            spotlightContributions (Q, N, V)*/;
+                            spotlightContributions (Q, N, V);
     
     // Put the equation together and we get...
     const vec3 colour = scene.ambience + lighting;
     
     // Output the calculated fragment colour.
-    fragmentColour = vec4 (colour, 1.0);
+    fragmentColour = vec4 (colour, material.transparency);
 }
