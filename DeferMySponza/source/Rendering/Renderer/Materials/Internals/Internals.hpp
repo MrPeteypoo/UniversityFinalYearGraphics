@@ -44,7 +44,7 @@ class Materials::Internals final
         Textures        rgb         { };    //!< Contains a 2D texture array for each supported texture resolution in the RGB format.
         Textures        rgba        { };    //!< Contains a 2D texture array for each supported texture resolution in the RGBA format.
         TextureIDs      ids         { };    //!< Maps: File location -> texture unit index & array index.
-        Counts          counts      { };    //!< Maps: Dimensions -> Counts -> number of textures.
+        Counts          counts      { };    //!< Maps: Dimensions -> Components -> number of textures.
 
 
         Internals() noexcept { }

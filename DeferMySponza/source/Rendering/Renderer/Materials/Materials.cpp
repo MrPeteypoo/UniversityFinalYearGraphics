@@ -373,13 +373,13 @@ std::pair<bool, Material> Materials::generateMaterial (Internals& internals, con
                 constexpr GLenum pixelFormats[] = { 0, GL_RED, GL_RG, GL_RGB, GL_RGBA };
 
                 // Retrieve the array.
-                const auto indexAndArray = internals.get (uniform.size(), 1);
-
-                // Add the uniform to the end of the 1x1 array.
-                auto& array = *indexAndArray.second;
-                auto& count = internals.counts[1][uniform.size()];
+                const auto indexAndArray    = internals.get (uniform.size(), 1);
+                const auto index            = indexAndArray.first;
+                auto& array                 = *indexAndArray.second;
 
                 // Ensure we aren't going over the maximum depth.
+                auto& count = internals.counts[1][uniform.size()];
+
                 if (count == Internals::getMaxArrayDepth())
                 {
                     return false;
@@ -390,7 +390,8 @@ std::pair<bool, Material> Materials::generateMaterial (Internals& internals, con
                     pixelFormats[uniform.size()], GL_UNSIGNED_BYTE, uniform.data());
 
                 // Finally add the ID.
-                internals.ids[id] = { indexAndArray.first, static_cast<GLuint> (count++) };
+                set                 = { index, static_cast<GLuint> (count++) };
+                internals.ids[id]   = set;
             }
         }
 

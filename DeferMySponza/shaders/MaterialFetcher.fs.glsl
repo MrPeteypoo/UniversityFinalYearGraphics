@@ -12,7 +12,7 @@ struct Material
     vec3    normalMap;      //!< The normal map of the material.
 };
 
-uniform isamplerBuffer  materials;      //!< Contains every material in the scene.
+uniform usamplerBuffer  materials;      //!< Contains every material in the scene.
 uniform sampler2DArray  textures[16];   //!< An array of samplers containing different texture formats.
 
 

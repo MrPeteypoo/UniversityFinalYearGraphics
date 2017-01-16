@@ -41,8 +41,8 @@ bool Materials::Internals::initialise (const GLuint startingIndex) noexcept
 
     for (GLuint i { 0 }; i < supportedResolutionCount; ++i)
     {
-        if (!rgb[i].initialise (start + i ) || 
-            !rgba[i].initialise (start + supportedResolutionCount + i))
+        if (!(rgb[i].initialise (start + i ) &&
+             rgba[i].initialise (start + supportedResolutionCount + i)))
         {
             return false;
         }
