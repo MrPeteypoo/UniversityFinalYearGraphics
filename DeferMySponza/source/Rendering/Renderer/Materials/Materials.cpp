@@ -140,7 +140,11 @@ bool Materials::generateMaterials (MaterialIDs& materialIDs, Internals& internal
         materials.emplace_back (std::move (successAndMaterial.second));
     }
 
+    // Fill the materials buffer with data.
     internals.materials.buffer.immutablyFillWith (materials);
+
+    // Now we must inform the materials buffer that it contains data.
+    internals.materials.specifyBufferFormat (GL_RGBA32UI);
     return true;
 }
 

@@ -5,3 +5,4 @@ demo
 *.user
 *.suo
 *.db
+*.nvuser

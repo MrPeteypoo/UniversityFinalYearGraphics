@@ -23,7 +23,6 @@ layout (std140) uniform Scene
 
         in  vec3    worldPosition;  //!< The fragments position vector in world space.
         in  vec3    worldNormal;    //!< The fragments normal vector in world space.
-        in  vec3    baryPoint;      //!< The barycentric co-ordinate of the current fragment, useful for wireframe rendering.
         in  vec2    texturePoint;   //!< The interpolated co-ordinate to use for the texture sampler.
 flat    in  int     materialID;     //!< Used in fetching instance-specific data from the uniforms.
 

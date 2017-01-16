@@ -5,7 +5,7 @@
 #include <utility>
 
 
-bool SamplerBuffer::initialise (const GLuint unit, const GLenum internalFormat) noexcept
+bool SamplerBuffer::initialise (const GLuint unit) noexcept
 {
     auto newTexture = TextureBuffer { };
     auto newBuffer  = Buffer { };
@@ -15,10 +15,14 @@ bool SamplerBuffer::initialise (const GLuint unit, const GLenum internalFormat) 
         return false;
     }
 
-    newTexture.setBuffer (newBuffer, internalFormat);
-
     texture = std::move (newTexture);
     buffer  = std::move (newBuffer);
 
     return true;
+}
+
+
+void SamplerBuffer::specifyBufferFormat (const GLenum internalFormat) noexcept
+{
+    texture.setBuffer (buffer, internalFormat);
 }

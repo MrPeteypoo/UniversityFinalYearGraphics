@@ -35,9 +35,8 @@ struct SamplerBuffer final
     /// failure the object will not be modified.
     /// </summary>
     /// <param name="unit"> The default texture unit for the texture object. </param>
-    /// <param name="internalFormat"> The format of the buffers data store, e.g. GL_RGBA32F. </param>
     /// <returns> Whether the initialisation succeeded. </returns>
-    bool initialise (const GLuint unit, const GLenum internalFormat) noexcept;
+    bool initialise (const GLuint unit) noexcept;
 
     /// <summary> Deletes the currently managed texture and buffer object. </summary>
     void clean() noexcept 
@@ -45,6 +44,14 @@ struct SamplerBuffer final
         texture.clean(); 
         buffer.clean(); 
     }
+
+    /// <summary> 
+    /// Attaches the stored buffer to the texture, the texture can then interpret the buffers data with the given
+    /// internal format. This must be done after the buffer has been filled with data, otherwise some drivers think
+    /// the contents are actually empty.
+    /// </summary>
+    /// <param name="internalFormat"> The format of the buffers data store, e.g. GL_RGBA32F. </param>
+    void specifyBufferFormat (const GLenum internalFormat) noexcept;
 };
 
 #endif // _RENDERING_COMPOSITES_SAMPLER_BUFFER_

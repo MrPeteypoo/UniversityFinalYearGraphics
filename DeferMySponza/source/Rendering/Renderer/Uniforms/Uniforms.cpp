@@ -83,9 +83,9 @@ void Uniforms::bindUniformsToPrograms (const Programs& programs) const noexcept
 
         // Bind the individual uniforms.
         bindSampler (program, m_samplers.gbufferPositions);
-        bindSampler (program, m_samplers.gbufferPositions);
-        bindSampler (program, m_samplers.gbufferPositions);
-        bindSampler (program, m_samplers.gbufferPositions);
+        bindSampler (program, m_samplers.gbufferNormals);
+        bindSampler (program, m_samplers.gbufferMaterials);
+        bindSampler (program, m_samplers.materials);
 
         // And finally the texture arrays.
         const auto location = glGetUniformLocation (program.getID(), m_samplers.textures.name);

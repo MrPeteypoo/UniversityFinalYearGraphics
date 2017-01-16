@@ -79,7 +79,7 @@ void SceneVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements
     const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms) noexcept
 {
     // We need to calculate our strides.
-    constexpr auto meshesStride     = GLuint {  sizeof (Vertex) };
+    constexpr auto meshesStride     = GLuint { sizeof (Vertex) };
     constexpr auto materialIDStride = GLuint { sizeof (types::MaterialID) };
     constexpr auto modelStride      = GLuint { sizeof (types::ModelTransform) };
 

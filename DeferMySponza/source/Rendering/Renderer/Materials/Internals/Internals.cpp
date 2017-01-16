@@ -32,7 +32,7 @@ bool Materials::Internals::isInitialised() const noexcept
 
 bool Materials::Internals::initialise (const GLuint startingIndex) noexcept
 {
-    if (!materials.initialise (startingIndex, GL_RGBA32UI))
+    if (!materials.initialise (startingIndex))
     {
         return false;
     }
