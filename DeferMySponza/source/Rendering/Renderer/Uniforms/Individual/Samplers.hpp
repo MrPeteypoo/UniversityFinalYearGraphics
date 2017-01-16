@@ -7,10 +7,6 @@
 #include <tgl/tgl.h>
 
 
-// Personal headers.
-#include <Rendering/Renderer/Uniforms/Components/ArrayItem.hpp>
-
-
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
 #pragma pack (push, 4)
 

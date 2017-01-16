@@ -1,7 +1,7 @@
 #pragma once
 
-#if !defined    _RENDERING_UNIFORMS_COMPONENTS_ARRAY_ITEM_
-#define         _RENDERING_UNIFORMS_COMPONENTS_ARRAY_ITEM_
+#if !defined    _RENDERING_UNIFORMS_COMPONENTS_ALIGNED_ITEM_
+#define         _RENDERING_UNIFORMS_COMPONENTS_ALIGNED_ITEM_
 
 // STL headers.
 #include <type_traits>
@@ -20,10 +20,10 @@
 /// an object and whether it will need any padding to be used in an array.
 /// </summary>
 template <typename T>
-struct ArrayItemWithoutPadding : public T
+struct AlignedItemWithoutPadding : public T
 {
     constexpr static auto alignment = sizeof (glm::vec4);
-    constexpr static auto excess    = alignment % sizeof (T);
+    constexpr static auto unaligned = sizeof (T) % alignment;
 };
 
 
@@ -32,11 +32,11 @@ struct ArrayItemWithoutPadding : public T
 /// alignment size of array items in a GLSL uniform block.
 /// </summary>
 template <typename T>
-struct ArrayItemWithPadding : public ArrayItemWithoutPadding<T>
+struct AlignedItemWithPadding : public AlignedItemWithoutPadding<T>
 {
     private:
 
-        GLbyte padding[excess]; //!< The amount of excess bytes that need to be inserted to fill the UBO block.
+        GLbyte padding[alignment - unaligned]; //!< The amount of excess bytes that need to be inserted to pad the object to an acceptible size.
 };
 
 
@@ -46,7 +46,7 @@ struct ArrayItemWithPadding : public ArrayItemWithoutPadding<T>
 template <typename T = std::enable_if_t<std::is_arithmetic<T>::value, T>>
 struct ArithmeticItem
 {
-    T item { 0 };   //!< An arithmetic object.
+    T value { 0 };   //!< An arithmetic object.  
 };
 
 /// <summary>
@@ -55,22 +55,33 @@ struct ArithmeticItem
 /// it isn't already aligned correctly.
 /// </summary>
 template <typename T, bool = std::is_arithmetic<T>::value>
-struct ArrayItem final { };
+struct AlignedItem final { };
 
 template <typename T>
-struct ArrayItem<T, true> final : public std::conditional_t<ArrayItemWithoutPadding<ArithmeticItem<T>>::excess == 0,
-    ArrayItemWithoutPadding<ArithmeticItem<T>>, ArrayItemWithPadding<ArithmeticItem<T>>>
+struct AlignedItem<T, true> final : public std::conditional_t<AlignedItemWithoutPadding<ArithmeticItem<T>>::unaligned == 0,
+    AlignedItemWithoutPadding<ArithmeticItem<T>>, AlignedItemWithPadding<ArithmeticItem<T>>>
 {
+    AlignedItem& operator= (const T val) noexcept
+    {
+        value = val;
+        return *this;
+    }
 };
 
 template <typename T>
-struct ArrayItem<T, false> final : public std::conditional_t<ArrayItemWithoutPadding<T>::excess == 0,
-    ArrayItemWithoutPadding<T>, ArrayItemWithPadding<T>>
+struct AlignedItem<T, false> final : public std::conditional_t<AlignedItemWithoutPadding<T>::unaligned == 0,
+    AlignedItemWithoutPadding<T>, AlignedItemWithPadding<T>>
 {
+    AlignedItem& operator= (T&& forward) noexcept
+    {
+        T::operator= (std::forward<T> (forward));
+
+        return *this;
+    }
 };
 
 
 // Undo the alignment.
 #pragma pack (pop)
 
-#endif // _RENDERING_UNIFORMS_COMPONENTS_ARRAY_ITEM_
+#endif // _RENDERING_UNIFORMS_COMPONENTS_ALIGNED_ITEM_

@@ -73,8 +73,8 @@ vec3 directionalLightContribution (const in uint index, const in vec3 normal, co
 {
     // Directional lights don't need attenuation.
     const DirectionalLight light = directionalLights.lights[index];
-    const vec3 L = -light.direction;
-    const vec3 E = light.intensity;
+    const vec3 L = -light.direction.xyz;
+    const vec3 E = light.intensity.xyz;
 
     return calculateReflectance (L, normal, view, E);
 }

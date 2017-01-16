@@ -613,10 +613,13 @@ ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const
 ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept
 {
     auto uniforms = m_uniforms.getWritableDirectionalLightData();
-    return processLightUniforms (uniforms, lights, [] (const scene::DirectionalLight& scene, DirectionalLight& uniform)
+    return processLightUniforms (uniforms, lights, [] (const scene::DirectionalLight& scene)
     {
-        uniform.direction = util::toGLM (scene.getDirection());
-        uniform.intensity = util::toGLM (scene.getIntensity());
+        auto light      = DirectionalLight {};
+        light.direction = util::toGLM (scene.getDirection());
+        light.intensity = util::toGLM (scene.getIntensity());
+
+        return light;
     });
 }
 
@@ -625,26 +628,26 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
             const size_t transformOffset) noexcept
 {
     // We need lambdas for translating scene to uniform information.
-    const auto uniforms = [] (const scene::PointLight& scene, PointLight& uniform)
+    const auto uniforms = [] (const scene::PointLight& scene)
     {
-        uniform.position    = util::toGLM (scene.getPosition());
-        uniform.range       = scene.getRange();
-        uniform.intensity   = util::toGLM (scene.getIntensity());
+        auto light      = PointLight { };
+        light.position  = util::toGLM (scene.getPosition());
+        light.range     = scene.getRange();
+        light.intensity = util::toGLM (scene.getIntensity());
+
+        return light;
     };
 
-    const auto transforms = [] (const scene::PointLight& scene, ModelTransform& transform)
+    const auto transforms = [] (const scene::PointLight& scene)
     {
         const auto pos      = scene.getPosition();
         const auto range    = scene.getRange();
-        transform = ModelTransform
+        return ModelTransform
         {
-            glm::mat4x3
-            {
-                range,  0.f,    0.f,
-                0.f,    range,  0.f,
-                0.f,    0.f,    range,
-                pos.x,  pos.y,  pos.z,
-            }
+            range,  0.f,    0.f,
+            0.f,    range,  0.f,
+            0.f,    0.f,    range,
+            pos.x,  pos.y,  pos.z,
         };
     };
 
@@ -664,17 +667,20 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
             const size_t transformOffset) noexcept
 {
     // We need lambdas for translating scene to uniform information.
-    const auto uniforms = [] (const scene::SpotLight& scene, Spotlight& uniform)
+    const auto uniforms = [] (const scene::SpotLight& scene)
     {
-        uniform.position    = util::toGLM (scene.getPosition());
-        uniform.coneAngle   = scene.getConeAngleDegrees();
-        uniform.direction   = util::toGLM (scene.getDirection());
-        uniform.range       = scene.getRange();
-        uniform.intensity   = util::toGLM (scene.getIntensity());
+        auto light      = Spotlight { };
+        light.position  = util::toGLM (scene.getPosition());
+        light.coneAngle = scene.getConeAngleDegrees();
+        light.direction = util::toGLM (scene.getDirection());
+        light.range     = scene.getRange();
+        light.intensity = util::toGLM (scene.getIntensity());
+
+        return light;
     };
 
     const auto up = util::toGLM (m_scene->getUpDirection());
-    const auto transforms = [=] (const scene::SpotLight& scene, ModelTransform& transform)
+    const auto transforms = [=] (const scene::SpotLight& scene)
     {
         const auto pos      = util::toGLM (scene.getPosition());
         const auto dir      = util::toGLM (scene.getDirection());
@@ -682,18 +688,14 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
         const auto height   = scene.getRange();
         const auto radius   = height * std::tanf (angle / 2.f);
         const auto rotation = glm::lookAt (pos, pos + dir, up);
-        const auto model    = ModelTransform
-        {
-            glm::mat4x3 
-            {
-                radius, 0.f,    0.f,
-                0.f,    height, 0.f,
-                0.f,    0.f,    radius,
-                pos.x,  pos.y,  pos.z,
-            }
-        };
 
-        transform = model * rotation;
+        return ModelTransform
+        {
+            radius, 0.f,    0.f,
+            0.f,    height, 0.f,
+            0.f,    0.f,    radius,
+            pos.x,  pos.y,  pos.z,
+        } * rotation;
     };
 
     // Only construct transforms if we're going to be using them for deferred rendering.

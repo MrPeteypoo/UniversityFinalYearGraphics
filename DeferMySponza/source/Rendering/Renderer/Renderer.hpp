@@ -294,10 +294,7 @@ ModifiedRange Renderer::processLightUniforms (UniformBlock& uniforms, const Ligh
 
     for (GLuint i { 0 }; i < count; ++i)
     {
-        auto& sceneLight    = lights[i];
-        auto& uniformLight  = uniforms.data->objects[i];
-
-        func (sceneLight, uniformLight);
+        uniforms.data->objects[i] = func (lights[i]);
     }
 
     // We need to know the size of the data we've written to.
@@ -321,12 +318,9 @@ Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock&
 
     for (GLuint i { 0 }; i < count; ++i)
     {
-        const auto& sceneLight  = lights[i];
-        auto& uniformLight      = uniforms.data->objects[i];
-        auto& transform         = transforms[transformOffset + i];
-
-        uniFunc (sceneLight, uniformLight);
-        transFunc (sceneLight, transform);
+        const auto& sceneLight          = lights[i];
+        uniforms.data->objects[i]       = uniFunc (sceneLight);
+        transforms[transformOffset + i] = transFunc (sceneLight);
     }
 
     // We need to know the size of the data we've written to.

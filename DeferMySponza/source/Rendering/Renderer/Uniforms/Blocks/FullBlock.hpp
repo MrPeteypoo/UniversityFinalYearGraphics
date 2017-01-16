@@ -8,7 +8,7 @@
 
 
 // Personal headers.
-#include <Rendering/Renderer/Uniforms/Components/ArrayItem.hpp>
+#include <Rendering/Renderer/Uniforms/Components/AlignedItem.hpp>
 
 
 // We'll manage the data alignment by enforcing 4-byte alignment for all types.
@@ -21,14 +21,15 @@
 /// </summary>
 template <typename T>
 struct FullBlockWithoutPadding
-{
+{   
+    using CountType = AlignedItem<GLuint>;
     constexpr static auto uboSize   = 16'384;
-    constexpr static auto available = uboSize - sizeof (GLuint);
-    constexpr static auto max       = available / sizeof (ArrayItem<T>);
-    constexpr static auto excess    = available % sizeof (ArrayItem<T>);
+    constexpr static auto available = uboSize - sizeof (CountType);
+    constexpr static auto max       = available / sizeof (AlignedItem<T>);
+    constexpr static auto excess    = available % sizeof (AlignedItem<T>);
     
-    GLuint          count { 0 };    //!< The number of objects that have data written to them.
-    ArrayItem<T>    objects[max];   //!< The total number of objects that can fit into a UBO block (minus the count).
+    CountType       count;          //!< The number of objects that have data written to them.
+    AlignedItem<T>  objects[max];   //!< The total number of objects that can fit into a UBO block (minus the count).
 };
 
 
