@@ -80,7 +80,7 @@ void Materials::Internals::bind() const noexcept
         glBindTextureUnit (rgbTexture.getDesiredTextureUnit(), rgbTexture.getID());
                 
         const auto& rgbaTexture = rgba[i];
-        glBindTextureUnit (rgbTexture.getDesiredTextureUnit(), rgbTexture.getID());
+        glBindTextureUnit (rgbaTexture.getDesiredTextureUnit(), rgbaTexture.getID());
     }
 }
 
