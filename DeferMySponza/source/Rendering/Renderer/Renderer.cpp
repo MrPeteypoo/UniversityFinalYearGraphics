@@ -257,11 +257,12 @@ bool Renderer::buildLightBuffers() noexcept
     // We need to count the amount of lights that exist.
     const auto& point   = m_scene->getAllPointLights();
     const auto& spot    = m_scene->getAllSpotLights();
-
-    // The final count must allow for the drawing of a full screen quad.
-    const auto count            = point.size() + spot.size() + 1;
-    const auto transformSize    = static_cast<GLsizeiptr> (count * sizeof (ModelTransform));
-    const auto drawCommandSize  = static_cast<GLsizeiptr> (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
+    
+    // Finally determine the size of the buffers.
+    constexpr auto lightVolumeCount = size_t { 2 }; 
+    const auto count                = point.size() + spot.size();
+    const auto transformSize        = static_cast<GLsizeiptr> (count * sizeof (ModelTransform));
+    const auto drawCommandSize      = static_cast<GLsizeiptr> (lightVolumeCount * sizeof (MultiDrawElementsIndirectCommand));
     
     // Now we can initialise the buffers
     if (!(m_lightDrawing.buffer.initialise (drawCommandSize, false, false) && 
@@ -271,8 +272,8 @@ bool Renderer::buildLightBuffers() noexcept
     }
 
     // Finally set up the draw buffer.
-    m_lightDrawing.capacity = static_cast<GLsizei> (count);
-    m_lightDrawing.count    = 0;
+    m_lightDrawing.capacity = static_cast<GLsizei> (lightVolumeCount);
+    m_lightDrawing.count    = 1;
     return true;
 }
 
@@ -499,24 +500,32 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     const auto gbufferNormals   = TextureBinder (m_gbuffer.getNormalTexture());
     const auto gbufferMaterials = TextureBinder (m_gbuffer.getMaterialTexture());
 
-    // Now all we need is the light commands and directional light data threads to complete.
-    m_lightDrawing.buffer.notifyModifiedDataRange (actions.lightDrawCommands.get());
+    // Now all we need is for the directional light data thread to complete.
     m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
 
     // Finally draw a full-screen triangle and global lighting will be applied.
     glDrawArrays (GL_TRIANGLES, 0, FullScreenTriangleVAO::vertexCount);
 
-    // Move on to point lights.
+    // Move on to point llights. This will require binding a different program, VAO and indirect buffer.
+    activeProgram.bind (m_programs.lightingPass);
+    activeIndirectBuffer.bind (m_lightDrawing.buffer.getID());
+
+    auto& lightingVAO = m_geometry.getLightingVAO();
+    VertexArrayBinder::bind (lightingVAO.vao);
+    lightingVAO.useTransformPartition (m_partition);
+
+    // Configure OpenGL and the new program for usage.
     PassConfigurator::lightVolumePass();
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::pointLightSubroutine);
+
+    // Update the draw commands, uniforms and transforms.
+    m_lightDrawing.buffer.notifyModifiedDataRange (actions.lightDrawCommands.get());
 
     const auto pointLightData = actions.pointLights.get();
     m_uniforms.notifyModifiedDataRange (pointLightData.uniforms);
     m_lightTransforms.notifyModifiedDataRange (pointLightData.transforms);
 
-    // Draw the point lights.
-    activeIndirectBuffer.bind (m_lightDrawing.buffer.getID());
-    m_lightDrawing.setOffset (0, 1);
+    // Now draw the point lights.
     m_lightDrawing.drawWithoutBinding();
 
     // And finally spotlights.
@@ -527,7 +536,7 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     m_lightTransforms.notifyModifiedDataRange (spotlightData.transforms);
 
     // Draw the spotlights.
-    m_lightDrawing.setOffset (sizeof (MultiDrawElementsIndirectCommand), 1);
+    m_lightDrawing.incrementOffset();
     m_lightDrawing.drawWithoutBinding();
 }
 
@@ -599,16 +608,16 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     auto drawCommandBuffer  = (MultiDrawElementsIndirectCommand*) m_objectDrawing.buffer.pointer (m_partition);
     auto transformBuffer    = (ModelTransform*) m_objectTransforms.pointer (m_partition);
     auto materialIDBuffer   = (MaterialID*) m_objectMaterialIDs.pointer (m_partition);
-    auto baseInstance       = GLuint { 0 };
+    auto instanceCount      = GLuint { 0 };
 
     // Create lambda functions to update the data.
     const auto addDrawCommand = [&] (const auto index, const Mesh& mesh, const MeshInstances::Instances& instances)
     {
-        const auto instanceCount = static_cast<GLuint> (instances.size());
-        drawCommandBuffer[index] = { mesh.elementCount, instanceCount, mesh.elementsIndex, mesh.verticesIndex, baseInstance };
+        const auto count = static_cast<GLuint> (instances.size());
+        drawCommandBuffer[index] = { mesh.elementCount, instanceCount, mesh.elementsIndex, mesh.verticesIndex, instanceCount };
 
         // Ensure we increment the base instance.
-        baseInstance += instanceCount;
+        instanceCount += count;
     };
 
     const auto addTransform = [&] (const auto index, const scene::Instance& instance)
@@ -650,8 +659,8 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     return 
     { 
         { drawingOffset,                                        static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_objectDrawing.count) },
-        { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (ModelTransform) * baseInstance) },
-        { m_objectMaterialIDs.partitionOffset (m_partition),    static_cast<GLsizeiptr> (sizeof (MaterialID) * baseInstance) }
+        { m_objectTransforms.partitionOffset (m_partition),     static_cast<GLsizeiptr> (sizeof (ModelTransform) * instanceCount) },
+        { m_objectMaterialIDs.partitionOffset (m_partition),    static_cast<GLsizeiptr> (sizeof (MaterialID) * instanceCount) }
     };
 }
 
@@ -669,10 +678,10 @@ ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const
     // Finally add each draw command for the light volumes.
     lightCommands[0] = { sphere.elementCount, pointLights, sphere.elementsIndex, sphere.verticesIndex, 0 };
     lightCommands[1] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, pointLights };
-    
+
     // Now return the modified range.
     const auto modifiedCommands = 2;
-
+    m_lightDrawing.start = bufferOffset;
     return { bufferOffset, static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * modifiedCommands) };
 }
 
@@ -753,14 +762,14 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
         const auto angle    = scene.getConeAngleDegrees();
         const auto height   = scene.getRange();
         const auto radius   = height * std::tanf (angle / 2.f);
-        const auto rotation = glm::lookAt (pos, pos + dir, up);
+        const auto rotation = glm::lookAt (glm::vec3 (0.0), -dir, up);
 
         return ModelTransform
         {
-            radius, 0.f,    0.f,
-            0.f,    height, 0.f,
-            0.f,    0.f,    radius,
-            pos.x,  pos.y,  pos.z,
+            1.f,    0.f,    0.f,
+            0.f,    1.f,    0.f,
+            0.f,    0.f,    1.f,
+            pos.x,  pos.y,  pos.z
         } * rotation;
     };
 

@@ -87,11 +87,10 @@ struct MultiDrawCommands final
         glMultiDrawElementsIndirect (mode, type, (void*) start, count, 0);
     }
 
-    /// <summary> Configures the draw call to use a subset of data. </summary>
-    void setOffset (const size_t startInBytes, const GLsizei commandCount) noexcept
+    /// <summary> Increments the start of the command buffer by the given number of commands. </summary>
+    void incrementOffset (const size_t numberOfCommands = 1) noexcept
     {
-        start = startInBytes;
-        count = commandCount;
+        start += sizeof (MultiDrawElementsIndirectCommand) * numberOfCommands;
     }
 };
 

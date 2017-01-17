@@ -71,6 +71,9 @@ class Geometry final
         /// <summary> Gets the vertex array object containing light volume data. </summary>
         inline const LightingVAO& getLightingVAO() const noexcept               { return m_lighting; }
 
+        /// <summary> Gets the vertex array object containing light volume data. </summary>
+        inline LightingVAO& getLightingVAO() noexcept                           { return m_lighting; }
+
         /// <summary> Retrieves the command buffer filled with commands to draw static geometry. </summary>
         inline const DrawCommands& getStaticGeometryCommands() const noexcept   { return m_drawCommands; }
 

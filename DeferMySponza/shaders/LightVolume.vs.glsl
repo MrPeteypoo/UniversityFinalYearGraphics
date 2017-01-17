@@ -28,5 +28,5 @@ void main()
     const mat4 projectionViewModel  = scene.projection * scene.view * mat4 (model);
 
     // Place the vertex in the correct position on-screen.
-    gl_Position = homogeneousPosition;
+    gl_Position = projectionViewModel * homogeneousPosition;
 }

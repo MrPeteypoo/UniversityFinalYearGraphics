@@ -3,6 +3,11 @@
 
 // STL headers.
 #include <algorithm>
+#include <numeric>
+
+
+// Personal headers.
+#include <Rendering/Renderer/Types.hpp>
 
 
 namespace util
@@ -20,7 +25,6 @@ namespace util
         // Modify the mesh first.
         meshBeingAdded.verticesIndex    = static_cast<GLuint> (vertices.size());
         meshBeingAdded.elementsIndex    = static_cast<GLuint> (elements.size());
-        meshBeingAdded.elementCount     = static_cast<GLuint> (elementCount);
 
         // Add each position.
         std::for_each (shapeVertices, shapeVertices + vertexCount, 
@@ -28,6 +32,15 @@ namespace util
 
         // Add each element.
         std::for_each (shapeElements, shapeElements + elementCount,
-            [&] (const auto element) { elements.push_back (static_cast<GLuint> (element)); });
+            [&] (const auto element) 
+        { 
+            if (element != -1)
+            {
+                elements.push_back (static_cast<types::Element> (element));
+            } 
+        });
+
+        // Now set the final element count.
+        meshBeingAdded.elementCount = static_cast<GLuint> (elements.size() - meshBeingAdded.elementsIndex);
     }
 }

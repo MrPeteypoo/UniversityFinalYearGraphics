@@ -125,9 +125,9 @@ void Geometry::buildFullScreenTriangle (Internals& internals) const noexcept
 {
     const auto positions = std::vector<glm::vec2> 
     { 
-        glm::vec2 { 0.f, 0.f }, 
-        glm::vec2 { 0.f, 2.f }, 
-        glm::vec2 { 2, 0 } 
+        glm::vec2 { -2,  4 }, 
+        glm::vec2 {  4, -2 }, 
+        glm::vec2 { -2, -2 } 
     };
 
     internals.buffers[internals.triangleVerticesIndex].immutablyFillWith (positions);

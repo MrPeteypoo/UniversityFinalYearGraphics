@@ -40,6 +40,10 @@ struct LightingVAO final
 
     /// <summary> Sets the binding points and formatting of attributes in the VAO. </summary>
     void configureAttributes() noexcept;
+
+    /// <summary> Configures the instanced attributes to retrieve data from the given partition. </summary>
+    /// <param name="materialIDIndex"> The partition of the transform buffer to use. </param>
+    void useTransformPartition (const size_t partition) noexcept;
 };
 
 

@@ -74,8 +74,8 @@ void PassConfigurator::globalLightPass() noexcept
 void PassConfigurator::lightVolumePass() noexcept
 {
     // We need culling again for the light volumes.
-    glEnable (GL_CULL_FACE);
-    glCullFace (GL_FRONT);
+    glDisable (GL_CULL_FACE);
+    //glCullFace (GL_FRONT);
 
     // We use blending to add the extra lighting to the scene.
     glEnable (GL_BLEND);

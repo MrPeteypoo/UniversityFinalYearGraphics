@@ -27,3 +27,14 @@ void LightingVAO::configureAttributes() noexcept
     vao.setAttributeFormat (modelTransformAttributeIndex, modelTransformAttributeCount, attributeStride,
                             VertexArray::AttributeLayout::Float32, componentCount, GL_FLOAT, 0);
 }
+
+
+void LightingVAO::useTransformPartition (const size_t partition) noexcept
+{
+    // Now we can calculate the correct buffer index.
+    const auto transformPartitionIndex  = modelTransformsBufferIndex + partition;
+
+    // Model transforms are a 4x3 matrix.
+    vao.setAttributeBufferBinding (modelTransformAttributeIndex, modelTransformAttributeCount,
+        static_cast<GLuint> (transformPartitionIndex));
+}
