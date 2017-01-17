@@ -16,13 +16,14 @@
 /// </summary>
 struct Geometry::Internals final
 {
-    constexpr static auto   sceneVerticesIndex  = size_t { 0 },             //!< The index of the scene vertices buffer.
-                            sceneElementsIndex  = sceneVerticesIndex + 1,   //!< The index of the scene elements buffer.
-                            transformsIndex     = sceneElementsIndex + 1,   //!< The index of the transforms buffer.
-                            materialIDsIndex    = transformsIndex + 1,      //!< The index of the material IDs buffer.
-                            lightVerticesIndex  = materialIDsIndex + 1,     //!< The index of the light vertices buffer.
-                            lightElementsIndex  = lightVerticesIndex + 1,   //!< The index of the light elements buffer.
-                            bufferCount         = lightElementsIndex + 1;   //!< The total number of stored buffers.
+    constexpr static auto   sceneVerticesIndex      = size_t { 0 },                 //!< The index of the scene vertices buffer.
+                            sceneElementsIndex      = sceneVerticesIndex + 1,       //!< The index of the scene elements buffer.
+                            transformsIndex         = sceneElementsIndex + 1,       //!< The index of the transforms buffer.
+                            materialIDsIndex        = transformsIndex + 1,          //!< The index of the material IDs buffer.
+                            lightVerticesIndex      = materialIDsIndex + 1,         //!< The index of the light vertices buffer.
+                            lightElementsIndex      = lightVerticesIndex + 1,       //!< The index of the light elements buffer.
+                            triangleVerticesIndex   = lightElementsIndex + 1,       //!< The index of the full screen triangle vertices.
+                            bufferCount             = triangleVerticesIndex + 1;    //!< The total number of stored buffers.
 
     using Meshes    = std::unordered_map<scene::MeshId, Mesh>;
     using Buffers   = std::array<Buffer, bufferCount>;
@@ -30,12 +31,14 @@ struct Geometry::Internals final
     Meshes  sceneMeshes { };    //!< A list of mesh data for buffered scene meshes.
     Buffers buffers     { };    //!< Contains pretty much every static buffer for scene and lighting geometry.
     
+
     Internals()                                         = default;
     Internals (Internals&&)                             = default;
     Internals (const Internals&) noexcept               = default;
     Internals& operator= (const Internals&) noexcept    = default;
     Internals& operator= (Internals&&) noexcept         = default;
     ~Internals()                                        = default;
+
 
     bool isInitialised() const noexcept 
     {

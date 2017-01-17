@@ -58,6 +58,9 @@ void PassConfigurator::globalLightPass() noexcept
     glDisable (GL_DEPTH_TEST);
     glDepthMask (GL_FALSE);
 
+    // We need to disable culling for the full-screen quad.
+    glDisable (GL_CULL_FACE);
+
     // We should ignore the background and only shade geometry.
     glStencilFunc (GL_NOTEQUAL, skyStencilValue, ~0);
     glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
@@ -70,6 +73,10 @@ void PassConfigurator::globalLightPass() noexcept
 
 void PassConfigurator::lightVolumePass() noexcept
 {
+    // We need culling again for the light volumes.
+    glEnable (GL_CULL_FACE);
+    glCullFace (GL_FRONT);
+
     // We use blending to add the extra lighting to the scene.
     glEnable (GL_BLEND);
     glBlendFunc (GL_ONE, GL_ONE);

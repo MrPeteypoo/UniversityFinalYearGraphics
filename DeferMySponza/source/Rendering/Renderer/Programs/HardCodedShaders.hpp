@@ -13,6 +13,7 @@ using namespace std::string_literals;
 
 // Vertex shaders.
 const auto geometryVS           = "content:///Geometry.vs.glsl"s;
+const auto fullScreenTriangleVS = "content:///FullScreenTriangle.vs.glsl"s;
 const auto lightVolumeVS        = "content:///LightVolume.vs.glsl"s;
 
 
@@ -24,7 +25,7 @@ const auto lightsFS             = "content:///Lights.fs.glsl"s;
 const auto materialFetcherFS    = "content:///MaterialFetcher.fs.glsl"s;
 const auto reflectionModelsFS   = "content:///ReflectionModels.fs.glsl"s;
 
-const std::string vertexShaderStrings[]     = { geometryVS, lightVolumeVS };
+const std::string vertexShaderStrings[]     = { geometryVS, fullScreenTriangleVS, lightVolumeVS };
 const std::string fragmentShaderStrings[]   = 
 {
     forwardRenderFS, geometryFS, lightingPassFS, lightsFS, materialFetcherFS, reflectionModelsFS

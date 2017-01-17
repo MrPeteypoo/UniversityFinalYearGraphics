@@ -329,6 +329,7 @@
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
     <ClInclude Include="source\Rendering\Binders\VertexArrayBinder.hpp" />
@@ -379,6 +380,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ForwardRender.fs.glsl" />
+    <None Include="shaders\FullScreenTriangle.vs.glsl" />
     <None Include="shaders\ReflectionModels.fs.glsl" />
     <None Include="shaders\Lights.fs.glsl" />
     <None Include="shaders\LightVolume.vs.glsl" />
@@ -400,6 +402,7 @@
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp" />

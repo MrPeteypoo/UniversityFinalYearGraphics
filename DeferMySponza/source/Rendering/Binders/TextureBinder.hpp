@@ -55,7 +55,7 @@ struct TextureBinder final
 
     inline void unbind() const noexcept
     {
-        glBindTextureUnit (m_unit, 0);
+        //glBindTextureUnit (m_unit, 0);
     }
 
     private:

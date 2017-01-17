@@ -45,11 +45,11 @@ struct SceneVAO final
 
 
     /// <summary> Attachs the given buffers to the VAO based on the compile-time indices in the class. </summary>
-    template <size_t MaterialIDPartitions, size_t TransformPartitions>
+    template <size_t MultiBuffering>
     void attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
         const Buffer& staticTransforms, const Buffer& staticMaterialIDs,
-        const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs, 
-        const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms) noexcept;
+        const PersistentMappedBuffer<MultiBuffering>& dynamicMaterialIDs, 
+        const PersistentMappedBuffer<MultiBuffering>& dynamicTransforms) noexcept;
 
     /// <summary> Sets the binding points and formatting of attributes in the VAO. </summary>
     void configureAttributes() noexcept;
@@ -57,11 +57,10 @@ struct SceneVAO final
     /// <summary> Configures the instanced attributes to retrieve data from the static buffers. </summary>
     void useStaticBuffers() noexcept;
 
-    /// <summary> Configures the instanced attributes to retreieve data from the dynamic buffers. </summary>
-    /// <param name="materialIDIndex"> The partition index of the material ID buffer to use. </param>
-    /// <param name="materialIDIndex"> The partition index of the transform buffer to use. </param>
-    template <size_t MaterialIDPartitions>
-    void useDynamicBuffers (const size_t materialIDIndex, const size_t transformIndex) noexcept;
+    /// <summary> Configures the instanced attributes to retrieve data from the dynamic buffers. </summary>
+    /// <param name="materialIDIndex"> The partition of the dynamic buffers to use. </param>
+    template <size_t MultiBuffering>
+    void useDynamicBuffers (const size_t partition) noexcept;
 };
 
 
@@ -72,11 +71,11 @@ struct SceneVAO final
 #include <glm/vec4.hpp>
 
 
-template <size_t MaterialIDPartitions, size_t TransformPartitions>
+template <size_t MultiBuffering>
 void SceneVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements, 
     const Buffer& staticTransforms, const Buffer& staticMaterialIDs,
-    const PersistentMappedBuffer<MaterialIDPartitions>& dynamicMaterialIDs, 
-    const PersistentMappedBuffer<TransformPartitions>& dynamicTransforms) noexcept
+    const PersistentMappedBuffer<MultiBuffering>& dynamicMaterialIDs, 
+    const PersistentMappedBuffer<MultiBuffering>& dynamicTransforms) noexcept
 {
     // We need to calculate our strides.
     constexpr auto meshesStride     = GLuint { sizeof (Vertex) };
@@ -93,22 +92,22 @@ void SceneVAO::attachVertexBuffers (const Buffer& meshes, const Buffer& elements
     vao.setElementBuffer (elements);
 
     // Attach dynamic buffers.
-    constexpr auto adjustedTransformIndex = dynamicTransformsBufferIndex + MaterialIDPartitions - 1;
+    constexpr auto adjustedTransformIndex = dynamicTransformsBufferIndex + MultiBuffering - 1;
 
     vao.attachPersistentMappedBuffer (dynamicMaterialIDs, dynamicMaterialIDsBufferIndex, materialIDStride, divisor);
     vao.attachPersistentMappedBuffer (dynamicTransforms, adjustedTransformIndex, modelStride, divisor);
 }
 
 
-template <size_t MaterialIDPartitions>
-void SceneVAO::useDynamicBuffers (const size_t materialIDIndex, const size_t transformIndex) noexcept
+template <size_t MultiBuffering>
+void SceneVAO::useDynamicBuffers (const size_t partition) noexcept
 {
     // We need to adjust the starting index for the transform buffer because the material buffer may be multi-buffered.
-    constexpr auto adjustedTransformIndex = dynamicTransformsBufferIndex + MaterialIDPartitions - 1;
+    constexpr auto adjustedTransformIndex = dynamicTransformsBufferIndex + MultiBuffering - 1;
 
     // Now we can calculate the correct buffer index.
-    const auto materialIDPartitionIndex = dynamicMaterialIDsBufferIndex + materialIDIndex;
-    const auto transformPartitionIndex  = adjustedTransformIndex + transformIndex;
+    const auto materialIDPartitionIndex = dynamicMaterialIDsBufferIndex + partition;
+    const auto transformPartitionIndex  = adjustedTransformIndex + partition;
 
     // Material IDs require a single attribute.
     vao.setAttributeBufferBinding (materialIDAttributeIndex, static_cast<GLuint> (materialIDPartitionIndex));

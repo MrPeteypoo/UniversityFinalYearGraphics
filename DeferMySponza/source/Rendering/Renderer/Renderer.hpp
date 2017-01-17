@@ -131,7 +131,7 @@ class Renderer final
         
         size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
         SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
-        bool                m_deferredRender    { false };   //!< Whether a deferred or forward render should be performed.
+        bool                m_deferredRender    { true };   //!< Whether a deferred or forward render should be performed.
         bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
 
     private:
@@ -188,8 +188,7 @@ class Renderer final
         void forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Performs a deferred render of the entire scene. </summary>
-        void deferredRender (SceneVAO& sceneVAO, ASyncActions& actions, const size_t directionalLights,
-            const size_t pointLights, const size_t spotlights) noexcept;
+        void deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>
         ModifiedRange updateSceneUniforms() noexcept;
@@ -204,8 +203,7 @@ class Renderer final
         ModifiedRange updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept;
 
         /// <summary> Updates the transform and uniform data for every given point light. </summary>
-        ModifiedLightVolumeRanges updatePointLights (const std::vector<scene::PointLight>& lights, 
-            const size_t transformOffset) noexcept;
+        ModifiedLightVolumeRanges updatePointLights (const std::vector<scene::PointLight>& lights) noexcept;
 
         /// <summary> Updates the transform and uniform data for every given spot light. </summary>
         ModifiedLightVolumeRanges updateSpotlights (const std::vector<scene::SpotLight>& lights, 

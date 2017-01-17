@@ -18,6 +18,7 @@
 #include <Rendering/Composites/DrawCommands.hpp>
 #include <Rendering/Objects/Buffer.hpp>
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
+#include <Rendering/Renderer/Geometry/FullScreenTriangleVAO.hpp>
 #include <Rendering/Renderer/Geometry/SceneVAO.hpp>
 #include <Rendering/Renderer/Geometry/LightingVAO.hpp>
 
@@ -60,15 +61,15 @@ class Geometry final
         
         /// <summary> Gets the vertex array object containing scene geometric data. </summary>
         inline const SceneVAO& getSceneVAO() const noexcept                     { return m_scene; }
-
+        
         /// <summary> Gets the vertex array object containing scene geometric data. </summary>
         inline SceneVAO& getSceneVAO() noexcept                                 { return m_scene; }
 
         /// <summary> Gets the vertex array object containing light volume data. </summary>
-        inline const LightingVAO& getLightingVAO() const noexcept               { return m_lighting; }
+        inline const FullScreenTriangleVAO& getTriangleVAO() const noexcept     { return m_triangle; }
 
         /// <summary> Gets the vertex array object containing light volume data. </summary>
-        inline LightingVAO& getLightingVAO() noexcept                           { return m_lighting; }
+        inline const LightingVAO& getLightingVAO() const noexcept               { return m_lighting; }
 
         /// <summary> Retrieves the command buffer filled with commands to draw static geometry. </summary>
         inline const DrawCommands& getStaticGeometryCommands() const noexcept   { return m_drawCommands; }
@@ -110,28 +111,31 @@ class Geometry final
         struct Internals;
         using Pimpl = std::unique_ptr<Internals>;
 
-        SceneVAO        m_scene         { };    //!< Used for drawing all scene geometry.
-        DrawCommands    m_drawCommands  { };    //!< Contains the drawing commands to indirectly render every static object in the scene.
-        
-        LightingVAO     m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
-        Mesh            m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
-        Mesh            m_sphere        { };    //!< The mesh data required for drawing a sphere.
-        Mesh            m_cone          { };    //!< The mesh data required for drawing a cone.
+        SceneVAO                m_scene         { };    //!< Used for drawing all scene geometry.
+        DrawCommands            m_drawCommands  { };    //!< Contains the drawing commands to indirectly render every static object in the scene.
 
-        Pimpl           m_internals     { };    //!< Stores less important internal data.
+        FullScreenTriangleVAO   m_triangle      { };    //!< An oversized triangle vertex array which can be used to apply post-processing.
+        
+        LightingVAO             m_lighting      { };    //!< Used for applying light using quads, spheres and cones.
+        Mesh                    m_quad          { };    //!< The mesh data required for drawing a full-screen quad.
+        Mesh                    m_sphere        { };    //!< The mesh data required for drawing a sphere.
+        Mesh                    m_cone          { };    //!< The mesh data required for drawing a cone.
+
+        Pimpl                   m_internals     { };    //!< Stores less important internal data.
 
     private:
 
         /// <summary> Configures the given vertex array objects for storing scene and lighting geometry. </summary>
         /// <param name="scene"> The VAO to use for scene geometry. </param>
+        /// <param name="triangle"> The VAO to use for oversized triangles. </param>
         /// <param name="lighting"> The VAO to use for lighting. </param>
         /// <param name="internals"> The object containing static buffers that need to be attached. </param>
         /// <param name="dynamicMaterialIDs"> The PMB containing material IDs for dynamic object instances. </param>
         /// <param name="dynamicTransforms"> The PMB containing model transforms for dynamic object instances. </param>
         /// <param name="lightingTransforms"> The PMB containing transforms for all lighting instances. </param>
         template <typename MaterialIDPMB, typename TransformPMB, typename LightingPMB>
-        void configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Internals& internals, 
-            const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
+        void configureVAOs (SceneVAO& scene, FullScreenTriangleVAO& triangle, LightingVAO& lighting, 
+            const Internals& internals, const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
             const LightingPMB& lightingTransforms) const noexcept;
 
         /// <summary> 
@@ -140,6 +144,9 @@ class Geometry final
         /// </summary>
         /// <param name="internals"> Where the data should be stored. </param>
         void buildMeshData (Internals& internals) const noexcept;
+
+        /// <summary> Constructs an oversized full-screen triangle, useful for full-screen shading. </summary>
+        void buildFullScreenTriangle (Internals& internals) const noexcept;
 
         /// <summary> 
         /// Fills the light volume vertex and element data in the given Internals object with valid data for the
@@ -177,6 +184,7 @@ bool Geometry::initialise (const Materials& materials,
     // We need to create replacement objects to initialise.
     auto scene          = SceneVAO { };
     auto drawCommands   = DrawCommands { };
+    auto triangle       = FullScreenTriangleVAO { };
     auto lighting       = LightingVAO { };
     auto quad           = Mesh { };
     auto sphere         = Mesh { };
@@ -184,16 +192,18 @@ bool Geometry::initialise (const Materials& materials,
     auto internals      = std::make_unique<Internals>();
 
     // Initialise each object.
-    if (!(scene.vao.initialise() && drawCommands.buffer.initialise() && lighting.vao.initialise() && internals->initialise()))
+    if (!(scene.vao.initialise() && drawCommands.buffer.initialise() && triangle.vao.initialise() && 
+        lighting.vao.initialise() && internals->initialise()))
     {
         return false;
     }
 
     // Start by configuring the VAOs.
-    configureVAOs (scene, lighting, *internals, dynamicMaterialIDs, dynamicTransforms, lightingTransforms);
+    configureVAOs (scene, triangle, lighting, *internals, dynamicMaterialIDs, dynamicTransforms, lightingTransforms);
 
     // Construct the required geometry.
     buildMeshData (*internals);
+    buildFullScreenTriangle (*internals);
     buildLighting (*internals, quad, sphere, cone);
 
     // Allow for static batching by filling the static buffers with instance information and draw commands.
@@ -202,6 +212,7 @@ bool Geometry::initialise (const Materials& materials,
     // Finally we can make use of the successfully created data.
     m_scene         = std::move (scene);
     m_drawCommands  = std::move (drawCommands);
+    m_triangle      = std::move (triangle);
     m_lighting      = std::move (lighting);
     m_quad          = std::move (quad);
     m_sphere        = std::move (sphere);
@@ -213,8 +224,8 @@ bool Geometry::initialise (const Materials& materials,
 
 
 template <typename MaterialIDPMB, typename TransformPMB, typename LightingPMB>
-void Geometry::configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Internals& internals,
-    const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
+void Geometry::configureVAOs (SceneVAO& scene, FullScreenTriangleVAO& triangle, LightingVAO& lighting, 
+    const Internals& internals, const MaterialIDPMB& dynamicMaterialIDs, const TransformPMB& dynamicTransforms, 
     const LightingPMB& lightingTransforms) const noexcept
 {
     scene.attachVertexBuffers (
@@ -226,6 +237,10 @@ void Geometry::configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Inte
         dynamicTransforms
     );
 
+    triangle.attachVertexBuffers (
+        internals.buffers[Internals::triangleVerticesIndex]
+    );
+
     lighting.attachVertexBuffers (
         internals.buffers[Internals::lightVerticesIndex],
         internals.buffers[Internals::lightElementsIndex],
@@ -233,6 +248,7 @@ void Geometry::configureVAOs (SceneVAO& scene, LightingVAO& lighting, const Inte
     );
 
     scene.configureAttributes();
+    triangle.configureAttributes();
     lighting.configureAttributes();
 }
 

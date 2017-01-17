@@ -71,7 +71,7 @@ class Buffer final
         /// placed inside the storage. 0 will signify that the data is static and will never be changed.
         /// </param>
         /// <returns> The amount of allocated data. </returns>
-        template <typename Data, template <typename, typename = size_t...> typename Container, typename... Args>
+        template <typename Data, template <typename, typename...> typename Container, typename... Args>
         GLsizeiptr immutablyFillWith (const Container<Data, Args...>& data, const GLbitfield flags = 0) noexcept
         {
             const auto size = data.size() * sizeof (Data);

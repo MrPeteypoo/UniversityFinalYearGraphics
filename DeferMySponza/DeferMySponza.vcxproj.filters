@@ -175,6 +175,9 @@
     <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\AlignedItem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Geometry.vs.glsl">
@@ -199,6 +202,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\LightVolume.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\FullScreenTriangle.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -282,6 +288,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Objects\Sync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

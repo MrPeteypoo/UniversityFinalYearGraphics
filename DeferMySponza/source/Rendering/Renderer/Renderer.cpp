@@ -16,6 +16,7 @@
 #include <Rendering/Binders/BufferBinder.hpp>
 #include <Rendering/Binders/FramebufferBinder.hpp>
 #include <Rendering/Binders/ProgramBinder.hpp>
+#include <Rendering/Binders/TextureBinder.hpp>
 #include <Rendering/Binders/VertexArrayBinder.hpp>
 #include <Rendering/Renderer/Drawing/PassConfigurator.hpp>
 #include <Rendering/Renderer/Programs/Shaders.hpp>
@@ -303,7 +304,7 @@ bool Renderer::buildFramebuffers() noexcept
 
     // Now we can initialise the framebuffers.
     return  m_gbuffer.initialise (width, height, gbufferStartingTextureUnit) &&
-            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGB8, width, height);
+            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height);
 }
 
 
@@ -374,9 +375,6 @@ void Renderer::render() noexcept
     const auto& point       = m_scene->getAllPointLights();
     const auto& spot        = m_scene->getAllSpotLights();
 
-    // Light transforms also need an offset so they're added after the full-screen quad transform.
-    constexpr auto transformOffset = size_t { 1 };
-
     // We can safely multithread the data streaming operations.
     auto actions        = ASyncActions { };
     const auto policy   = m_multiThreaded ? std::launch::async : std::launch::deferred;
@@ -385,8 +383,8 @@ void Renderer::render() noexcept
     actions.sceneUniforms       = std::async (policy, [&]() { return updateSceneUniforms(); });
     actions.dynamicObjects      = std::async (policy, [&]() { return updateDynamicObjects(); });
     actions.directionalLights   = std::async (policy, [&]() { return updateDirectionalLights (directional); });
-    actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point, transformOffset); });
-    actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, transformOffset); });
+    actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point); });
+    actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, point.size()); });
 
     // We only need to fill the light draw command buffer if we're doing a deferred render.
     if (m_deferredRender)
@@ -409,7 +407,7 @@ void Renderer::render() noexcept
 
     if (m_deferredRender)
     {
-        deferredRender (sceneVAO, actions, directional.size(), point.size(), spot.size());
+        deferredRender (sceneVAO, actions);
     }
 
     else
@@ -436,10 +434,101 @@ void Renderer::render() noexcept
 }
 
 
-void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions, 
-    const size_t directionalLights, const size_t pointLights, const size_t spotlights) noexcept
+void Renderer::syncWithGPUIfNecessary() const noexcept
 {
+    // Don't attempt to wait if the sync object hasn't been initialised.
+    auto& sync = m_syncs[m_partition];
 
+    if (sync.isInitialised())
+    {
+        // Don't force a wait if we don't need to.
+        if (!sync.checkIfSignalled())
+        {
+            // We have to force a wait so we don't cause a data race.
+            constexpr auto oneSecond = std::chrono::duration_cast<std::chrono::nanoseconds> (1s).count();
+            const auto result = sync.waitForSignal (true, oneSecond);
+            assert (result);
+        }
+    }
+}
+
+
+void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept
+{
+    // We need to perform a geometry pass to collect the position, normal and material data of every object that's 
+    // visible on-screen.
+    const auto activeProgram        = ProgramBinder { m_programs.geometryPass };
+    const auto activeFramebuffer    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
+
+    // Prepare the fresh frame.
+    PassConfigurator::geometryPass();
+
+    // We only need to update the scene uniforms at this stage.
+    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
+
+    // Now we can render static objects.
+    const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
+    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
+
+    staticObjects.drawWithoutBinding();
+
+    // We must prepare for drawing dynamic objects.
+    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
+
+    const auto objectRanges = actions.dynamicObjects.get();
+    m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
+    m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
+    m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
+
+    // Now we can draw the rest of the geometry!
+    activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
+    m_objectDrawing.drawWithoutBinding();
+
+    // The geometry pass has completed. We need to prepare for a global lighting pass, this will require using an 
+    // oversized triangle to perform a full-screen lighting pass.
+    activeProgram.bind (m_programs.globalLightPass);
+    activeFramebuffer.bind (m_lbuffer.getFramebuffer());
+    VertexArrayBinder::bind (m_geometry.getTriangleVAO().vao);
+
+    // Prepare OpenGL, the light buffer and the program for a global light pass program.
+    PassConfigurator::globalLightPass();
+    Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::globalLightSubroutine);
+
+    // Don't forget to bind the gbuffer textures.
+    const auto gbufferPosition  = TextureBinder (m_gbuffer.getPositionTexture());
+    const auto gbufferNormals   = TextureBinder (m_gbuffer.getNormalTexture());
+    const auto gbufferMaterials = TextureBinder (m_gbuffer.getMaterialTexture());
+
+    // Now all we need is the light commands and directional light data threads to complete.
+    m_lightDrawing.buffer.notifyModifiedDataRange (actions.lightDrawCommands.get());
+    m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
+
+    // Finally draw a full-screen triangle and global lighting will be applied.
+    glDrawArrays (GL_TRIANGLES, 0, FullScreenTriangleVAO::vertexCount);
+
+    // Move on to point lights.
+    PassConfigurator::lightVolumePass();
+    Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::pointLightSubroutine);
+
+    const auto pointLightData = actions.pointLights.get();
+    m_uniforms.notifyModifiedDataRange (pointLightData.uniforms);
+    m_lightTransforms.notifyModifiedDataRange (pointLightData.transforms);
+
+    // Draw the point lights.
+    activeIndirectBuffer.bind (m_lightDrawing.buffer.getID());
+    m_lightDrawing.setOffset (0, 1);
+    m_lightDrawing.drawWithoutBinding();
+
+    // And finally spotlights.
+    Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubrotuing); 
+
+    const auto spotlightData = actions.spotLights.get();
+    m_uniforms.notifyModifiedDataRange (spotlightData.uniforms);
+    m_lightTransforms.notifyModifiedDataRange (spotlightData.transforms);
+
+    // Draw the spotlights.
+    m_lightDrawing.setOffset (sizeof (MultiDrawElementsIndirectCommand), 1);
+    m_lightDrawing.drawWithoutBinding();
 }
 
 
@@ -464,10 +553,10 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
     const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
 
-    m_geometry.getStaticGeometryCommands().draw();
+    staticObjects.drawWithoutBinding();
 
     // Prepare for dynamic objects.
-    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition, m_partition);
+    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
 
     const auto objectRanges = actions.dynamicObjects.get();
     m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
@@ -476,26 +565,7 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
 
     // Now we can draw!
     activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
-    m_objectDrawing.draw();
-}
-
-
-void Renderer::syncWithGPUIfNecessary() const noexcept
-{
-    // Don't attempt to wait if the sync object hasn't been initialised.
-    auto& sync = m_syncs[m_partition];
-
-    if (sync.isInitialised())
-    {
-        // Don't force a wait if we don't need to.
-        if (!sync.checkIfSignalled())
-        {
-            // We have to force a wait so we don't cause a data race.
-            constexpr auto oneSecond = std::chrono::duration_cast<std::chrono::nanoseconds> (1s).count();
-            const auto result = sync.waitForSignal (true, oneSecond);
-            assert (result);
-        }
-    }
+    m_objectDrawing.drawWithoutBinding();
 }
 
 
@@ -588,25 +658,22 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
 
 ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const GLuint spotlights) noexcept
 {
-    // The first index is dedicated to the a full-screen quad. We also need the pointer to write to the buffer.
-    constexpr auto quads    = GLuint { 1 };
+    // We need the pointer to write to the buffer.
     const auto bufferOffset = m_lightDrawing.buffer.partitionOffset (m_partition);
     auto lightCommands      = (MultiDrawElementsIndirectCommand*) m_lightDrawing.buffer.pointer (m_partition);
 
     // Cache the shape meshes.
-    const auto& quad    = m_geometry.getQuad();
     const auto& sphere  = m_geometry.getSphere();
     const auto& cone    = m_geometry.getCone();
 
     // Finally add each draw command for the light volumes.
-    lightCommands[0] = { quad.elementCount, quads, quad.elementsIndex, quad.verticesIndex, 0 };
-    lightCommands[1] = { sphere.elementCount, pointLights, sphere.elementsIndex, sphere.verticesIndex, quads };
-    lightCommands[2] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, quads + pointLights };
+    lightCommands[0] = { sphere.elementCount, pointLights, sphere.elementsIndex, sphere.verticesIndex, 0 };
+    lightCommands[1] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, pointLights };
     
     // Now return the modified range.
-    m_lightDrawing.start = bufferOffset;
-    m_lightDrawing.count = 3;
-    return { bufferOffset, static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * m_lightDrawing.count) };
+    const auto modifiedCommands = 2;
+
+    return { bufferOffset, static_cast<GLsizeiptr> (sizeof (MultiDrawElementsIndirectCommand) * modifiedCommands) };
 }
 
 
@@ -624,8 +691,7 @@ ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::Direct
 }
 
 
-Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vector<scene::PointLight>& lights, 
-            const size_t transformOffset) noexcept
+Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vector<scene::PointLight>& lights) noexcept
 {
     // We need lambdas for translating scene to uniform information.
     const auto uniforms = [] (const scene::PointLight& scene)
@@ -656,7 +722,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
 
     if (m_deferredRender)
     {
-        return processLightVolumes (block, lights, transformOffset, uniforms, transforms);
+        return processLightVolumes (block, lights, 0, uniforms, transforms);
     }
 
     return { processLightUniforms (block, lights, uniforms), { 0, 0 } };

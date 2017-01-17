@@ -45,8 +45,8 @@ const Mesh& Geometry::operator[] (const scene::MeshId id) const noexcept
 
 bool Geometry::isInitialised() const noexcept
 {
-    return m_scene.vao.isInitialised() && m_drawCommands.buffer.isInitialised() && m_lighting.vao.isInitialised() && 
-        m_internals->isInitialised();
+    return m_scene.vao.isInitialised() && m_drawCommands.buffer.isInitialised() && m_triangle.vao.isInitialised() &&
+        m_lighting.vao.isInitialised() && m_internals->isInitialised();
 }
 
 
@@ -60,6 +60,7 @@ void Geometry::clean() noexcept
 {
      m_scene.vao.clean();
      m_drawCommands.buffer.clean();
+     m_triangle.vao.clean();
      m_lighting.vao.clean();
      m_internals->clean();
 
@@ -117,6 +118,19 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
     // Now we can fill the mesh and element buffer. We will leave them with no access flags so they can be static.
     internals.buffers[internals.sceneVerticesIndex].immutablyFillWith (vertices);
     internals.buffers[internals.sceneElementsIndex].immutablyFillWith (elements);
+}
+
+
+void Geometry::buildFullScreenTriangle (Internals& internals) const noexcept
+{
+    const auto positions = std::vector<glm::vec2> 
+    { 
+        glm::vec2 { 0.f, 0.f }, 
+        glm::vec2 { 0.f, 2.f }, 
+        glm::vec2 { 2, 0 } 
+    };
+
+    internals.buffers[internals.triangleVerticesIndex].immutablyFillWith (positions);
 }
 
 
