@@ -47,7 +47,6 @@ namespace util
     /// <returns> An array to be filled with Vertex information. </returns>
     std::vector<Vertex> assembleVertices (const scene::Mesh& mesh) noexcept;
     
-
     /// <summary> Iterates through each given scene::Mesh and calculates the total number of vertices and elements. </summary>
     /// <param name="meshes"> A container of all meshes in the scene. </param>
     /// <param name="vertexCount"> Where to output the calculated number of required vertices. </param>

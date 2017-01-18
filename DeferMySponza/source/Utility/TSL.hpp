@@ -15,6 +15,7 @@
 
 // Personal headers.
 #include <Rendering/Renderer/Geometry/Mesh.hpp>
+#include <Rendering/Renderer/Types.hpp>
 
 
 namespace util
@@ -24,7 +25,7 @@ namespace util
     /// <param name="vertices"> The vertices vector to add vertices to. </param>
     /// <param name="elements"> The elements vector to add elements to. </param>
     /// <param name="meshPointer"> A mesh pointer containing triangle data. </param>
-    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<GLuint>& elements, 
+    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<types::Element>& elements, 
         const tsl::IndexedMeshPtr& meshPointer) noexcept;
 
     /// <summary> Constructs a glm::vec3 from a tsl::Vector3. </summary>

@@ -123,11 +123,12 @@ void Geometry::buildMeshData (Internals& internals) const noexcept
 
 void Geometry::buildFullScreenTriangle (Internals& internals) const noexcept
 {
+    // The proportions are intentionally oversized so that the triangle takes up the entire screen.
     const auto positions = std::vector<glm::vec2> 
     { 
-        glm::vec2 { -2,  4 }, 
-        glm::vec2 {  4, -2 }, 
-        glm::vec2 { -2, -2 } 
+        glm::vec2 { -1.1f,  4.0f }, 
+        glm::vec2 { -1.1f, -1.1f }, 
+        glm::vec2 {  4.0f, -1.1f }
     };
 
     internals.buffers[internals.triangleVerticesIndex].immutablyFillWith (positions);
