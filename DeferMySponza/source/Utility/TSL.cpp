@@ -6,14 +6,15 @@
 #include <numeric>
 
 
-// Personal headers.
-#include <Rendering/Renderer/Types.hpp>
+// Namespace declarations.
+using namespace types;
 
 
 namespace util
 {
-    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<types::Element>& elements, 
-        const tsl::IndexedMeshPtr& meshPointer) noexcept
+    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<types::VertexPosition>& vertices, 
+        std::vector<Element>& elements, const tsl::IndexedMeshPtr& meshPointer, 
+        const VertexPosition& offset) noexcept
     {
         // Retrieve the data for the mesh.
         const auto mesh             = tsl::cloneIndexedMeshAsTriangleListPtr (meshPointer.get());
@@ -29,7 +30,7 @@ namespace util
 
         // Add each position.
         std::for_each (shapeVertices, shapeVertices + vertexCount, 
-            [&] (const auto& position) { vertices.push_back (toGLM (position)); });
+            [&] (const auto& position) { vertices.push_back (toGLM (position) + offset); });
 
         // Add each element.
         std::for_each (shapeElements, shapeElements + elementCount,

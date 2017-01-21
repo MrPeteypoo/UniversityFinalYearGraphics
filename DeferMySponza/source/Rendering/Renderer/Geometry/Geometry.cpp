@@ -164,9 +164,13 @@ void Geometry::buildLighting (Internals& internals, Mesh& quad, Mesh& sphere, Me
     elements.insert (std::end (elements), std::begin (quadElements), std::end (quadElements));
     quad.elementCount = static_cast<GLuint> (elements.size());
 
-    // Now add the sphere and cone.
+    // Now add the sphere.
     util::addTSLMeshData (sphere, vertices, elements, tsl::createSpherePtr (1.f, 12));
-    util::addTSLMeshData (cone, vertices, elements, tsl::createConePtr (1.f, 1.f, 12));
+
+    // The cone mesh has the centre at the base, instead of the tip. We need the centre to be the tip so that they can
+    // represent spotlights. This will require an offset.
+    const auto offset = VertexPosition { 0.f, 0.f, -1.f };
+    util::addTSLMeshData (cone, vertices, elements, tsl::createConePtr (1.f, 1.f, 12), offset);
 
     // Finally fill the GPU buffers.
     internals.buffers[internals.lightVerticesIndex].immutablyFillWith (vertices);

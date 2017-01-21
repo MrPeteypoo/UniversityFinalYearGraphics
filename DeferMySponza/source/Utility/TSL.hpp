@@ -25,8 +25,10 @@ namespace util
     /// <param name="vertices"> The vertices vector to add vertices to. </param>
     /// <param name="elements"> The elements vector to add elements to. </param>
     /// <param name="meshPointer"> A mesh pointer containing triangle data. </param>
-    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<glm::vec3>& vertices, std::vector<types::Element>& elements, 
-        const tsl::IndexedMeshPtr& meshPointer) noexcept;
+    /// <param name="offset"> Any applicable offset to be applied to each vertex position. </param>
+    void addTSLMeshData (Mesh& meshBeingAdded, std::vector<types::VertexPosition>& vertices, 
+        std::vector<types::Element>& elements, const tsl::IndexedMeshPtr& meshPointer, 
+        const types::VertexPosition& offset = types::VertexPosition { 0.f }) noexcept;
 
     /// <summary> Constructs a glm::vec3 from a tsl::Vector3. </summary>
     inline glm::vec3 toGLM (const tsl::Vector3& vector) noexcept

@@ -677,7 +677,7 @@ ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const
 
     // Finally add each draw command for the light volumes.
     lightCommands[0] = { sphere.elementCount, pointLights, sphere.elementsIndex, sphere.verticesIndex, 0 };
-    lightCommands[1] = { cone.elementCount, 1, cone.elementsIndex, cone.verticesIndex, pointLights };
+    lightCommands[1] = { cone.elementCount, spotlights, cone.elementsIndex, cone.verticesIndex, pointLights };
 
     // Now return the modified range.
     const auto modifiedCommands = 2;
@@ -759,18 +759,15 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
     {
         const auto pos      = util::toGLM (scene.getPosition());
         const auto dir      = util::toGLM (scene.getDirection());
-        const auto angle    = scene.getConeAngleDegrees();
+        const auto angle    = glm::radians (scene.getConeAngleDegrees());
         const auto height   = scene.getRange();
-        const auto radius   = height * std::tanf (glm::radians (angle / 2.f));
-        const auto rotation = glm::lookAt (glm::vec3 (0.0), dir, up);
+        const auto radius   = height * std::tanf (angle / 2.f);
+        const auto rotation = glm::inverse (glm::lookAt (pos, pos + dir, up));
 
         return ModelTransform
         {
-            radius, 0.f,    0.f,
-            0.f,    height, 0.f, 
-            0.f,    0.f,    radius,
-            pos.x,  pos.y,  pos.z,
-        };// * rotation;
+            glm::scale (rotation, glm::vec3 (radius, radius, height))
+        };
     };
 
     // Only construct transforms if we're going to be using them for deferred rendering.
