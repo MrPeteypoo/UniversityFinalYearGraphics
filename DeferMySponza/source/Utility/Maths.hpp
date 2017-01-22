@@ -3,7 +3,6 @@
 #if !defined    _UTIL_MATHS_
 #define         _UTIL_MATHS_
 
-
 // STL headers.
 #include <cmath>
 #include <type_traits>

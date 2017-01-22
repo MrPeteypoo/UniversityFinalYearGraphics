@@ -3,12 +3,11 @@
 #if !defined    _UTIL_ALGORITHM_
 #define         _UTIL_ALGORITHM_
 
-
 // STL headers.
 #include <algorithm>
 
 
-namespace util
+namespace std
 {
     /// <summary> A shortcut for std::for_each which calls std::begin and std::end. </summary>
     template <class Container, class UnaryFunction>

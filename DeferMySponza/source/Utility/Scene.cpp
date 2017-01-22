@@ -6,13 +6,13 @@
 
 
 // Engine headers.
-#include <scene/Material.hpp>
-#include <scene/Mesh.hpp>
+#include <scene/scene.hpp>
 #include <tygra/FileHelper.hpp>
 
 
 // Personal headers.
-#include <Misc/Vertex.hpp>
+#include <Rendering/Renderer/Geometry/Internals/Vertex.hpp>
+#include <Utility/Maths.hpp>
 
 
 // Namespaces.
@@ -21,7 +21,8 @@ using namespace std::string_literals;
 
 namespace util
 {
-    void calculateVBOSize (const std::vector<scene::Mesh>& meshes, size_t& vertexSize, size_t& elementSize)
+    void calculateSceneSize (const std::vector<scene::Mesh>& meshes, 
+        size_t& vertexCount, size_t& elementCount) noexcept
     {
         // Create temporary accumlators.
         size_t vertices { 0 }, elements { 0 };  
@@ -34,12 +35,12 @@ namespace util
         }
 
         // Calculate the final values.
-        vertexSize  = vertices * sizeof (Vertex);
-        elementSize = elements * sizeof (unsigned int);
+        vertexCount     = vertices;
+        elementCount    = elements;
     }
 
 
-    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh)
+    std::vector<Vertex> assembleVertices (const scene::Mesh& mesh) noexcept
     {
         // Obtain each attribute.
         const auto& positions       = mesh.getPositionArray();
@@ -74,7 +75,68 @@ namespace util
     }
 
 
-    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, const std::vector<scene::Material>& materials)
+    std::vector<PBSMaterial> getAllMaterials (const scene::Context& scene) noexcept
+    {
+        // The materials we've been provided aren't suitable for physically-based shading techniques. Therefore a hacky
+        // interpretation is required.
+        const auto& sceneMaterials = scene.getAllMaterials();
+
+        // The following code won't be pretty, without modifying the framework a function like this needs to exist.
+        auto materials = std::vector<PBSMaterial> { };
+        materials.reserve (sceneMaterials.size());
+
+        // Might as well make SOME effort to keep it clean.
+        constexpr auto smoothness = 0, reflectance = 1, conductivity = 2;
+
+        for (const auto& sceneMaterial : sceneMaterials)
+        {
+            // The material ID should be a straight copy.
+            auto material = PBSMaterial { };
+            material.id = sceneMaterial.getId();
+
+            // Cache the material properties.
+            const auto& diffuse     = sceneMaterial.getDiffuseColour();
+            const auto& specular    = sceneMaterial.getSpecularColour();
+
+            // Infer smoothness from the specular luminance of the material.
+            material.physics[smoothness] = static_cast<GLubyte> (255 * (specular.x * 0.2126f + specular.y * 0.7151f + specular.z * 0.0722f));
+
+            // Infer reflectance from the diffuse luminance of the material.
+            material.physics[reflectance] = static_cast<GLubyte> (255 * (diffuse.x * 0.2126f + diffuse.y * 0.7151f + diffuse.z * 0.0722f));
+
+            // We will treat "shiny" materials as if they're conductive.
+            if (sceneMaterial.isShiny())
+            {
+                const auto shininess = util::max (sceneMaterial.getShininess() / 128.f, 1.f);
+                material.physics[conductivity] = static_cast<GLubyte> (255 * shininess);
+            }
+
+            // The albedo should just be the diffuse colour.
+            material.albedo[0] = static_cast<GLubyte> (255 * diffuse.x);
+            material.albedo[1] = static_cast<GLubyte> (255 * diffuse.y);
+            material.albedo[2] = static_cast<GLubyte> (255 * diffuse.z);
+
+            // Now do any material specific overloading.
+            switch (sceneMaterial.getId())
+            {
+                // Orange drapes and roof.
+                case 201:
+                    break;
+
+                // Do nothing my lord!
+                default:
+                    break;
+            }
+
+            materials.push_back (std::move (material));
+        }
+
+        return materials;
+    }
+
+
+    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, 
+        const std::vector<scene::Material>& materials) noexcept
     {
         // Ensure the vector is empty.
         images.clear();

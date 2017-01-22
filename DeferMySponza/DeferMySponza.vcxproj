@@ -201,7 +201,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -215,7 +215,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -229,7 +229,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -243,7 +243,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -259,7 +259,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -277,7 +277,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -295,7 +295,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -313,7 +313,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>TGL_TARGET_GL_4_4;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -325,58 +325,99 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
-    <ClInclude Include="source\Misc\Vertex.hpp" />
-    <ClInclude Include="source\MyController.hpp" />
+    <ClInclude Include="source\Rendering\Binders\ProgramBinder.hpp" />
+    <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
+    <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
-    <ClInclude Include="source\MyView\Internals\Material.hpp" />
-    <ClInclude Include="source\MyView\Internals\Mesh.hpp" />
-    <ClInclude Include="source\MyView\Internals\UniformData.hpp" />
-    <ClInclude Include="source\MyView\Internals\UniformData\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Binders\VertexArrayBinder.hpp" />
+    <ClInclude Include="source\Rendering\Composites\PersistentMappedBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\VertexArray.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\LightingVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Mesh.hpp" />
     <ClInclude Include="source\MyView\MyView.hpp" />
-    <ClInclude Include="source\Rendering\Buffers\Binder.hpp" />
-    <ClInclude Include="source\Rendering\Buffers\Buffer.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator\HardCodedShaders.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator\Program.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator\Programs.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator\Shader.hpp" />
-    <ClInclude Include="source\Rendering\PassConfigurator\Shaders.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms\DirectionalLight.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms\PointLight.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms\Scene.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms\Spotlight.hpp" />
-    <ClInclude Include="source\Rendering\Uniforms\UniformBlocks.hpp" />
+    <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\RenderbufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\TextureBinder.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Buffer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\GeometryBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\LightBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Framebuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Renderbuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Texture.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\PassConfigurator.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Geometry.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Internals.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\SceneVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Internals.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Material.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\HardCodedShaders.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Program.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\Programs.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Shader.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\Shaders.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\Resolution.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Renderer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\FullBlock.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Individual\Samplers.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\AlignedItem.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Uniforms.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\DirectionalLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\PointLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\Spotlight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Types.hpp" />
     <ClInclude Include="source\Utility\Algorithm.hpp" />
     <ClInclude Include="source\Utility\Maths.hpp" />
-    <ClInclude Include="source\Utility\OpenGL.hpp" />
-    <ClInclude Include="source\Utility\OpenGL\Buffers.hpp" />
+    <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
     <ClInclude Include="source\Utility\Scene.hpp" />
+    <ClInclude Include="source\Utility\TSL.hpp" />
+    <ClInclude Include="source\Utility\TypeTraits.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\directionalLight.fs.glsl" />
-    <None Include="shaders\geometry.fs.glsl" />
-    <None Include="shaders\geometry.vs.glsl" />
-    <None Include="shaders\pointLight.fs.glsl" />
-    <None Include="shaders\sponza.fs.glsl" />
-    <None Include="shaders\sponza.vs.glsl" />
-    <None Include="shaders\spotlight.fs.glsl" />
+    <None Include="shaders\ForwardRender.fs.glsl" />
+    <None Include="shaders\FullScreenTriangle.vs.glsl" />
+    <None Include="shaders\ReflectionModels.fs.glsl" />
+    <None Include="shaders\Lights.fs.glsl" />
+    <None Include="shaders\LightVolume.vs.glsl" />
+    <None Include="shaders\Geometry.fs.glsl" />
+    <None Include="shaders\Geometry.vs.glsl" />
+    <None Include="shaders\LightingPass.fs.glsl" />
+    <None Include="shaders\MaterialFetcher.fs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Misc\MyController.cpp" />
-    <ClCompile Include="source\MyView\Internals\UniformData.cpp" />
     <ClCompile Include="source\MyView\MyView.cpp" />
-    <ClCompile Include="source\Rendering\Buffers\Buffer.cpp" />
-    <ClCompile Include="source\Rendering\PassConfigurator.cpp" />
-    <ClCompile Include="source\Rendering\PassConfigurator\Program.cpp" />
-    <ClCompile Include="source\Rendering\PassConfigurator\Programs.cpp" />
-    <ClCompile Include="source\Rendering\PassConfigurator\Shader.cpp" />
-    <ClCompile Include="source\Rendering\PassConfigurator\Shaders.cpp" />
-    <ClCompile Include="source\Rendering\Uniforms.cpp" />
-    <ClCompile Include="source\Utility\OpenGL.cpp" />
-    <ClCompile Include="source\Utility\OpenGL\Buffers.cpp" />
+    <ClCompile Include="source\Rendering\Composites\SamplerBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Framebuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Sync.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Texture.cpp" />
+    <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Internals\Internals.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Materials.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Programs\Programs.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Shader.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Programs\Shaders.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\GeometryBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\LightBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Renderer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Uniforms\Uniforms.cpp" />
+    <ClCompile Include="source\Utility\OpenGL\Textures.cpp" />
     <ClCompile Include="source\Utility\Scene.cpp" />
+    <ClCompile Include="source\Utility\TSL.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
