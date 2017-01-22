@@ -94,11 +94,9 @@ vec3 pointLightContribution (const in uint index, const in vec3 position, const 
     const vec3  L       = bigL / dist;
 
     // Point light attenuation formula is: 1 / (Kc + Kl * d + Kq * d * d).
-    /*const float attenuation = light.range >= dist ? 
+    const float attenuation = light.range >= dist ? 
         1.0 / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist) :
-        0.0;*/
-        
-    const float attenuation = 1.0 / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist);
+        0.0;
 
     // Scale the intensity accordingly.
     const vec3 E = light.intensity * attenuation;
@@ -123,11 +121,9 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
     const float p       = light.concentration;
 
     // Luminance attenuation formula is: pow (max {-R.L, 0}), p) / (Kc + kl * d + Kq * d * d).
-    /*const float luminance = light.range >= dist ? 
+    const float luminance = light.range >= dist ? 
         pow (max (dot (-R, L), 0.0), p) / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist) :
-        0.0;*/
-
-    const float luminance = pow (max (dot (-R, L), 0.0), p) / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist);
+        0.0;
 
     // Cone attenuation is: acos ((-L.R)) > angle / 2. Attenuate using smoothstep.
     const float lightAngle  = degrees (acos (max (dot (-L, R), 0.0)));
