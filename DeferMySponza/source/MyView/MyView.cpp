@@ -5,6 +5,40 @@
 #include <iostream>
 
 
+void MyView::setThreadingMode (bool useMultipleThreads) noexcept
+{
+    m_renderer.setThreadingMode (useMultipleThreads);
+}
+
+
+void MyView::setRenderingMode (bool useDeferredRendering) noexcept
+{
+    m_renderer.setRenderingMode (useDeferredRendering);
+}
+
+        
+void MyView::syncResolutions (bool shouldSyncResolutions) noexcept
+{
+    if (shouldSyncResolutions)
+    {
+        // Change the resolution if we need to sync.
+        if (!m_syncResolutions)
+        {
+            m_renderer.setInternalResolution ({ m_displayWidth, m_displayHeight });
+        }
+    }
+
+    m_syncResolutions = shouldSyncResolutions;
+}
+
+
+void MyView::setInternalResolution (int width, int height) noexcept
+{
+    m_syncResolutions = false;
+    m_renderer.setInternalResolution ({ width, height });
+}
+
+
 void MyView::windowViewWillStart (tygra::Window*) noexcept
 {
     assert (m_scene != nullptr);
@@ -31,9 +65,16 @@ void MyView::windowViewDidStop (tygra::Window*) noexcept
 
 void MyView::windowViewDidReset (tygra::Window*, int width, int height) noexcept
 {
-    // Reset the display resolution of the renderer.
-    m_renderer.setInternalResolution ({ width, height });
+    if (m_syncResolutions)
+    {
+        m_renderer.setInternalResolution ({ width, height });
+    }
+    
     m_renderer.setDisplayResolution ({ width, height });
+    
+    // Keep track of the display resolution.
+    m_displayWidth  = width;
+    m_displayHeight = height;
 }
 
 

@@ -41,6 +41,12 @@ class Renderer final
         Renderer& operator= (const Renderer&)       = delete;
 
 
+        /// <summary> Sets whether the rendering should use multiple threads or not. </summary>
+        void setThreadingMode (bool useMultipleThreads) noexcept    { m_multiThreaded = useMultipleThreads; }
+
+        /// <summary> Sets whether deferred or forward rendering should be performed.
+        void setRenderingMode (bool useDeferredRendering) noexcept  { m_deferredRender = useDeferredRendering; }
+
         /// <summary> Sets the resolution of the off-screen rendering buffers. </summary>
         void setInternalResolution (const glm::ivec2& resolution) noexcept;
 

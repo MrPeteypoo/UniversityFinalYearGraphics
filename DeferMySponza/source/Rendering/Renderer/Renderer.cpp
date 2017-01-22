@@ -78,12 +78,8 @@ void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
         m_resolution.internalHeight = resolution.y;
 
         // We'll need to rebuild the framebuffers due to a resolution changes.
-        if (m_gbuffer.isInitialised() && m_lbuffer.isInitialised())
-        {
-            // This will also trigger the resetting of uniforms.
-            buildFramebuffers();
-            buildUniforms();
-        }
+        buildFramebuffers();
+        buildUniforms();
     }
 }
 

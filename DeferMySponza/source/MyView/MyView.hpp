@@ -30,11 +30,26 @@ class MyView final : public tygra::WindowViewDelegate
 
         /// <summary> Sets the scene::Context to use for rendering. </summary>
         void setScene (scene::Context* scene) noexcept { m_scene = scene; }
+
+        /// <summary> Sets whether the renderer should use multi-threading or not. </summary>
+        void setThreadingMode (bool useMultipleThreads) noexcept;
+
+        /// <summary> Sets whether the renderer should perform forward or deferred rendering. </summary>
+        void setRenderingMode (bool useDeferredRendering) noexcept;
+
+        /// <summary> Sets whether the internal resolution should be synchronised with the display. </summary>
+        void syncResolutions (bool shouldSyncResolutions) noexcept;
+
+        /// <summary> Sets the internal resolution of the renderer, independent of the display window. </summary>
+        void setInternalResolution (int width, int height) noexcept;
 		
     private:
 
-        scene::Context* m_scene     { nullptr };    //!< The currently used scene pointer.
-        Renderer        m_renderer  { };            //!< Renders the scene using OpenGL 4.5.
+        scene::Context* m_scene             { nullptr };    //!< The currently used scene pointer.
+        Renderer        m_renderer          { };            //!< Renders the scene using OpenGL 4.5.
+        bool            m_syncResolutions   { true };       //!< Synchronise the internal and display resolutions.
+        int             m_displayWidth      { 640 };        //!< The amount of pixels wide for the display resolution.
+        int             m_displayHeight     { 480 };        //!< The amount of pixels tall for the display resolution.
 
     private:
 		

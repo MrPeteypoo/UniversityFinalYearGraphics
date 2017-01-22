@@ -53,7 +53,15 @@ class Renderbuffer final
         /// <param name="samples"> How much multi-sampling should be performed, 0 with deferred shading. </param>
         void allocate (GLenum internalFormat, GLsizei width, GLsizei height, GLsizei samples = 0)
         {
-            glNamedRenderbufferStorageMultisample (m_buffer, samples, internalFormat, width, height);
+            if (samples > 0)
+            {
+                glNamedRenderbufferStorageMultisample (m_buffer, samples, internalFormat, width, height);
+            }
+
+            else
+            {
+                glNamedRenderbufferStorage (m_buffer, internalFormat, width, height);
+            }
         }
 
     private:

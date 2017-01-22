@@ -55,7 +55,11 @@ struct TextureBinder final
 
     inline void unbind() const noexcept
     {
+        // Nvidia drivers claim giving the value 0 to this function is invalid. The OpenGL spec disagrees, still we
+        // must use the old method because the target hardware is an Nvidia card.
         //glBindTextureUnit (m_unit, 0);
+
+        glBindTextures (m_unit, 1, 0);
     }
 
     private:

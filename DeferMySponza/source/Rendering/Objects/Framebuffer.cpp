@@ -24,6 +24,8 @@ Framebuffer& Framebuffer::operator= (Framebuffer&& move) noexcept
         clean();
 
         m_buffer        = move.m_buffer;
+        m_attachments   = std::move (move.m_attachments);
+        m_drawBuffers   = std::move (move.m_drawBuffers);
         move.m_buffer   = 0U;
     }
 
