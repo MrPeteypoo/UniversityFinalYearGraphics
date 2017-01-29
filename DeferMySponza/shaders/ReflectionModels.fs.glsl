@@ -75,7 +75,7 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
         // We need the half vector for reflectance calculations.
         const vec3  h       = halfVector (l, v);
         const float hDotV   = max (dot (h, v), 0.0);
-        const float vDotN   = max (dot (v, n), 0.0001);
+        const float vDotN   = max (dot (v, n), 0.0);
 
         // Calculate and scale diffuse and specular reflectance.
         return e * (disneyDiffuse (hDotV, vDotN, lDotN) * diffuseContribution +
@@ -184,7 +184,7 @@ vec3 microfacetSpecular (const in vec3 l, const in vec3 n, const in vec3 h,
     const float denom = 4.0 * lDotN * vDotN;
 
     // Return the specular effect.
-    return (f * g * d) / denom;
+    return denom > 0.0 ? (f * g * d) / denom : vec3 (0.0);
 }
 
 
