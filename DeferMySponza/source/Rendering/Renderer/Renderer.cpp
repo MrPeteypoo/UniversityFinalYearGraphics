@@ -625,7 +625,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     const auto addDrawCommand = [&] (const auto index, const Mesh& mesh, const MeshInstances::Instances& instances)
     {
         const auto count = static_cast<GLuint> (instances.size());
-        drawCommandBuffer[index] = { mesh.elementCount, instanceCount, mesh.elementsIndex, mesh.verticesIndex, instanceCount };
+        drawCommandBuffer[index] = { mesh.elementCount, count, mesh.elementsIndex, mesh.verticesIndex, instanceCount };
 
         // Ensure we increment the base instance.
         instanceCount += count;
@@ -633,7 +633,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
 
     const auto addTransform = [&] (const auto index, const scene::Instance& instance)
     {
-        transformBuffer[index]  = ModelTransform (util::toGLM (instance.getTransformationMatrix()));
+        transformBuffer[index] = ModelTransform (util::toGLM (instance.getTransformationMatrix()));
     };
 
     const auto addMaterialID = [&] (const auto index, const scene::Instance& instance)
