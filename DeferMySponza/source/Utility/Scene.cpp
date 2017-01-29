@@ -121,6 +121,9 @@ namespace util
             {
                 // Orange drapes and roof.
                 case 201:
+                    material.physics[smoothness]    = 50;
+                    material.physics[reflectance]   = 200;
+                    material.physics[conductivity]  = 0;
                     break;
 
                 // Do nothing my lord!

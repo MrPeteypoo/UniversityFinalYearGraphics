@@ -42,15 +42,15 @@ void main()
     const ivec2 fragment = ivec2 (gl_FragCoord.rg);
 
     // Retrieve the location properties of the current fragment.
-    const vec3 Q = texelFetch (gbufferPositions, fragment).rgb;
-    const vec3 N = texelFetch (gbufferNormals, fragment).rgb;
+    const vec3 q = texelFetch (gbufferPositions, fragment).rgb;
+    const vec3 n = texelFetch (gbufferNormals, fragment).rgb;
 
     // The UV components are texture co-ordinates and the third component is a material ID.
     const vec3 material = texelFetch (gbufferMaterials, fragment).rgb;
     setFragmentMaterial (material.xy, int (material.z));
     
     // Apply lighting.
-    reflectedLight = lightingPass (Q, N);
+    reflectedLight = lightingPass (q, n);
 }
 
 

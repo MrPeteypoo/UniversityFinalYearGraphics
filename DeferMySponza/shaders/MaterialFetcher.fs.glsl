@@ -3,7 +3,7 @@
 /// Contains the properties of the material to be applied to the current fragment.
 struct Material
 {
-    float   smoothness;     //!< Effects the distribution of specular light over the surface.
+    float   roughness;      //!< Effects the distribution of specular light over the surface.
     float   reflectance;    //!< Effects the fresnel effect of dieletric surfaces.
     float   conductivity;   //!< Conductive surfaces absorb incoming light, causing them to be fully specular.
     float   transparency;   //!< How transparent the surface is.
@@ -31,11 +31,15 @@ Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int mate
     const vec4 albedo       = texture (textures[propertiesAndAlbedo.z], vec3 (uvCoordinates, propertiesAndAlbedo.w));
     const vec3 normalMap    = texture (textures[normal.x], vec3 (uvCoordinates, normal.y)).rgb;
 
+    // Reflectance controls the fresnel effect of a material. Here we restrict the F0 co-efficient based conductivity.
+    const float dielecticReflectance = 0.16;
+    const float conductorReflectance = 1.0;
+
     // Finally we can construct the material.
     Material mat;
-    mat.smoothness      = properties.x;
-    mat.reflectance     = properties.y;
-    mat.conductivity    = properties.z;
+    mat.roughness       = pow (1.0 - properties.x, 2.0);
+    mat.conductivity    = pow (properties.z, 2.0);
+    mat.reflectance     = pow (properties.y, 2.0) * mix (dielecticReflectance, conductorReflectance, mat.conductivity);
 
     mat.transparency    = albedo.a;
     mat.albedo          = albedo.rgb;

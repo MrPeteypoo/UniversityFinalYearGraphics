@@ -71,6 +71,12 @@ void MyView::windowViewDidStop (tygra::Window*) noexcept
 
 void MyView::windowViewDidReset (tygra::Window*, int width, int height) noexcept
 {
+    if (width == 0 || height == 0)
+    {
+        width   = 1;
+        height  = 1;
+    }
+
     if (m_syncResolutions)
     {
         m_renderer.setInternalResolution ({ width, height });

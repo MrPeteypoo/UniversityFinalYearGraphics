@@ -63,7 +63,7 @@ layout (std140) uniform Spotlights
 
 
 // Externals.
-vec3 calculateReflectance (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E);
+vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, const in vec3 E);
 
 
 /**
@@ -73,10 +73,10 @@ vec3 directionalLightContribution (const in uint index, const in vec3 normal, co
 {
     // Directional lights don't need attenuation.
     const DirectionalLight light = directionalLights.lights[index];
-    const vec3 L = -light.direction;
+    const vec3 l = -light.direction;
     const vec3 E = light.intensity;
 
-    return calculateReflectance (L, normal, view, E);
+    return calculateReflectance (l, normal, view, E);
 }
 
 
@@ -91,7 +91,7 @@ vec3 pointLightContribution (const in uint index, const in vec3 position, const 
     // We'll need the distance and direction from the light to the surface for attenuation.
     const vec3  bigL    = light.position - position;
     const float dist    = length (bigL);
-    const vec3  L       = bigL / dist;
+    const vec3  l       = bigL / dist;
 
     // Point light attenuation formula is: 1 / (Kc + Kl * d + Kq * d * d).
     const float attenuation = light.range >= dist ? 
@@ -101,7 +101,7 @@ vec3 pointLightContribution (const in uint index, const in vec3 position, const 
     // Scale the intensity accordingly.
     const vec3 E = light.intensity * attenuation;
     
-    return calculateReflectance (L, normal, view, E);
+    return calculateReflectance (l, normal, view, E);
 }
 
 
@@ -116,24 +116,24 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
     // We'll need the distance and direction from the light to the surface for attenuation.
     const vec3  bigL    = light.position - position;
     const float dist    = length (bigL);
-    const vec3  L       = bigL / dist;
+    const vec3  l       = bigL / dist;
     const vec3  R       = light.direction;
     const float p       = light.concentration;
 
-    // Luminance attenuation formula is: pow (max {-R.L, 0}), p) / (Kc + kl * d + Kq * d * d).
+    // Luminance attenuation formula is: pow (max {-R.l, 0}), p) / (Kc + kl * d + Kq * d * d).
     const float luminance = light.range >= dist ? 
-        pow (max (dot (-R, L), 0.0), p) / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist) :
+        pow (max (dot (-R, l), 0.0), p) / (light.aConstant + light.aLinear * dist + light.aQuadratic * dist * dist) :
         0.0;
 
-    // Cone attenuation is: acos ((-L.R)) > angle / 2. Attenuate using smoothstep.
-    const float lightAngle  = degrees (acos (max (dot (-L, R), 0.0)));
+    // Cone attenuation is: acos ((-l.R)) > angle / 2. Attenuate using smoothstep.
+    const float lightAngle  = degrees (acos (max (dot (-l, R), 0.0)));
     const float halfAngle   = light.coneAngle / 2.0;
     const float coneCutOff  = lightAngle <= halfAngle ? smoothstep (1.0, 0.75, lightAngle / halfAngle) : 0.0;
 
     // Scale the intensity accordingly.
     const vec3 E = light.intensity * luminance * coneCutOff;
     
-    return calculateReflectance (L, normal, view, E);
+    return calculateReflectance (l, normal, view, E);
 }
 
 
