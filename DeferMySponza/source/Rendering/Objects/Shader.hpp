@@ -5,6 +5,7 @@
 
 // STL headers.
 #include <string>
+#include <vector>
 
 
 // Engine headers.
@@ -40,22 +41,33 @@ class Shader final
 
 
         /// <summary>
-        /// Compile the shader from the given file locations. If called on a previously compiled shader, the old shader
-        /// will be marked for deletion but deletion cannot occur until it has been detached from all programs.
-        /// Upon failure the object will not be modified.
+        /// Creates a blank, uncompiled shader. This will replace the currently stored shader unless initialisation
+        /// fails. The currently stored shader will be flagged for deletion but this may not occur until it has been
+        /// detached from all programs.
         /// </summary>
-        /// <param name="file"> The file location of the shader to be compiled. </param>
         /// <param name="type"> Describes the type of shader, e.g. GL_VERTEX_SHADER, GL_FRAGMENT_SHADER. </param>
-        /// <returns> The result of the compilation. </returns>
-        bool initialise (const std::string& file, const GLenum type) noexcept;
+        /// <returns> Whether the shader could be initialised. </returns>
+        bool initialise (const GLenum type) noexcept;
 
-        /// <summary> Detaches all shaders and deletes each program. </summary>
+        /// <summary> Flags the shader for deletion and restores this object to a clean state. </summary>
         void clean() noexcept;
+
+        /// <summary> Attempts to attach the file at the given file location as source code. </summary>
+        /// <param name="fileLocation"> The file location of the source code. </param>
+        /// <returns> Whether the file at the given location could be read. </returns>
+        bool attachSourceFile (const std::string& fileLocation) noexcept;
+
+        /// <summary> Compile the shader as the given shader type with the attached source code files. </summary>
+        /// <returns> Whether the shader was successfully compiled. </returns>
+        bool compile() noexcept;
 
     private:
 
+        using Source = std::vector<std::string>;
+
         GLuint m_shader { 0 };  //!< The OpenGL ID of a shader, 0 means null.
         GLenum m_type   { 0 };  //!< Represents the type of shader, e.g. GL_VERTEX_SHADER.
+        Source m_source { };    //!< Contains each source file that will be used to compile the shader.
 };
 
 #endif // _RENDERING_SHADER_

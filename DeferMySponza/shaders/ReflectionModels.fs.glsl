@@ -19,10 +19,10 @@ Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int mate
 
 // Forward declarations.
 vec3 lambertDiffuse (const in vec3 E, const in float LDotN);
-vec3 orenNayarDiffuse (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LdotN);
+vec3 disneyDiffuse (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LDotN);
 
 vec3 blinnPhongSpecular (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E);
-vec3 microfacetSpecular (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LdotN);
+vec3 microfacetSpecular (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LDotN);
 
 
 /**
@@ -52,21 +52,15 @@ vec3 calculateReflectance (const in vec3 L, const in vec3 N, const in vec3 V, co
     if (lambertian > 0.0)
     {
         // Support physically based and non-physically based shading techniques.
-        #if defined     LAMBERT_MICROFACET
+        #ifdef _PHYSICALLY_BASED_SHADING_
 
-            return  lambertDiffuse (E, lambertian) +
-                    microfacetSpecular (L, N, V, E, lambertian);
-
-        #elif defined   ORENNAYAR_MICROFACET
-
-            return  orenNayarDiffuse (L, N, V, E, lambertian) +
+            return  disneyDiffuse (L, N, V, E, lambertian) +
                     microfacetSpecular (L, N, V, E, lambertian);
 
         #else
-
+        
             return  lambertDiffuse (E, lambertian) + 
                     blinnPhongSpecular (L, N, V, E);
-
         #endif
     }
 
@@ -81,6 +75,16 @@ vec3 calculateReflectance (const in vec3 L, const in vec3 N, const in vec3 V, co
 vec3 lambertDiffuse (const in vec3 E, const in float LDotN)
 {
     return material.albedo * E * LDotN;
+}
+
+
+/**
+    A state-of-the-art diffuse model from Disney as presented here: 
+    http://blog.selfshadow.com/publications/s2016-shading-course/hoffman/s2016_pbs_recent_advances_v2.pdf
+*/
+vec3 disneyDiffuse (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LDotN)
+{
+    return material.albedo;
 }
 
 
@@ -100,4 +104,13 @@ vec3 blinnPhongSpecular (const in vec3 L, const in vec3 N, const in vec3 V, cons
 
     // Finally calculate the specularity of the fragment.
     return shininess > 0.0 ? specularColour * E * pow (HDotN, shininess) : vec3 (0.0);
+}
+
+
+/**
+
+*/
+vec3 microfacetSpecular (const in vec3 L, const in vec3 N, const in vec3 V, const in vec3 E, const in float LDotN)
+{
+    return vec3 (material.reflectance);
 }

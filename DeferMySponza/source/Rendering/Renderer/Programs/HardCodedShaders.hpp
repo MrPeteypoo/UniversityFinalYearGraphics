@@ -11,6 +11,10 @@
 using namespace std::string_literals;
 
 
+// Preprocessing files.
+const auto pbsDefines           = "content:///PhysicallyBasedShadingDefinitions.glsl"s;
+
+
 // Vertex shaders.
 const auto geometryVS           = "content:///Geometry.vs.glsl"s;
 const auto fullScreenTriangleVS = "content:///FullScreenTriangle.vs.glsl"s;
@@ -24,11 +28,5 @@ const auto lightingPassFS       = "content:///LightingPass.fs.glsl"s;
 const auto lightsFS             = "content:///Lights.fs.glsl"s;
 const auto materialFetcherFS    = "content:///MaterialFetcher.fs.glsl"s;
 const auto reflectionModelsFS   = "content:///ReflectionModels.fs.glsl"s;
-
-const std::string vertexShaderStrings[]     = { geometryVS, fullScreenTriangleVS, lightVolumeVS };
-const std::string fragmentShaderStrings[]   = 
-{
-    forwardRenderFS, geometryFS, lightingPassFS, lightsFS, materialFetcherFS, reflectionModelsFS
-};
 
 #endif // !defined _RENDERER_HARD_CODED_SHADERS_

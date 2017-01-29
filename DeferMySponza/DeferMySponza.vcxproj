@@ -381,6 +381,7 @@
   <ItemGroup>
     <None Include="shaders\ForwardRender.fs.glsl" />
     <None Include="shaders\FullScreenTriangle.vs.glsl" />
+    <None Include="shaders\PhysicallyBasedShadingDefinitions.glsl" />
     <None Include="shaders\ReflectionModels.fs.glsl" />
     <None Include="shaders\Lights.fs.glsl" />
     <None Include="shaders\LightVolume.vs.glsl" />

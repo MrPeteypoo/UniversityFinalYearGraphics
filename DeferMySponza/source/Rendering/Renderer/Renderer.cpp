@@ -193,7 +193,7 @@ bool Renderer::buildPrograms() noexcept
     // Firstly we must compile the shaders.
     auto shaders = Shaders { };
     
-    if (!shaders.initialise())
+    if (!shaders.initialise (m_pbs))
     {
         return false;
     }
