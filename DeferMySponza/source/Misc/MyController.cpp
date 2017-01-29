@@ -36,6 +36,8 @@ void MyController::windowControlWillStart(tygra::Window * window)
     std::cout << "  Press F4 to activate multi-threaded mode (default)" << std::endl;
     std::cout << "  Press F5 to activate forward rendering" << std::endl;
     std::cout << "  Press F6 to activate deferred rendering (default)" << std::endl;
+    std::cout << "  Press F7 to use lambert + blinn-phong shading" << std::endl;
+    std::cout << "  Press F8 to use physically-based shading (default)" << std::endl;
     /*std::cout << "  Press F9 to match internal resolution with display resolution" << std::endl;
     std::cout << "  Press F10 to set internal resolution to 640x480" << std::endl;
     std::cout << "  Press F11 to set internal resolution to 1280x720" << std::endl;
@@ -131,6 +133,12 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
         break;
     case tygra::kWindowKeyF6:
         view_->setRenderingMode (true);
+        break;
+    case tygra::kWindowKeyF7:
+        view_->setShadingMode (false);
+        break;
+    case tygra::kWindowKeyF8:
+        view_->setShadingMode (true);
         break;
     case tygra::kWindowKeyF9:
         view_->syncResolutions (true);

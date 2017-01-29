@@ -37,6 +37,9 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Sets whether the renderer should perform forward or deferred rendering. </summary>
         void setRenderingMode (bool useDeferredRendering) noexcept;
 
+        /// <summary> Sets whether the renderer should perform physically-based shading. </summary>
+        void setShadingMode (bool usePhysicallyBasedShading) noexcept;
+
         /// <summary> Sets whether the internal resolution should be synchronised with the display. </summary>
         void syncResolutions (bool shouldSyncResolutions) noexcept;
 

@@ -16,6 +16,12 @@ void MyView::setRenderingMode (bool useDeferredRendering) noexcept
     m_renderer.setRenderingMode (useDeferredRendering);
 }
 
+
+void MyView::setShadingMode (bool usePhysicallyBasedShading) noexcept
+{
+    m_renderer.setShadingMode (usePhysicallyBasedShading);
+}
+
         
 void MyView::syncResolutions (bool shouldSyncResolutions) noexcept
 {

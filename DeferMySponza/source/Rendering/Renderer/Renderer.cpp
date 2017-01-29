@@ -69,6 +69,21 @@ struct Renderer::ASyncActions final
 };
 
 
+void Renderer::setShadingMode (bool usePhysicallyBasedShading) noexcept
+{
+    // Do nothing if we're already in the correct mode.
+    if (usePhysicallyBasedShading != m_pbs)
+    {
+        // Set the new value of the flag.
+        m_pbs = usePhysicallyBasedShading;
+        
+        // Rebuild the programs and rebind the uniforms.
+        buildPrograms();
+        m_uniforms.bindUniformsToPrograms (m_programs);
+    }
+}
+
+
 void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
 {
     // Only change the resolution if it's different from the current value.
@@ -166,7 +181,6 @@ bool Renderer::initialise (scene::Context* scene, const glm::ivec2& internalRes,
 
 void Renderer::clean() noexcept
 {
-    m_scene = nullptr;
     m_programs.clean();
     m_dynamics.clear();
     m_materials.clean();
@@ -179,6 +193,7 @@ void Renderer::clean() noexcept
     m_lbuffer.clean();
     m_uniforms.clean();
     m_geometry.clean();
+    m_scene                     = nullptr;
     m_resolution.internalWidth  = 0;
     m_resolution.internalHeight = 0;
     m_resolution.displayWidth   = 0;
