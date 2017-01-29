@@ -180,7 +180,6 @@ vec3 microfacetSpecular (const in vec3 l, const in vec3 n, const in vec3 h,
     //const float g = 1.0;
     //const float d = 1.0;
 
-
     // Calculate the denominator.
     const float denom = 4.0 * lDotN * vDotN;
 
@@ -230,10 +229,10 @@ float distribution (const in float hDotN)
 
     // Beckmann.
     const float tanNumerator    = 1.0 - hDotNSqr;
-    const float tanDenominator  = hDotNSqr;
+    const float tanDenominator  = hDotNSqr * roughSqr;
     const float tangent         = tanNumerator / tanDenominator;
 
-    const float exponential = exp (-tangent / roughSqr);
+    const float exponential = exp (-tangent);
     const float denominator = pi * roughSqr * (hDotNSqr * hDotNSqr);
     return exponential / denominator;
 }

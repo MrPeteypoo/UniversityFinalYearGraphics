@@ -37,7 +37,7 @@ Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int mate
 
     // Finally we can construct the material.
     Material mat;
-    mat.roughness       = pow (1.0 - properties.x, 2.0);
+    mat.roughness       = pow (max (1.0 - properties.x, 0.0), 2.0);
     mat.conductivity    = pow (properties.z, 2.0);
     mat.reflectance     = pow (properties.y, 2.0) * mix (dielecticReflectance, conductorReflectance, mat.conductivity);
 

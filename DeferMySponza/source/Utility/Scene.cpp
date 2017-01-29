@@ -119,12 +119,56 @@ namespace util
             // Now do any material specific overloading.
             switch (sceneMaterial.getId())
             {
+                // Brick.
+                case 200:
+                    material.physics[smoothness]    = 25;
+                    material.physics[reflectance]   = 25;
+                    material.physics[conductivity]  = 0;
+                    break;
+
                 // Orange drapes and roof.
                 case 201:
-                    material.physics[smoothness]    = 50;
+                    material.physics[smoothness]    = 100;
+                    material.physics[reflectance]   = 10;
+                    material.physics[conductivity]  = 0;
+                    break;
+
+                // Green leaves.
+                case 202:
+                    material.physics[smoothness]    = 128;
                     material.physics[reflectance]   = 200;
                     material.physics[conductivity]  = 0;
                     break;
+
+                // Yellow metallic poles.
+                case 203:
+                    material.physics[smoothness]    = 125;
+                    material.physics[reflectance]   = 255;
+                    material.physics[conductivity]  = 255;
+                    break;
+
+                // Buddah, rabbit and dragon.
+                case 204:
+                case 205:
+                case 206:
+                    material.physics[smoothness]    = 180;
+                    material.physics[reflectance]   = 254;
+                    material.physics[conductivity]  = 0;
+                    break;
+
+                // Rabbit.
+                /*case 205:
+                    material.physics[smoothness]    = 0;
+                    material.physics[reflectance]   = 255;
+                    material.physics[conductivity]  = 0;
+                    break;
+
+                // Dragon.
+                case 206:
+                    material.physics[smoothness]    = 80;
+                    material.physics[reflectance]   = 255;
+                    material.physics[conductivity]  = 255;
+                    break;*/
 
                 // Do nothing my lord!
                 default:
