@@ -26,12 +26,12 @@ Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int mate
 vec3 lambertDiffuse (const in float lDotN);
 vec3 blinnPhongSpecular (const in vec3 l, const in vec3 n, const in vec3 v);
 
-vec3 disneyDiffuse (const in float hDotV, const in float vDotN, const in float lDotN);
+vec3 disneyDiffuse (const in float lDotN, const in float vDotN, const in float hDotV);
 vec3 microfacetSpecular (const in vec3 l, const in vec3 n, const in vec3 h,
-    const in float hDotV, const in float lDotN, const in float vDotN);
+    const in float lDotN, const in float vDotN, const in float hDotV);
     
 vec3 fresnelReflectance (const in vec3 albedo, const in float lDotH);
-float geometricAttenuation (const in float lDotH, const in float hDotV);
+float geometricAttenuation (const in float dotProduct);
 float distribution (const in float hDotN);
 
 vec3 halfVector (const in vec3 l, const in vec3 v);
@@ -61,7 +61,7 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
     // Determine whether we can actually light the surface.
     const float lDotN = max (dot (l, n), 0.0);
 
-    if (lDotN <= 0.0)
+    if (lDotN == 0.0)
     {
         return vec3 (0.0);
     }
@@ -74,18 +74,17 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
 
         // We need the half vector for reflectance calculations.
         const vec3  h       = halfVector (l, v);
-        const float hDotV   = max (dot (h, v), 0.0);
-        const float vDotN   = max (dot (v, n), 0.0);
+        const float hDotV   = dot (h, v);
+        const float vDotN   = max (dot (v, n), 0.0001);
 
         // Calculate and scale diffuse and specular reflectance.
-        return e * (disneyDiffuse (hDotV, vDotN, lDotN) * diffuseContribution +
-                    microfacetSpecular (l, n, h, hDotV, lDotN, vDotN));
+        const vec3 diffuse  = diffuseContribution > 0.0 ? disneyDiffuse (lDotN, vDotN, hDotV) * diffuseContribution : vec3 (0.0);
+        const vec3 specular = microfacetSpecular (l, n, h, lDotN, vDotN, hDotV);
+        return e * (diffuse + specular);
 
     #else
         
         return e * (lambertDiffuse (lDotN) + blinnPhongSpecular (l, n, v));
-        /*return e * (lambertDiffuse (lDotN) * diffuseContribution +
-                    microfacetSpecular (l, n, h, hDotV, lDotN, vDotN));*/
 
     #endif
 }
@@ -123,18 +122,14 @@ vec3 blinnPhongSpecular (const in vec3 l, const in vec3 n, const in vec3 v)
     A state-of-the-art diffuse model from Disney as presented here (slide 17): 
     http://blog.selfshadow.com/publications/s2016-shading-course/hoffman/s2016_pbs_recent_advances_v2.pdf
 */
-vec3 disneyDiffuse (const in float hDotV, const in float vDotN, const in float lDotN)
+vec3 disneyDiffuse (const in float lDotN, const in float vDotN, const in float hDotV)
 {
     // The base colour is simply the albedo.
     const vec3 baseColour = material.albedo;
 
     // We need to apply a linear correction to stop the reflectance being higher than the incoming illumination.
     // http://blog.selfshadow.com/publications/s2014-shading-course/frostbite/s2014_pbs_frostbite_slides.pdf
-    const float correction = mix (1.0, 0.66, material.roughness);
-
-    // We need the angles of incidence to calculate fresnel and retro-reflection weightings.
-    const float angleD = hDotV;
-    const float angleV = vDotN;
+    const float correction = mix (1.0, 0.6, material.roughness);
 
     // Calculate fresnel weightings FL and FV.
     const float fresnelL = pow (1.0 - lDotN, 5.0);
@@ -162,29 +157,25 @@ vec3 disneyDiffuse (const in float hDotV, const in float vDotN, const in float l
     http://blog.selfshadow.com/publications/s2016-shading-course/hoffman/s2016_pbs_recent_advances_v2.pdf
 */
 vec3 microfacetSpecular (const in vec3 l, const in vec3 n, const in vec3 h,
-    const in float hDotV, const in float lDotN, const in float vDotN)
+    const in float lDotN, const in float vDotN, const in float hDotV)
 {
     // Conductive materials reflect using their albedo, everything else reflects using white.
     const vec3 albedo = mix (vec3 (material.reflectance), material.albedo, material.conductivity);
 
     // Perform the required dot products.
-    const float lDotH = max (dot (l, h), 0.0);
-    const float hDotN = max (dot (h, n), 0.0);
+    const float lDotH = dot (l, h);
+    const float hDotN = dot (h, n);
 
     // Calculate the three attenuation components.
     const vec3  f = fresnelReflectance (albedo, lDotH);
-    //const float g = geometricAttenuation (lDotH, hDotV);
-    const float g = geometricAttenuation (lDotN, vDotN);
+    const float g = geometricAttenuation (lDotN) * geometricAttenuation (vDotN);
     const float d = distribution (hDotN);
-    //const vec3  f = albedo;
-    //const float g = 1.0;
-    //const float d = 1.0;
 
     // Calculate the denominator.
-    const float denom = 4.0 * lDotN * vDotN;
-
+    const float denominator = 4.0 * lDotN * vDotN;
+    
     // Return the specular effect.
-    return denom > 0.0 ? (f * g * d) / denom : vec3 (0.0);
+    return (f * g * d) / denominator;
 }
 
 
@@ -199,15 +190,19 @@ vec3 fresnelReflectance (const in vec3 albedo, const in float lDotH)
 
 
 /**
-    Calculates an attenuation factor representing self-shadowing based on the Height-Correlated Smith:
+    Calculates an attenuation factor representing self-shadowing based on the Smith function.
     http://jcgt.org/published/0003/02/03/
+    http://blog.selfshadow.com/publications/s2013-shading-course/rad/s2013_pbs_rad_notes.pdf
 */
-float geometricAttenuation (const in float lDotH, const in float hDotV)
+float geometricAttenuation (const in float dotProduct)
 {
-    const float heavisideLDotH = lDotH > 0.0 ? 1.0 : 0.0;
-    const float heavisideHDotV = hDotV > 0.0 ? 1.0 : 0.0;
+    const float roughSqr    = material.roughness * material.roughness;
+    const float dotSqr      = dotProduct * dotProduct;
 
-    return (heavisideLDotH * heavisideHDotV) / (1.0 + material.roughness + material.roughness);
+    const float numerator   = 2.0 * dotProduct;
+    const float denominator = dotProduct + sqrt (roughSqr + (1.0 - roughSqr) * dotSqr);
+
+    return numerator / denominator;
 }
 
 
@@ -218,23 +213,27 @@ float geometricAttenuation (const in float lDotH, const in float hDotV)
 */
 float distribution (const in float hDotN)
 {
+    // Values required for multiple distribution functions.
     const float hDotNSqr = hDotN * hDotN;
     const float roughSqr = material.roughness * material.roughness;
 
     // GGX.
-    //return material.roughness / (pi * pow (hDotNSqr * (material.roughness - 1.0) + 1.0, 2.0));
+    const float ggxNumerator    = roughSqr;
+    const float ggxDenominator  = pi * pow (hDotNSqr * (roughSqr - 1.0) + 1.0, 2.0);
+
+    return ggxNumerator / ggxDenominator;
 
     // Blinn-Phong.
-    //return ((material.roughness + 2.0) / 8.0) * pow (hDotN, material.roughness * 128.f);
+    //return ((material.roughness + 2.0) / (pi * 2.0)) * pow (hDotN, material.roughness * 128.f);
 
     // Beckmann.
-    const float tanNumerator    = 1.0 - hDotNSqr;
+    /*const float tanNumerator    = 1.0 - hDotNSqr;
     const float tanDenominator  = hDotNSqr * roughSqr;
     const float tangent         = tanNumerator / tanDenominator;
 
     const float exponential = exp (-tangent);
     const float denominator = pi * roughSqr * (hDotNSqr * hDotNSqr);
-    return exponential / denominator;
+    return exponential / denominator;*/
 }
 
 

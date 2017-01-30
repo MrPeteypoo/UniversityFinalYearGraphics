@@ -119,56 +119,65 @@ namespace util
             // Now do any material specific overloading.
             switch (sceneMaterial.getId())
             {
-                // Brick.
+                // Rock walls.
                 case 200:
-                    material.physics[smoothness]    = 25;
-                    material.physics[reflectance]   = 25;
+                    material.physics[smoothness]    = 111;
+                    material.physics[reflectance]   = 127;
                     material.physics[conductivity]  = 0;
+
+                    material.albedo = { 156, 146, 131 };
                     break;
 
-                // Orange drapes and roof.
+                // Satin drapes and roof.
                 case 201:
-                    material.physics[smoothness]    = 100;
-                    material.physics[reflectance]   = 10;
+                    material.physics[smoothness]    = 114;
+                    material.physics[reflectance]   = 99;
                     material.physics[conductivity]  = 0;
+
+                    material.albedo = { 175, 68, 51 };
                     break;
 
                 // Green leaves.
                 case 202:
-                    material.physics[smoothness]    = 128;
-                    material.physics[reflectance]   = 200;
+                    material.physics[smoothness]    = 145;
+                    material.physics[reflectance]   = 151;
                     material.physics[conductivity]  = 0;
+
+                    material.albedo = { 85, 89, 45 };
                     break;
 
-                // Yellow metallic poles.
+                // Brass metallic poles.
                 case 203:
-                    material.physics[smoothness]    = 125;
-                    material.physics[reflectance]   = 255;
+                    material.physics[smoothness]    = 140;
                     material.physics[conductivity]  = 255;
+
+                    material.albedo = { 250, 230, 150 };
                     break;
 
-                // Buddah, rabbit and dragon.
+                // Copper buddah.
                 case 204:
-                case 205:
-                case 206:
-                    material.physics[smoothness]    = 180;
-                    material.physics[reflectance]   = 254;
-                    material.physics[conductivity]  = 0;
-                    break;
-
-                // Rabbit.
-                /*case 205:
-                    material.physics[smoothness]    = 0;
-                    material.physics[reflectance]   = 255;
-                    material.physics[conductivity]  = 0;
-                    break;
-
-                // Dragon.
-                case 206:
-                    material.physics[smoothness]    = 80;
-                    material.physics[reflectance]   = 255;
+                    material.physics[smoothness]    = 170;
                     material.physics[conductivity]  = 255;
-                    break;*/
+
+                    material.albedo = { 250, 190, 160 };
+                    break;
+
+                // Rubber rabbit.
+                case 205:
+                    material.physics[smoothness]    = 116;
+                    material.physics[reflectance]   = 105;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo = { 66, 65, 61 };
+                    break;
+
+                // Silver dragon.
+                case 206:
+                    material.physics[smoothness]    = 150;
+                    material.physics[conductivity]  = 255;
+
+                    material.albedo = { 252, 250, 245 };
+                    break;
 
                 // Do nothing my lord!
                 default:

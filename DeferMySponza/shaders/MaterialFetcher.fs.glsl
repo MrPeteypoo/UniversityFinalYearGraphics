@@ -32,7 +32,7 @@ Material fetchMaterialProperties (const in vec2 uvCoordinates, const in int mate
     const vec3 normalMap    = texture (textures[normal.x], vec3 (uvCoordinates, normal.y)).rgb;
 
     // Reflectance controls the fresnel effect of a material. Here we restrict the F0 co-efficient based conductivity.
-    const float dielecticReflectance = 0.16;
+    const float dielecticReflectance = 0.2;
     const float conductorReflectance = 1.0;
 
     // Finally we can construct the material.
