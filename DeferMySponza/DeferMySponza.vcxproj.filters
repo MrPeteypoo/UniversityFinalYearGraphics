@@ -178,6 +178,9 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Geometry.vs.glsl">
@@ -294,6 +297,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

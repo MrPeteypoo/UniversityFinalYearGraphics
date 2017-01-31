@@ -31,17 +31,18 @@ void MyController::windowControlWillStart(tygra::Window * window)
     window->setTitle("Real-Time Graphics :: DeferMySponza");
 	std::cout << std::endl;
     std::cout << "Real-Time Graphics :: DeferMySponza" << std::endl;
-    std::cout << "  Press F2 to toggle an animated camera" << std::endl;
-    std::cout << "  Press F3 to activate single-threaded mode" << std::endl;
-    std::cout << "  Press F4 to activate multi-threaded mode (default)" << std::endl;
-    std::cout << "  Press F5 to activate forward rendering" << std::endl;
-    std::cout << "  Press F6 to activate deferred rendering (default)" << std::endl;
+    std::cout << "  Press F1 to toggle an animated camera" << std::endl;
+    std::cout << "  Press F2 to turn off antialiasing." << std::endl;
+    std::cout << "  Press F3 to set antialiasing to low" << std::endl;
+    std::cout << "  Press F4 to set antialiasing to medium" << std::endl;
+    std::cout << "  Press F5 to set antialiasing to high" << std::endl;
+    std::cout << "  Press F6 to set antialiasing to ultra" << std::endl;
     std::cout << "  Press F7 to use lambert + blinn-phong shading" << std::endl;
     std::cout << "  Press F8 to use physically-based shading (default)" << std::endl;
-    /*std::cout << "  Press F9 to match internal resolution with display resolution" << std::endl;
-    std::cout << "  Press F10 to set internal resolution to 640x480" << std::endl;
-    std::cout << "  Press F11 to set internal resolution to 1280x720" << std::endl;
-    std::cout << "  Press F12 to set internal resolution to 1920x1080" << std::endl;*/
+    std::cout << "  Press F9 to activate forward rendering" << std::endl;
+    std::cout << "  Press F10 to activate deferred rendering (default)" << std::endl;
+    std::cout << "  Press F11 to activate single-threaded mode" << std::endl;
+    std::cout << "  Press F12 to activate multi-threaded mode (default)" << std::endl;
 }
 
 void MyController::windowControlDidStop(tygra::Window * window)
@@ -119,20 +120,23 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
 
     switch (key_index)
     {
-    case tygra::kWindowKeyF2:
+    case tygra::kWindowKeyF1:
         scene_->toggleCameraAnimation();
         break;
+    case tygra::kWindowKeyF2:
+        view_->setAntiAliasingMode (SMAA::Quality::None);
+        break;
     case tygra::kWindowKeyF3:
-        view_->setThreadingMode (false);
+        view_->setAntiAliasingMode (SMAA::Quality::Low);
         break;
     case tygra::kWindowKeyF4:
-        view_->setThreadingMode (true);
+        view_->setAntiAliasingMode (SMAA::Quality::Medium);
         break;
     case tygra::kWindowKeyF5:
-        view_->setRenderingMode (false);
+        view_->setAntiAliasingMode (SMAA::Quality::High);
         break;
     case tygra::kWindowKeyF6:
-        view_->setRenderingMode (true);
+        view_->setAntiAliasingMode (SMAA::Quality::Ultra);
         break;
     case tygra::kWindowKeyF7:
         view_->setShadingMode (false);
@@ -141,16 +145,16 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
         view_->setShadingMode (true);
         break;
     case tygra::kWindowKeyF9:
-        view_->syncResolutions (true);
+        view_->setRenderingMode (false);
         break;
     case tygra::kWindowKeyF10:
-        view_->setInternalResolution (640, 480);
+        view_->setRenderingMode (true);
         break;
     case tygra::kWindowKeyF11:
-        view_->setInternalResolution (1280, 720);
+        view_->setThreadingMode (false);
         break;
     case tygra::kWindowKeyF12:
-        view_->setInternalResolution (1920, 1080);
+        view_->setThreadingMode (true);
         break;
     }
 }

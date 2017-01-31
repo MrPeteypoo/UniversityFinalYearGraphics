@@ -18,6 +18,7 @@
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
 #include <Rendering/Renderer/Drawing/LightBuffer.hpp>
 #include <Rendering/Renderer/Drawing/Resolution.hpp>
+#include <Rendering/Renderer/Drawing/SMAA.hpp>
 #include <Rendering/Renderer/Geometry/Geometry.hpp>
 #include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Rendering/Renderer/Programs/Programs.hpp>
@@ -50,6 +51,9 @@ class Renderer final
         /// <summary> Sets which reflection models should be used. This will cause a recompile of shaders. </summary>
         void setShadingMode (bool usePhysicallyBasedShading) noexcept;
 
+        /// <summary> Sets the quality setting of the antialiasing to be performed. </summary>
+        void setAntiAliasingMode (SMAA::Quality quality) noexcept;
+
         /// <summary> Sets the resolution of the off-screen rendering buffers. </summary>
         void setInternalResolution (const glm::ivec2& resolution) noexcept;
 
@@ -79,10 +83,11 @@ class Renderer final
 
     private:
 
-        constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 }; //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
-        constexpr static auto lbufferStartingTextureUnit    = GLuint { 4 }; //!< The starting texture unit for the lbuffer, the lbuffer occupies a single unit.
-        constexpr static auto smaaStartingTextureUnit       = GLuint { 5 }; //!< The starting texture unit for the antialiasing textures, occupies two units.
-        constexpr static auto materialsStartingTextureUnit  = GLuint { 7 }; //!< The starting texture unit for the material data.
+        constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 };         //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
+        constexpr static auto lbufferStartingTextureUnit    = GLuint { 4 };         //!< The starting texture unit for the lbuffer, the lbuffer occupies a single unit.
+        constexpr static auto smaaStartingTextureUnit       = GLuint { 5 };         //!< The starting texture unit for the antialiasing textures, occupies two units.
+        constexpr static auto materialsStartingTextureUnit  = GLuint { 7 };         //!< The starting texture unit for the material data.
+        constexpr static auto defaultAA                     = SMAA::Quality::High;  //!< The default value for antialiasing.
 
         struct MeshInstances final
         {
@@ -119,31 +124,35 @@ class Renderer final
         using DrawCommands      = MultiDrawCommands<types::PMB>;
         using SyncObjects       = std::array<Sync, types::multiBuffering>;
                 
-        scene::Context*     m_scene             { };        //!< Used to render the scene from the correct viewpoint.
-        Uniforms            m_uniforms          { };        //!< Uniform data which is accessible to any program that requests it.
-        Programs            m_programs          { };        //!< Stores the programs used in different rendering passes.
+        scene::Context*     m_scene             { };            //!< Used to render the scene from the correct viewpoint.
+        Uniforms            m_uniforms          { };            //!< Uniform data which is accessible to any program that requests it.
+        Programs            m_programs          { };            //!< Stores the programs used in different rendering passes.
 
-        DrawableObjects     m_dynamics          { };        //!< A collection of dynamic mesh instances that need drawing.
-        Materials           m_materials         { };        //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
+        DrawableObjects     m_dynamics          { };            //!< A collection of dynamic mesh instances that need drawing.
+        Materials           m_materials         { };            //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
         
-        DrawCommands        m_objectDrawing     { };        //!< Draw commands for dynamic objects.
-        types::PMB          m_objectMaterialIDs { };        //!< Material ID instancing data for dynamic objects.
-        types::PMB          m_objectTransforms  { };        //!< Model transforms for dynamic objects.
+        DrawCommands        m_objectDrawing     { };            //!< Draw commands for dynamic objects.
+        types::PMB          m_objectMaterialIDs { };            //!< Material ID instancing data for dynamic objects.
+        types::PMB          m_objectTransforms  { };            //!< Model transforms for dynamic objects.
 
-        DrawCommands        m_lightDrawing      { };        //!< Draw commands for light volumes.
-        types::PMB          m_lightTransforms   { };        //!< Model transforms for light volumes.
+        DrawCommands        m_lightDrawing      { };            //!< Draw commands for light volumes.
+        types::PMB          m_lightTransforms   { };            //!< Model transforms for light volumes.
 
-        GeometryBuffer      m_gbuffer           { };        //!< The initial framebuffer where geometry is drawn to.
-        LightBuffer         m_lbuffer           { };        //!< A colour buffer where lighting is applied using data stored in the gbuffer.
-        Resolution          m_resolution        { };        //!< The internal and display resolution of drawing operations.
-
-        Geometry            m_geometry          { };        //!< A collection of OpenGL objects which store the scene geometry.
+        GeometryBuffer      m_gbuffer           { };            //!< The initial framebuffer where geometry is drawn to.
+        LightBuffer         m_lbuffer           { };            //!< A colour buffer where lighting is applied using data stored in the gbuffer.
         
-        size_t              m_partition         { 0 };      //!< The buffer partition to use when rendering the current frame.
-        SyncObjects         m_syncs             { };        //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
-        bool                m_deferredRender    { true };   //!< Whether a deferred or forward render should be performed.
-        bool                m_multiThreaded     { true };   //!< Whether the renderer should be multi-threaded or not.
-        bool                m_pbs               { true };   //!< Whether physically based shaders should be used.
+        Geometry            m_geometry          { };            //!< A collection of OpenGL objects which store the scene geometry.
+        SMAA                m_smaa              { };            //!< Used to perform antialiasing.
+
+        Resolution          m_resolution        { };            //!< The internal and display resolution of drawing operations.
+        
+        size_t              m_partition         { 0 };          //!< The buffer partition to use when rendering the current frame.
+        SyncObjects         m_syncs             { };            //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
+       
+        bool                m_deferredRender    { true };       //!< Whether a deferred or forward render should be performed.
+        bool                m_multiThreaded     { true };       //!< Whether the renderer should be multi-threaded or not.
+        bool                m_pbs               { true };       //!< Whether physically based shaders should be used.
+        SMAA::Quality       m_smaaQuality       { defaultAA };  //!< The current quality setting for SMAA.
 
     private:
 
@@ -186,6 +195,11 @@ class Renderer final
         /// specified.
         /// </summary> 
         bool buildUniforms() noexcept;
+
+        /// <summary> 
+        /// Prepares the SMAA object for performing antialiasing.
+        /// </summary>
+        bool buildSMAA() noexcept;
 
         /// <summary>
         /// Fills the drawable instances container with non-static instances found in the given scene

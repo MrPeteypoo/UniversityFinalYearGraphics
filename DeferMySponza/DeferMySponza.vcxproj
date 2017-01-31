@@ -433,6 +433,7 @@
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
@@ -507,6 +508,7 @@
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
