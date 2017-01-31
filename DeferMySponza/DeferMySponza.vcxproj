@@ -208,6 +208,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'">
     <ClCompile>
@@ -222,6 +235,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -236,6 +262,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'">
     <ClCompile>
@@ -250,6 +289,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -268,6 +320,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'">
     <ClCompile>
@@ -286,6 +351,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -304,6 +382,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'">
     <ClCompile>
@@ -322,6 +413,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
