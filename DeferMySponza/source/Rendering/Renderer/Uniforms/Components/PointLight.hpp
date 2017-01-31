@@ -22,8 +22,8 @@ struct PointLight
     glm::vec3   intensity   { 0.f };    //!< The colour/intensity of the light.
     float       aConstant   { 1.f };    //!< The constant co-efficient for the attenutation formula.
 
-    float       aLinear     { 0.f };    //!< The linear co-efficient for the attenutation formula.
-    float       aQuadratic  { 0.1f };	//!< The quadratic co-efficient for the attenuation formula.
+    float       aLinear     { 0.22f };  //!< The linear co-efficient for the attenutation formula.
+    float       aQuadratic  { 0.20f };  //!< The quadratic co-efficient for the attenuation formula.
 };
 
 

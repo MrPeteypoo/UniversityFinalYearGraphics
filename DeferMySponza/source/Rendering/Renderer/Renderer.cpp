@@ -716,10 +716,12 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
     // We need lambdas for translating scene to uniform information.
     const auto uniforms = [] (const scene::PointLight& scene)
     {
-        auto light      = PointLight { };
-        light.position  = util::toGLM (scene.getPosition());
-        light.range     = scene.getRange();
-        light.intensity = util::toGLM (scene.getIntensity());
+        auto light          = PointLight { };
+        light.position      = util::toGLM (scene.getPosition());
+        light.range         = scene.getRange();
+        light.intensity     = util::toGLM (scene.getIntensity());
+        light.aLinear       = 4.5f / light.range;
+        light.aQuadratic    = 75.f / (light.range * light.range);
 
         return light;
     };
@@ -755,12 +757,14 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
     // We need lambdas for translating scene to uniform information.
     const auto uniforms = [] (const scene::SpotLight& scene)
     {
-        auto light      = Spotlight { };
-        light.position  = util::toGLM (scene.getPosition());
-        light.coneAngle = scene.getConeAngleDegrees();
-        light.direction = util::toGLM (scene.getDirection());
-        light.range     = scene.getRange();
-        light.intensity = util::toGLM (scene.getIntensity());
+        auto light          = Spotlight { };
+        light.position      = util::toGLM (scene.getPosition());
+        light.coneAngle     = scene.getConeAngleDegrees();
+        light.direction     = util::toGLM (scene.getDirection());
+        light.range         = scene.getRange();
+        light.intensity     = util::toGLM (scene.getIntensity());
+        light.aLinear       = 4.5f / light.range;
+        light.aQuadratic    = 75.f / (light.range * light.range);
 
         return light;
     };

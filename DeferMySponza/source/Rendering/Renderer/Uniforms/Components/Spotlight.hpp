@@ -25,7 +25,7 @@ struct Spotlight
     glm::vec3   intensity       { 0.f };    //!< The colour/intensity of the light.
     float       concentration   { 2.f };    //!< How concentrated the beam of a spot light is.
 
-    float       aConstant       { 0.75f };  //!< The constant co-efficient for the attenutation formula.
+    float       aConstant       { 1.f };  //!< The constant co-efficient for the attenutation formula.
     float       aLinear         { 0.f };    //!< The linear co-efficient for the attenutation formula.
     float       aQuadratic      { 0.001f }; //!< The quadratic co-efficient for the attenuation formula.
 

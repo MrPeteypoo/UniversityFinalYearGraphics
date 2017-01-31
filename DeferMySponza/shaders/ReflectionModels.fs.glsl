@@ -132,10 +132,6 @@ vec3 disneyDiffuse (const in float lDotN, const in float vDotN, const in float h
     // The base colour is simply the albedo.
     const vec3 baseColour = material.albedo;
 
-    // We need to apply a linear correction to stop the reflectance being higher than the incoming illumination.
-    // http://blog.selfshadow.com/publications/s2014-shading-course/frostbite/s2014_pbs_frostbite_slides.pdf
-    const float correction = mix (1.0, 0.6, material.roughness);
-
     // Calculate fresnel weightings FL and FV.
     const float fresnelL = pow (1.0 - lDotN, 5.0);
     const float fresnelV = pow (1.0 - vDotN, 5.0);
@@ -152,7 +148,7 @@ vec3 disneyDiffuse (const in float lDotN, const in float vDotN, const in float h
         (fresnelL + fresnelV + fresnelL * fresnelV * (roughReflection - 1.0));
     
     // fd = fLambert * (1 - 0.5 * FL) * (1 - 0.5 * FV) + fretro-reflection.
-    return (lambert * (1.0 - 0.5 * fresnelL) * (1.0 - 0.5 * fresnelV) + retroReflection) * correction;
+    return lambert * (1.0 - 0.5 * fresnelL) * (1.0 - 0.5 * fresnelV) + retroReflection;
 }
 
 
