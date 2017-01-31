@@ -15,7 +15,7 @@ struct Material
 
 // Globals.
 const float pi              = 3.14159;
-const float maxShininess    = 128.f;
+const float maxShininess    = 1024.f;
 
 
 // Externals.
@@ -113,8 +113,7 @@ vec3 blinnPhongSpecular (const in vec3 l, const in vec3 n, const in vec3 v)
     const float luminosity      = albedo.r * 0.2126f + albedo.g * 0.7151f + albedo.b * 0.0722f;
     const vec3  specularColour  = mix (vec3 (material.reflectance), vec3 (luminosity), material.conductivity);
 
-    const float smoothness      = 1.0 - material.roughness;
-    const float shininess       = smoothness * maxShininess * 4.0;
+    const float shininess       = ((2.0 / pow (material.roughness, 2.0)) - 2.0) * 4.0;
 
     // Using the half vector we can calculate the specularity of a surface.
     return shininess > 0.0 ? 

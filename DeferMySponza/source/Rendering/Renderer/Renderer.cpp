@@ -704,7 +704,7 @@ ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::Direct
     {
         auto light      = DirectionalLight {};
         light.direction = util::toGLM (scene.getDirection());
-        light.intensity = util::toGLM (scene.getIntensity());
+        light.intensity = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
 
         return light;
     });
@@ -719,7 +719,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
         auto light          = PointLight { };
         light.position      = util::toGLM (scene.getPosition());
         light.range         = scene.getRange();
-        light.intensity     = util::toGLM (scene.getIntensity());
+        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
         light.aLinear       = 4.5f / light.range;
         light.aQuadratic    = 75.f / (light.range * light.range);
 
@@ -762,7 +762,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
         light.coneAngle     = scene.getConeAngleDegrees();
         light.direction     = util::toGLM (scene.getDirection());
         light.range         = scene.getRange();
-        light.intensity     = util::toGLM (scene.getIntensity());
+        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
         light.aLinear       = 4.5f / light.range;
         light.aQuadratic    = 75.f / (light.range * light.range);
 
