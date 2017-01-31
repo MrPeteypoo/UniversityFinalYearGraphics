@@ -316,7 +316,7 @@ bool Renderer::buildFramebuffers() noexcept
 
     // Now we can initialise the framebuffers.
     return  m_gbuffer.initialise (width, height, gbufferStartingTextureUnit) &&
-            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height);
+            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height, lbufferStartingTextureUnit);
 }
 
 
