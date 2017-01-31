@@ -13,44 +13,37 @@
 const Shader Shaders::default = Shader { };
 
 
-bool Shaders::initialise() noexcept
+bool Shaders::initialise (const bool usePhysicallyBasedShaders) noexcept
 {
     // TODO: Load shaders from configuration file.
     bool success = true;
-    const auto compileShaders = [&] (const auto& strings, const auto shaderType)
+    const auto compileShader = [&] (const auto shaderType, const auto& main, auto&&... strings)
     {
-        for (const auto& string : strings)
-        {
-            std::cout << "Compiling '" << string << "'..." << std::endl;
-            success = compile (string, shaderType) && success;
-        }
+        std::cout << "Compiling '" << main << "'..." << std::endl;
+        success = compile (shaderType, main, std::forward<decltype (strings)> (strings)...) && success;
     };
     
-    compileShaders (vertexShaderStrings, GL_VERTEX_SHADER);
-    compileShaders (fragmentShaderStrings, GL_FRAGMENT_SHADER);
+    compileShader (GL_VERTEX_SHADER, geometryVS);
+    compileShader (GL_VERTEX_SHADER, fullScreenTriangleVS);
+    compileShader (GL_VERTEX_SHADER, lightVolumeVS);
+    
+    compileShader (GL_FRAGMENT_SHADER, forwardRenderFS);
+    compileShader (GL_FRAGMENT_SHADER, geometryFS);
+    compileShader (GL_FRAGMENT_SHADER, lightingPassFS);
+    compileShader (GL_FRAGMENT_SHADER, lightsFS);
+    compileShader (GL_FRAGMENT_SHADER, materialFetcherFS);
+    
+    if (usePhysicallyBasedShaders)
+    {
+        compileShader (GL_FRAGMENT_SHADER, reflectionModelsFS, pbsDefines);
+    }
+
+    else
+    {
+        compileShader (GL_FRAGMENT_SHADER, reflectionModelsFS);
+    }
 
     return success;
-}
-
-
-bool Shaders::compile (const std::string& fileLocation, const GLenum type) noexcept
-{
-    // Make sure we haven't already compiled the file.
-    if (isCompiled (fileLocation))
-    {
-        return true;
-    }
-
-    // Make sure the shader compiles before adding it to the map.
-    auto shader = Shader {};
-    if (shader.initialise (fileLocation, type))
-    {
-        compiled.emplace (fileLocation, std::move (shader));
-        return true;
-    }
-
-    // Unsuccessful.
-    return false;
 }
 
 

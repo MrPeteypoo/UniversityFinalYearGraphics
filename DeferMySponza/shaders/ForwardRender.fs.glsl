@@ -3,7 +3,7 @@
 /// Contains the properties of the material to be applied to the current fragment.
 struct Material
 {
-    float   smoothness;     //!< Effects the distribution of specular light over the surface.
+    float   roughness;      //!< Effects the distribution of specular light over the surface.
     float   reflectance;    //!< Effects the fresnel effect of dieletric surfaces.
     float   conductivity;   //!< Conductive surfaces absorb incoming light, causing them to be fully specular.
     float   transparency;   //!< How transparent the surface is.
@@ -42,17 +42,17 @@ vec3 spotlightContributions (const in vec3 position, const in vec3 normal, const
 void main()
 {
     // Calculate the required lighting components.
-    const vec3 Q = worldPosition;
-    const vec3 N = normalize (worldNormal);
-    const vec3 V = normalize (scene.camera - Q);
+    const vec3 q = worldPosition;
+    const vec3 n = normalize (worldNormal);
+    const vec3 v = normalize (scene.camera - q);
 
     // Retrieve the material properties and use it for lighting calculations.
     setFragmentMaterial (texturePoint, materialID);
 
     // Accumulate the contribution of every light.
-    const vec3 lighting =   directionalLightContributions (N, V) +
-                            pointLightContributions (Q, N, V) +
-                            spotlightContributions (Q, N, V);
+    const vec3 lighting =   directionalLightContributions (n, v) +
+                            pointLightContributions (q, n, v) +
+                            spotlightContributions (q, n, v);
     
     // Put the equation together and we get...
     const vec3 colour = scene.ambience + lighting;

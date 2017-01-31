@@ -59,12 +59,6 @@ namespace util
     /// <returns> A list of every material in the scene. </returns>
     std::vector<PBSMaterial> getAllMaterials (const scene::Context& scene) noexcept;
 
-    /// <summary> Iterates through every material in a scene and fills the given vector with image data. </summary>
-    /// <param name="images"> The vector to fill with data. This will generate filename-image pairs. </param>
-    /// <param name="materials"> A container of materials to iterate through. </param>
-    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, 
-        const std::vector<scene::Material>& materials) noexcept;
-
 
     inline glm::vec2 toGLM (const scene::Vector2& vector);
     inline glm::vec3 toGLM (const scene::Vector3& vector);

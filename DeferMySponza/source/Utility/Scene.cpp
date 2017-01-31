@@ -119,8 +119,85 @@ namespace util
             // Now do any material specific overloading.
             switch (sceneMaterial.getId())
             {
-                // Orange drapes and roof.
+                // Rock walls.
+                case 200:
+                    material.physics[smoothness]    = 50;
+                    material.physics[reflectance]   = 127;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo     = { 156, 146, 131 };
+                    material.albedoMap  = "content:///Albedos/Bricks.png";
+                    material.physicsMap = "content:///PhysicsMaps/Bricks.png";
+                    material.normalMap  = "content:///NormalMaps/Bricks.png";
+                    break;
+
+                // Cloth.
                 case 201:
+                    material.physics[smoothness]    = 20;
+                    material.physics[reflectance]   = 99;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo     = { 175, 68, 51 };
+                    material.albedoMap  = "content:///Albedos/Cloth.png";
+                    material.physicsMap = "content:///PhysicsMaps/Cloth.png";
+                    material.normalMap  = "content:///NormalMaps/Cloth.png";
+                    break;
+
+                // Curtains.
+                case 202:
+                    material.physics[smoothness]    = 20;
+                    material.physics[reflectance]   = 99;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo     = { 51, 68, 175 };
+                    material.albedoMap  = "content:///Albedos/Curtains.png";
+                    material.physicsMap = "content:///PhysicsMaps/Curtains.png";
+                    material.normalMap  = "content:///NormalMaps/Curtains.png";
+                    break;
+
+                // Thorns.
+                case 203:
+                    material.physics[smoothness]    = 100;
+                    material.physics[reflectance]   = 151;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo     = { 85, 89, 45 };
+                    material.albedoMap  = "content:///Albedos/Thorns.png";
+                    material.physicsMap = "content:///PhysicsMaps/Thorns.png";
+                    material.normalMap  = "content:///NormalMaps/Thorns.png";
+                    break;
+
+                // Brass metallic poles.
+                case 204:
+                    material.physics[smoothness]    = 155;
+                    material.physics[conductivity]  = 255;
+
+                    material.albedo = { 250, 230, 150 };
+                    break;
+
+                // Copper buddah.
+                case 205:
+                    material.physics[smoothness]    = 170;
+                    material.physics[conductivity]  = 255;
+
+                    material.albedo = { 250, 190, 160 };
+                    break;
+
+                // Rubber rabbit.
+                case 206:
+                    material.physics[smoothness]    = 116;
+                    material.physics[reflectance]   = 105;
+                    material.physics[conductivity]  = 0;
+
+                    material.albedo = { 66, 65, 61 };
+                    break;
+
+                // Silver dragon.
+                case 207:
+                    material.physics[smoothness]    = 150;
+                    material.physics[conductivity]  = 255;
+
+                    material.albedo = { 252, 250, 245 };
                     break;
 
                 // Do nothing my lord!
@@ -132,25 +209,5 @@ namespace util
         }
 
         return materials;
-    }
-
-
-    void loadImagesFromScene (std::vector<std::pair<std::string, tygra::Image>>& images, 
-        const std::vector<scene::Material>& materials) noexcept
-    {
-        // Ensure the vector is empty.
-        images.clear();
-
-        for (const auto& material : materials)
-        {
-            // Attempt to load each image.
-			auto filename = "resource:///kappa.png"s; // material.getAmbientMap();
-            auto image    = tygra::createImageFromPngFile (filename);
-
-            if (image.doesContainData())
-            {
-                images.push_back ({ std::move (filename), std::move (image) });
-            }
-        }
     }
 }

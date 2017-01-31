@@ -69,6 +69,21 @@ struct Renderer::ASyncActions final
 };
 
 
+void Renderer::setShadingMode (bool usePhysicallyBasedShading) noexcept
+{
+    // Do nothing if we're already in the correct mode.
+    if (usePhysicallyBasedShading != m_pbs)
+    {
+        // Set the new value of the flag.
+        m_pbs = usePhysicallyBasedShading;
+        
+        // Rebuild the programs and rebind the uniforms.
+        buildPrograms();
+        m_uniforms.bindUniformsToPrograms (m_programs);
+    }
+}
+
+
 void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
 {
     // Only change the resolution if it's different from the current value.
@@ -166,7 +181,6 @@ bool Renderer::initialise (scene::Context* scene, const glm::ivec2& internalRes,
 
 void Renderer::clean() noexcept
 {
-    m_scene = nullptr;
     m_programs.clean();
     m_dynamics.clear();
     m_materials.clean();
@@ -179,6 +193,7 @@ void Renderer::clean() noexcept
     m_lbuffer.clean();
     m_uniforms.clean();
     m_geometry.clean();
+    m_scene                     = nullptr;
     m_resolution.internalWidth  = 0;
     m_resolution.internalHeight = 0;
     m_resolution.displayWidth   = 0;
@@ -193,7 +208,7 @@ bool Renderer::buildPrograms() noexcept
     // Firstly we must compile the shaders.
     auto shaders = Shaders { };
     
-    if (!shaders.initialise())
+    if (!shaders.initialise (m_pbs))
     {
         return false;
     }
@@ -610,7 +625,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
     const auto addDrawCommand = [&] (const auto index, const Mesh& mesh, const MeshInstances::Instances& instances)
     {
         const auto count = static_cast<GLuint> (instances.size());
-        drawCommandBuffer[index] = { mesh.elementCount, instanceCount, mesh.elementsIndex, mesh.verticesIndex, instanceCount };
+        drawCommandBuffer[index] = { mesh.elementCount, count, mesh.elementsIndex, mesh.verticesIndex, instanceCount };
 
         // Ensure we increment the base instance.
         instanceCount += count;
@@ -618,7 +633,7 @@ Renderer::ModifiedDynamicObjectRanges Renderer::updateDynamicObjects() noexcept
 
     const auto addTransform = [&] (const auto index, const scene::Instance& instance)
     {
-        transformBuffer[index]  = ModelTransform (util::toGLM (instance.getTransformationMatrix()));
+        transformBuffer[index] = ModelTransform (util::toGLM (instance.getTransformationMatrix()));
     };
 
     const auto addMaterialID = [&] (const auto index, const scene::Instance& instance)
@@ -689,7 +704,7 @@ ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::Direct
     {
         auto light      = DirectionalLight {};
         light.direction = util::toGLM (scene.getDirection());
-        light.intensity = util::toGLM (scene.getIntensity());
+        light.intensity = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
 
         return light;
     });
@@ -701,10 +716,12 @@ Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vect
     // We need lambdas for translating scene to uniform information.
     const auto uniforms = [] (const scene::PointLight& scene)
     {
-        auto light      = PointLight { };
-        light.position  = util::toGLM (scene.getPosition());
-        light.range     = scene.getRange();
-        light.intensity = util::toGLM (scene.getIntensity());
+        auto light          = PointLight { };
+        light.position      = util::toGLM (scene.getPosition());
+        light.range         = scene.getRange();
+        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
+        light.aLinear       = 4.5f / light.range;
+        light.aQuadratic    = 75.f / (light.range * light.range);
 
         return light;
     };
@@ -740,12 +757,14 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
     // We need lambdas for translating scene to uniform information.
     const auto uniforms = [] (const scene::SpotLight& scene)
     {
-        auto light      = Spotlight { };
-        light.position  = util::toGLM (scene.getPosition());
-        light.coneAngle = scene.getConeAngleDegrees();
-        light.direction = util::toGLM (scene.getDirection());
-        light.range     = scene.getRange();
-        light.intensity = util::toGLM (scene.getIntensity());
+        auto light          = Spotlight { };
+        light.position      = util::toGLM (scene.getPosition());
+        light.coneAngle     = scene.getConeAngleDegrees();
+        light.direction     = util::toGLM (scene.getDirection());
+        light.range         = scene.getRange();
+        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
+        light.aLinear       = 4.5f / light.range;
+        light.aQuadratic    = 75.f / (light.range * light.range);
 
         return light;
     };

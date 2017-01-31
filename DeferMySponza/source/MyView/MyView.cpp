@@ -16,6 +16,12 @@ void MyView::setRenderingMode (bool useDeferredRendering) noexcept
     m_renderer.setRenderingMode (useDeferredRendering);
 }
 
+
+void MyView::setShadingMode (bool usePhysicallyBasedShading) noexcept
+{
+    m_renderer.setShadingMode (usePhysicallyBasedShading);
+}
+
         
 void MyView::syncResolutions (bool shouldSyncResolutions) noexcept
 {
@@ -65,6 +71,12 @@ void MyView::windowViewDidStop (tygra::Window*) noexcept
 
 void MyView::windowViewDidReset (tygra::Window*, int width, int height) noexcept
 {
+    if (width == 0 || height == 0)
+    {
+        width   = 1;
+        height  = 1;
+    }
+
     if (m_syncResolutions)
     {
         m_renderer.setInternalResolution ({ width, height });
