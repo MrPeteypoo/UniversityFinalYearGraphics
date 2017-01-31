@@ -78,7 +78,10 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
         const float vDotN   = max (dot (v, n), 0.0001);
 
         // Calculate and scale diffuse and specular reflectance.
-        const vec3 diffuse  = diffuseContribution > 0.0 ? disneyDiffuse (lDotN, vDotN, hDotV) * diffuseContribution : vec3 (0.0);
+        const vec3 diffuse  = diffuseContribution > 0.0 ? 
+            disneyDiffuse (lDotN, vDotN, hDotV) * diffuseContribution : 
+            vec3 (0.0);
+
         const vec3 specular = microfacetSpecular (l, n, h, lDotN, vDotN, hDotV);
         return e * (diffuse + specular);
 
@@ -101,20 +104,22 @@ vec3 lambertDiffuse (const in float lDotN)
 
 
 /**
-    An inexpensive specular model which disregards the conductivity and roughness of a surface.
+    An inexpensive specular model which attempts to approximate shininess and specular colour from PBS parameters.
 */
 vec3 blinnPhongSpecular (const in vec3 l, const in vec3 n, const in vec3 v)
 {
-    // First we need to interpret PBS parameters for the shading. Blinn-Phong also multiplies the shininess by four.
-    const float shininess       = material.conductivity * maxShininess * 4.0;
-    const vec3  specularColour  = vec3 (1.0 - material.roughness);
+    // First we need to interpret PBS parameters for shading.
+    const vec3  albedo          = material.albedo;
+    const float luminosity      = albedo.r * 0.2126f + albedo.g * 0.7151f + albedo.b * 0.0722f;
+    const vec3  specularColour  = mix (vec3 (material.reflectance), vec3 (luminosity), material.conductivity);
 
-    // We need to determine the half vector between the light and view directions.
-    const vec3  h       = halfVector (l, v);
-    const float hDotN   = max (dot (h, n), 0.0);
+    const float smoothness      = 1.0 - material.roughness;
+    const float shininess       = smoothness * maxShininess * 4.0;
 
-    // Finally calculate the specularity of the fragment.
-    return shininess > 0.0 ? specularColour * pow (hDotN, shininess) : vec3 (0.0);
+    // Using the half vector we can calculate the specularity of a surface.
+    return shininess > 0.0 ? 
+        specularColour * pow (max (dot (halfVector (l, v), n), 0.0), shininess) 
+        : vec3 (0.0);
 }
 
 
@@ -224,7 +229,7 @@ float distribution (const in float hDotN)
     return ggxNumerator / ggxDenominator;
 
     // Blinn-Phong.
-    //return ((material.roughness + 2.0) / (pi * 2.0)) * pow (hDotN, material.roughness * 128.f);
+    //return ((material.roughness + 2.0) / (pi * 2.0)) * pow (hDotN, material.roughness * maxShininess);
 
     // Beckmann.
     /*const float tanNumerator    = 1.0 - hDotNSqr;

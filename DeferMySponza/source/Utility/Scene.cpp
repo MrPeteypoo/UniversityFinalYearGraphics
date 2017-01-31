@@ -121,7 +121,7 @@ namespace util
             {
                 // Rock walls.
                 case 200:
-                    material.physics[smoothness]    = 111;
+                    material.physics[smoothness]    = 50;
                     material.physics[reflectance]   = 127;
                     material.physics[conductivity]  = 0;
 
@@ -130,7 +130,7 @@ namespace util
 
                 // Satin drapes and roof.
                 case 201:
-                    material.physics[smoothness]    = 114;
+                    material.physics[smoothness]    = 20;
                     material.physics[reflectance]   = 99;
                     material.physics[conductivity]  = 0;
 
@@ -139,7 +139,7 @@ namespace util
 
                 // Green leaves.
                 case 202:
-                    material.physics[smoothness]    = 145;
+                    material.physics[smoothness]    = 100;
                     material.physics[reflectance]   = 151;
                     material.physics[conductivity]  = 0;
 
@@ -148,7 +148,7 @@ namespace util
 
                 // Brass metallic poles.
                 case 203:
-                    material.physics[smoothness]    = 140;
+                    material.physics[smoothness]    = 155;
                     material.physics[conductivity]  = 255;
 
                     material.albedo = { 250, 230, 150 };
