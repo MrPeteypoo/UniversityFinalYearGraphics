@@ -108,6 +108,7 @@ void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
         // We'll need to rebuild the framebuffers due to a resolution changes.
         buildFramebuffers();
         buildUniforms();
+        buildSMAA();
     }
 }
 
@@ -343,8 +344,8 @@ bool Renderer::buildUniforms() noexcept
 
 bool Renderer::buildSMAA() noexcept
 {
-    if (!m_smaa.initialise (m_resolution.internalWidth, m_resolution.internalHeight,
-        m_smaaQuality, m_gbuffer.getDepthStencilTexture()))
+    if (!m_smaa.initialise (m_smaaQuality, m_resolution.internalWidth, m_resolution.internalHeight,
+       smaaStartingTextureUnit))
     {
         return false;
     }

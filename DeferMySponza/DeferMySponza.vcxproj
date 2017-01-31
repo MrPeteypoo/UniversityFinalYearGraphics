@@ -212,7 +212,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -239,7 +239,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -266,7 +266,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -293,7 +293,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -324,7 +324,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -355,7 +355,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -386,7 +386,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -417,7 +417,7 @@
       <Command>
         %(Command)
         echo tdk.pubs post-build ...
-        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)" 
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
         xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
         xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
         erase "$(TdkPubDir)*.pdb"
@@ -484,16 +484,24 @@
     <ClInclude Include="source\Utility\TypeTraits.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\ForwardRender.fs.glsl" />
-    <None Include="shaders\FullScreenTriangle.vs.glsl" />
-    <None Include="shaders\PhysicallyBasedShadingDefinitions.glsl" />
-    <None Include="shaders\ReflectionModels.fs.glsl" />
-    <None Include="shaders\Lights.fs.glsl" />
-    <None Include="shaders\LightVolume.vs.glsl" />
-    <None Include="shaders\Geometry.fs.glsl" />
-    <None Include="shaders\Geometry.vs.glsl" />
-    <None Include="shaders\LightingPass.fs.glsl" />
-    <None Include="shaders\MaterialFetcher.fs.glsl" />
+    <None Include="shaders\Shaders\Defines\SMAAFragmentShader.glsl" />
+    <None Include="shaders\Shaders\Defines\SMAAVertexShader.glsl" />
+    <None Include="shaders\Shaders\Rendering\ForwardRender.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\FullScreenTriangle.vs.glsl" />
+    <None Include="shaders\Shaders\Defines\PhysicallyBasedShading.glsl" />
+    <None Include="shaders\Shaders\Rendering\ReflectionModels.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Lights.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightVolume.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightingPass.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\MaterialFetcher.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />

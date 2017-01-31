@@ -35,7 +35,7 @@ void MyController::windowControlWillStart(tygra::Window * window)
     std::cout << "  Press F2 to turn off antialiasing." << std::endl;
     std::cout << "  Press F3 to set antialiasing to low" << std::endl;
     std::cout << "  Press F4 to set antialiasing to medium" << std::endl;
-    std::cout << "  Press F5 to set antialiasing to high" << std::endl;
+    std::cout << "  Press F5 to set antialiasing to high (default)" << std::endl;
     std::cout << "  Press F6 to set antialiasing to ultra" << std::endl;
     std::cout << "  Press F7 to use lambert + blinn-phong shading" << std::endl;
     std::cout << "  Press F8 to use physically-based shading (default)" << std::endl;

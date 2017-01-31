@@ -8,6 +8,7 @@
 #include <Rendering/Objects/Program.hpp>
 #include <Rendering/Objects/Texture.hpp>
 #include <Rendering/Renderer/Geometry/FullScreenTriangleVAO.hpp>
+#include <Rendering/Renderer/Programs/Shaders.hpp>
 
 
 /// <summary> 
@@ -42,12 +43,14 @@ class SMAA final
         /// Builds the shaders and textures required to perform subpixel morphological antialiasing. The object won't
         /// be modified if initialisation fails.
         /// </summary>
+        /// <param name="quality"> 
+        /// The quality preset to use. If Quality::None is passed then the object will be cleaned and return false. 
+        /// </param>
         /// <param name="width"> How many pixels wide the internal render targets should be. </param>
         /// <param name="height"> How many pixels tall the internal render targets should be. </param>
-        /// <param name="quality"> The quality preset to use. </param>
-        /// <param name="depthStencilBuffer"> The depth-stencil attachment to attach to render targets. </param>
+        /// <param name="startingTextureUnit"> Initial texture unit for textures, requires three units. </param>
         /// <returns> Whether the initialisation was successful. </returns>
-        bool initialise (GLsizei width, GLsizei height, Quality quality, const Texture& depthStencilBuffer) noexcept;
+        bool initialise (Quality quality, GLsizei width, GLsizei height, GLuint startingTextureUnit) noexcept;
 
         /// <summary> Deletes every stored object. </summary>
         void clean() noexcept;
@@ -71,13 +74,38 @@ class SMAA final
         Program         m_edgeDetectionPass { };    //!< The initial edge detection pass through the scene.
         RenderTarget    m_edgeDetectionFBO  { };    //!< The render target for the edge detection pass.
 
-        Program         m_blendWeightPass   { };    //!< The second rendering pass which calculates blending weightings.
-        RenderTarget    m_blendWeightFBO    { };    //!< The render target for calculating blending weightings.
+        Program         m_weightingPass     { };    //!< The second rendering pass which calculates blending weightings.
+        RenderTarget    m_weightingFBO      { };    //!< The render target for calculating blending weightings.
 
         Program         m_blendingPass      { };    //!< The final blending pass where the aliased edges are blurred.
 
         Texture2D       m_areaTexture       { };    //!< A precalculated texture required for blending.
         Texture2D       m_searchTexture     { };    //!< A precalculated texture required for blending.
+
+    private:
+
+        /// <summary> Loads the precalculated textures. </summary>
+        void loadTextures (Texture2D& areaTex, Texture2D& searchTex) const noexcept;
+
+        /// <summary> Attempts to compile the three required programs based on the given quality preset. </summary>
+        bool compilePrograms (Program& edge, Program& weight, Program& blend, const Texture& areaTex, 
+            const Texture& searchTex, Quality quality, GLsizei width, GLsizei height, 
+            GLuint outputTextureUnit) const noexcept;
+
+        /// <summary> Allocates memory and configures each render target with the given parameters. </summary>
+        bool configureRenderTargets (RenderTarget& edge, RenderTarget& weight, 
+            GLsizei width, GLsizei height) const noexcept;
+
+        /// <summary> All textures require the same parameters which can be set using this. </summary>
+        template <GLenum target>
+        void setTextureParameters (TextureT<target>& texture) const noexcept;
+
+        /// <summary> Returns shader definitions for the given parameters. </summary>
+        Shader::RawSource calculateDefines (Quality quality, GLsizei width, GLsizei height) const noexcept;
+
+        /// <summary> Compiles the shaders required to perform SMAA. </summary>
+        /// <param name="extraDefines"> Any additional defines that are determined at run-time. </param>
+        Shaders compileShaders (Shader::RawSource extraDefines) const noexcept;
 };
 
 #endif // _RENDERING_RENDERER_DRAWING_SMAA_

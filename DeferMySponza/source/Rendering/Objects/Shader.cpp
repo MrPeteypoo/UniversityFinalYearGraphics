@@ -75,7 +75,7 @@ void Shader::clean() noexcept
 }
 
 
-bool Shader::attachSourceFile (const std::string& fileLocation) noexcept
+bool Shader::attachSource (const std::string& fileLocation) noexcept
 {
     // Use the tygra library to read the entire file.
     auto string = tygra::createStringFromFile (fileLocation);
@@ -87,6 +87,18 @@ bool Shader::attachSourceFile (const std::string& fileLocation) noexcept
     }
 
     m_source.emplace_back (std::move (string));
+    return true;
+}
+
+
+bool Shader::attachSource (RawSource source) noexcept
+{
+    if (source.text.empty())
+    { 
+        return false;
+    }
+    
+    m_source.emplace_back (std::move (source.text)); 
     return true;
 }
 
