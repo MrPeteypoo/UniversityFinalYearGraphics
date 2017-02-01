@@ -109,7 +109,7 @@ void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedT
     const auto vaoBinder    = VertexArrayBinder { triangle.vao };
     const auto inputBinder  = TextureBinder { aliasedTexture };
     const auto progBinder   = ProgramBinder { m_edgeDetectionPass };
-    const auto fboBinder    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_edgeDetectionFBO.fbo };
+    const auto fboBinder    = FramebufferBinder<GL_FRAMEBUFFER> { m_edgeDetectionFBO.fbo };
 
     // Start by setting the program uniforms for the input. The input should always be bound to zero.
     glProgramUniform1i (m_edgeDetectionPass.getID(), 0, inputBinder.getTextureUnit());
@@ -121,7 +121,7 @@ void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedT
     glCullFace (GL_BACK);
 
     glEnable (GL_STENCIL_TEST);
-    glStencilFunc (GL_ALWAYS, 128, ~0);
+    glStencilFunc (GL_ALWAYS, 1, ~0);
     glStencilOp (GL_ZERO, GL_ZERO, GL_REPLACE);
 
     glClearColor (0.f, 0.f, 0.f, 0.f);
@@ -151,6 +151,8 @@ void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedT
 
     // Here we only execute when the pixel is an edge.
     glStencilFunc (GL_NOTEQUAL, 0, ~0);
+    glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
+
     glClear (GL_COLOR_BUFFER_BIT);
     glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
 
@@ -187,14 +189,31 @@ void SMAA::setTextureParameters (TextureT<target>& texture) const noexcept
 void SMAA::loadTextures (Texture2D& areaTex, Texture2D& searchTex) const noexcept
 {
     // The area texture needs to be stored in RGB8 format and loaded using GL_RG.
-    areaTex.allocateImmutableStorage (GL_RGB8, AREATEX_WIDTH, AREATEX_HEIGHT);
-    areaTex.placeAt (0, 0, AREATEX_WIDTH, AREATEX_HEIGHT, GL_RG, GL_UNSIGNED_BYTE, areaTexBytes);
-    setTextureParameters (areaTex);
-
+    areaTex.allocateImmutableStorage (GL_RG8, AREATEX_WIDTH, AREATEX_HEIGHT);
+    flipAndLoadTexture (areaTex, AREATEX_WIDTH, AREATEX_HEIGHT, AREATEX_PITCH, AREATEX_SIZE, 
+        GL_RG, areaTexBytes);
+    
     // The search texture needs to be stored in R8 format and loaded using GL_RED.
     searchTex.allocateImmutableStorage (GL_R8, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT);
-    searchTex.placeAt (0, 0, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, searchTexBytes);
-    setTextureParameters (searchTex);
+    flipAndLoadTexture (searchTex, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, SEARCHTEX_PITCH, SEARCHTEX_SIZE, 
+        GL_RED, searchTexBytes);
+}
+
+
+void SMAA::flipAndLoadTexture (Texture2D& texture, GLsizei width, GLsizei height, GLsizei pitch, GLsizei size, 
+    GLenum pixelFormat, const GLubyte* pixels) const noexcept
+{
+    // Big thanks to https://github.com/turol/smaaDemo/blob/master/ for showing how to flip the textures.
+    auto flippedPixels = std::vector<GLubyte> (size);
+
+    for (GLsizei y = 0; y < height; ++y)
+    {
+        const auto srcY = height - 1 - y;
+        std::memcpy (&flippedPixels[y * pitch], pixels + srcY * pitch, pitch);
+    }
+
+    texture.placeAt (0, 0, width, height, pixelFormat, GL_UNSIGNED_BYTE, flippedPixels.data());
+    setTextureParameters (texture);
 }
 
 

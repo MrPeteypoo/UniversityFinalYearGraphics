@@ -91,6 +91,12 @@ class SMAA final
         /// <summary> Loads the precalculated textures. </summary>
         void loadTextures (Texture2D& areaTex, Texture2D& searchTex) const noexcept;
 
+        /// <summary> 
+        /// The Y co-ordinate of the precalculated textures needs to be flipped in OpenGL due to lookup differences. 
+        /// </summary>
+        void flipAndLoadTexture (Texture2D& texture, GLsizei width, GLsizei height, GLsizei pitch, GLsizei size, 
+            GLenum pixelFormat, const GLubyte* pixels) const noexcept;
+
         /// <summary> Attempts to compile the three required programs based on the given quality preset. </summary>
         bool compilePrograms (Program& edge, Program& weight, Program& blend, const Texture& areaTex, 
             const Texture& searchTex, Quality quality, GLsizei width, GLsizei height, 

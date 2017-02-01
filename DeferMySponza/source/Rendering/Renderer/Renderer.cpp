@@ -345,7 +345,7 @@ bool Renderer::buildUniforms() noexcept
 bool Renderer::buildSMAA() noexcept
 {
     if (!m_smaa.initialise (m_smaaQuality, m_resolution.internalWidth, m_resolution.internalHeight,
-       smaaStartingTextureUnit, true))
+       smaaStartingTextureUnit, false))
     {
         return false;
     }
