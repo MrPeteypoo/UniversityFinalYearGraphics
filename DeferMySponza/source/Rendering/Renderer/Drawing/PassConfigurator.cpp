@@ -82,12 +82,3 @@ void PassConfigurator::lightVolumePass() noexcept
     glBlendFunc (GL_ONE, GL_ONE);
     glBlendEquation (GL_FUNC_ADD);
 }
-
-
-void PassConfigurator::antialiasingPass() noexcept
-{
-    glDisable (GL_DEPTH_TEST);
-    glDisable (GL_STENCIL_TEST);
-    glCullFace (GL_BACK);
-    glDisable (GL_BLEND);
-}

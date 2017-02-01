@@ -345,7 +345,7 @@ bool Renderer::buildUniforms() noexcept
 bool Renderer::buildSMAA() noexcept
 {
     if (!m_smaa.initialise (m_smaaQuality, m_resolution.internalWidth, m_resolution.internalHeight,
-       smaaStartingTextureUnit))
+       smaaStartingTextureUnit, true))
     {
         return false;
     }
@@ -449,8 +449,7 @@ void Renderer::render() noexcept
     // Render to the screen performing antialiasing if necessary.
     if (m_smaaQuality != SMAA::Quality::None)
     {
-        PassConfigurator::antialiasingPass();
-        m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer());
+        m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer(), &m_gbuffer.getDepthStencilTexture());
     }
 
     else

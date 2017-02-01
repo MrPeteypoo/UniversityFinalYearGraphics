@@ -49,8 +49,10 @@ class SMAA final
         /// <param name="width"> How many pixels wide the internal render targets should be. </param>
         /// <param name="height"> How many pixels tall the internal render targets should be. </param>
         /// <param name="startingTextureUnit"> Initial texture unit for textures, requires three units. </param>
+        /// <param name="usePredication"> Will a predication texture be provided when running? </param>
         /// <returns> Whether the initialisation was successful. </returns>
-        bool initialise (Quality quality, GLsizei width, GLsizei height, GLuint startingTextureUnit) noexcept;
+        bool initialise (Quality quality, GLsizei width, GLsizei height, GLuint startingTextureUnit, 
+            bool usePredication = false) noexcept;
 
         /// <summary> Deletes every stored object. </summary>
         void clean() noexcept;
@@ -58,9 +60,10 @@ class SMAA final
         /// <summary> Performs subpixel morphological antialiasing on the given texture. </summary>
         /// <param name="vao"> The vao containing a full-screen triangle. </param>
         /// <param name="aliasedTexture"> The input texture to antialias. </param>
+        /// <param name="predication"> A texture to be supplied for predicated thresholding. </param>
         /// <param name="output"> The framebuffer to output to, if null then the output will be the screen. </param>
         void run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedTexture, 
-            const Framebuffer* output = nullptr) noexcept;
+            const Texture2D* predication = nullptr, const Framebuffer* output = nullptr) noexcept;
 
     private:
 
@@ -81,6 +84,7 @@ class SMAA final
 
         Texture2D       m_areaTexture       { };    //!< A precalculated texture required for blending.
         Texture2D       m_searchTexture     { };    //!< A precalculated texture required for blending.
+        Texture2D       m_stencil           { };    //!< A stencil buffer used to optimise which pixels are modified.
 
     private:
 
@@ -90,10 +94,10 @@ class SMAA final
         /// <summary> Attempts to compile the three required programs based on the given quality preset. </summary>
         bool compilePrograms (Program& edge, Program& weight, Program& blend, const Texture& areaTex, 
             const Texture& searchTex, Quality quality, GLsizei width, GLsizei height, 
-            GLuint outputTextureUnit) const noexcept;
+            GLuint outputTextureUnit, bool usePredication) const noexcept;
 
         /// <summary> Allocates memory and configures each render target with the given parameters. </summary>
-        bool configureRenderTargets (RenderTarget& edge, RenderTarget& weight, 
+        bool configureRenderTargets (RenderTarget& edge, RenderTarget& weight, Texture2D& stencil,
             GLsizei width, GLsizei height) const noexcept;
 
         /// <summary> All textures require the same parameters which can be set using this. </summary>
@@ -101,7 +105,8 @@ class SMAA final
         void setTextureParameters (TextureT<target>& texture) const noexcept;
 
         /// <summary> Returns shader definitions for the given parameters. </summary>
-        Shader::RawSource calculateDefines (Quality quality, GLsizei width, GLsizei height) const noexcept;
+        Shader::RawSource calculateDefines (Quality quality, GLsizei width, GLsizei height, 
+            bool usePredication) const noexcept;
 
         /// <summary> Compiles the shaders required to perform SMAA. </summary>
         /// <param name="extraDefines"> Any additional defines that are determined at run-time. </param>

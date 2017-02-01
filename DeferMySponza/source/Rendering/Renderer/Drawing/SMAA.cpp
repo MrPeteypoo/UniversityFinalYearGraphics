@@ -19,11 +19,13 @@ bool SMAA::isInitialised() const noexcept
     return m_edgeDetectionPass.isInitialised() && m_edgeDetectionFBO.fbo.isInitialised() && 
         m_edgeDetectionFBO.output.isInitialised() && m_weightingPass.isInitialised() && 
         m_weightingFBO.fbo.isInitialised() && m_weightingFBO.output.isInitialised() &&
-        m_blendingPass.isInitialised() && m_areaTexture.isInitialised() && m_searchTexture.isInitialised();
+        m_blendingPass.isInitialised() && m_areaTexture.isInitialised() && m_searchTexture.isInitialised() &&
+        m_stencil.isInitialised();
 }
 
 
-bool SMAA::initialise (Quality quality, GLsizei width, GLsizei height, GLuint startingTextureUnit) noexcept
+bool SMAA::initialise (Quality quality, GLsizei width, GLsizei height, GLuint startingTextureUnit,
+    bool usePredication) noexcept
 {
     // Clean the object if no antialiasing is to be performed.
     if (quality == Quality::None)
@@ -41,13 +43,14 @@ bool SMAA::initialise (Quality quality, GLsizei width, GLsizei height, GLuint st
     // Create temporary objects.
     decltype (m_edgeDetectionPass)  edgeProg, weightProg, blendProg;
     decltype (m_edgeDetectionFBO)   edgeFBO, weightFBO;
-    decltype (m_areaTexture)        areaTex, searchTex;
+    decltype (m_areaTexture)        areaTex, searchTex, stencil;
 
     // Initialise objects.
     if (!(edgeProg.initialise() && weightProg.initialise() && blendProg.initialise() &&
         edgeFBO.fbo.initialise() && edgeFBO.output.initialise (startingTextureUnit) &&
         weightFBO.fbo.initialise() && weightFBO.output.initialise (startingTextureUnit) &&
-        areaTex.initialise (startingTextureUnit + 1), searchTex.initialise (startingTextureUnit + 2)))
+        areaTex.initialise (startingTextureUnit + 1), searchTex.initialise (startingTextureUnit + 2) &&
+        stencil.initialise (startingTextureUnit)))
     {
         return false;
     }
@@ -57,13 +60,13 @@ bool SMAA::initialise (Quality quality, GLsizei width, GLsizei height, GLuint st
 
     // Compile each program.
     if (!compilePrograms (edgeProg, weightProg, blendProg, areaTex, searchTex, 
-        quality, width, height, startingTextureUnit))
+        quality, width, height, startingTextureUnit, usePredication))
     {
         return false;
     }
 
     // Prepare the render targets.
-    if (!configureRenderTargets (edgeFBO, weightFBO, width, height))
+    if (!configureRenderTargets (edgeFBO, weightFBO, stencil, width, height))
     {
         return false;
     }
@@ -76,6 +79,7 @@ bool SMAA::initialise (Quality quality, GLsizei width, GLsizei height, GLuint st
     m_blendingPass      = std::move (blendProg);
     m_areaTexture       = std::move (areaTex);
     m_searchTexture     = std::move (searchTex);
+    m_stencil           = std::move (stencil);
     return true;
 }
 
@@ -93,27 +97,50 @@ void SMAA::clean() noexcept
         m_blendingPass.clean();
         m_areaTexture.clean();
         m_searchTexture.clean();
+        m_stencil.clean();
     }
 }
 
 
-void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedTexture, const Framebuffer* output) noexcept
-{
-    // Start by setting the program uniforms for the input. The input should always be bound to zero.
-    glProgramUniform1i (m_edgeDetectionPass.getID(), 0, aliasedTexture.getDesiredTextureUnit());
-    glProgramUniform1i (m_blendingPass.getID(), 0, aliasedTexture.getDesiredTextureUnit());
-
-    // Bind globals.
+void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedTexture, 
+    const Texture2D* predication, const Framebuffer* output) noexcept
+{   
+    // Perform the edge detection pass.
     const auto vaoBinder    = VertexArrayBinder { triangle.vao };
     const auto inputBinder  = TextureBinder { aliasedTexture };
-
-    // Perform the edge detection pass.
     const auto progBinder   = ProgramBinder { m_edgeDetectionPass };
     const auto fboBinder    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_edgeDetectionFBO.fbo };
 
+    // Start by setting the program uniforms for the input. The input should always be bound to zero.
+    glProgramUniform1i (m_edgeDetectionPass.getID(), 0, inputBinder.getTextureUnit());
+    glProgramUniform1i (m_blendingPass.getID(), 0, inputBinder.getTextureUnit());
+    
+    // Antialiasing only needs access to the stencil buffer.
+    glDisable (GL_DEPTH_TEST);
+    glDisable (GL_BLEND);
+    glCullFace (GL_BACK);
+
+    glEnable (GL_STENCIL_TEST);
+    glStencilFunc (GL_ALWAYS, 128, ~0);
+    glStencilOp (GL_ZERO, GL_ZERO, GL_REPLACE);
+
     glClearColor (0.f, 0.f, 0.f, 0.f);
-    glClear (GL_COLOR_BUFFER_BIT);
-    glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
+    glClearStencil (0);
+    glClear (GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    // Enable predication thresholding if necessary.
+    if (predication)
+    {
+        // The predication buffer should always be in location 1.
+        const auto binder = TextureBinder { *predication };
+        glProgramUniform1i (m_edgeDetectionPass.getID(), 1, binder.getTextureUnit());
+        glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
+    }
+
+    else
+    {
+        glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
+    }
 
     // Perform the weight calculation pass.
     const auto resultBinder = TextureBinder { m_edgeDetectionFBO.output };
@@ -122,6 +149,8 @@ void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedT
     progBinder.bind (m_weightingPass);
     fboBinder.bind (m_weightingFBO.fbo);
 
+    // Here we only execute when the pixel is an edge.
+    glStencilFunc (GL_NOTEQUAL, 0, ~0);
     glClear (GL_COLOR_BUFFER_BIT);
     glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
 
@@ -139,6 +168,7 @@ void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedT
         fboBinder.unbind();
     }
 
+    glDisable (GL_STENCIL_TEST);
     glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
 }
 
@@ -169,10 +199,11 @@ void SMAA::loadTextures (Texture2D& areaTex, Texture2D& searchTex) const noexcep
 
 
 bool SMAA::compilePrograms (Program& edge, Program& weight, Program& blend, const Texture& areaTex, 
-    const Texture& searchTex, Quality quality, GLsizei width, GLsizei height, GLuint outputTextureUnit) const noexcept
+    const Texture& searchTex, Quality quality, GLsizei width, GLsizei height, GLuint outputTextureUnit, 
+    bool usePredication) const noexcept
 {
     // We need to compile shaders before we can link the programs together.
-    const auto shaders = compileShaders (calculateDefines (quality, width, height));
+    const auto shaders = compileShaders (calculateDefines (quality, width, height, usePredication));
 
     // Attach the shaders.
     edge.attachShader (shaders.find (edgeDetectionVS));
@@ -209,26 +240,30 @@ bool SMAA::compilePrograms (Program& edge, Program& weight, Program& blend, cons
 }
 
 
-bool SMAA::configureRenderTargets (RenderTarget& edge, RenderTarget& weight, 
+bool SMAA::configureRenderTargets (RenderTarget& edge, RenderTarget& weight, Texture2D& stencil, 
     GLsizei width, GLsizei height) const noexcept
 {
     // We can use GL_RG for the edge texture and GL_RGBA for the blend texture.
     edge.output.allocateImmutableStorage (GL_RG8, width, height);
     weight.output.allocateImmutableStorage (GL_RGBA8, width, height);
+    stencil.allocateImmutableStorage (GL_STENCIL_INDEX8, width, height);
 
-    // Ensure texture parameters are configured.
+    // Ensure texture parameters are configured. We can ignore the stencil buffer.
     setTextureParameters (edge.output);
     setTextureParameters (weight.output);
 
     // Finally configure the framebuffers.
     edge.fbo.attachTexture (edge.output, GL_COLOR_ATTACHMENT0);
+    edge.fbo.attachTexture (stencil, GL_STENCIL_ATTACHMENT, false);
     weight.fbo.attachTexture (weight.output, GL_COLOR_ATTACHMENT0);
+    weight.fbo.attachTexture (stencil, GL_STENCIL_ATTACHMENT, false);
 
     return edge.fbo.complete() && weight.fbo.complete();
 }
 
 
-Shader::RawSource SMAA::calculateDefines (Quality quality, GLsizei width, GLsizei height) const noexcept
+Shader::RawSource SMAA::calculateDefines (Quality quality, GLsizei width, GLsizei height, 
+    bool usePredication) const noexcept
 {
     // Start with the metrics string, this defines the "screen" resolution.
     const auto widthString  = std::to_string (width);
@@ -236,17 +271,19 @@ Shader::RawSource SMAA::calculateDefines (Quality quality, GLsizei width, GLsize
     const auto metrics      = "#define SMAA_RT_METRICS float4 (1.0 / " + widthString + ", 1.0 / " + heightString +
         ", " + widthString + ", " + heightString + ")\n";
 
+    const auto predication = usePredication ? "#define SMAA_PREDICATION 1\n" : "";
+
     // Now determine the correct preset definition.
     switch (quality)
     {
         case Quality::Ultra:
-            return metrics + "#define SMAA_PRESET_ULTRA\n";
+            return metrics + predication + "#define SMAA_PRESET_ULTRA\n";
         case Quality::High:
-            return metrics + "#define SMAA_PRESET_HIGH\n";
+            return metrics + predication +"#define SMAA_PRESET_HIGH\n";
         case Quality::Medium:
-            return metrics + "#define SMAA_PRESET_MEDIUM\n";
+            return metrics + predication +"#define SMAA_PRESET_MEDIUM\n";
         default:
-            return metrics + "#define SMAA_PRESET_LOW\n";
+            return metrics + predication +"#define SMAA_PRESET_LOW\n";
     }
 }
 

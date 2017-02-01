@@ -27,9 +27,6 @@ class PassConfigurator final
         /// <summary> Prepares OpenGL to apply lighting via light volumes after applying global light. </summary>
         static void lightVolumePass() noexcept;
 
-        /// <summary> Prepares OpenGL for an antialiasing pass. </summary>
-        static void antialiasingPass() noexcept;
-
     private:
 
         constexpr static GLuint     skyStencilValue { 128 };    //!< The stencil value representing the sky.
