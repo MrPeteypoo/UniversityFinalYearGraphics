@@ -449,6 +449,7 @@ void Renderer::render() noexcept
     // Render to the screen performing antialiasing if necessary.
     if (m_smaaQuality != SMAA::Quality::None)
     {
+        PassConfigurator::antialiasingPass();
         m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer());
     }
 
