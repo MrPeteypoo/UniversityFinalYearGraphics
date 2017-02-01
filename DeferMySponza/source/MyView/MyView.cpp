@@ -22,6 +22,12 @@ void MyView::setShadingMode (bool usePhysicallyBasedShading) noexcept
     m_renderer.setShadingMode (usePhysicallyBasedShading);
 }
 
+
+void MyView::setAntiAliasingMode (SMAA::Quality quality) noexcept
+{
+    m_renderer.setAntiAliasingMode (quality);
+}
+
         
 void MyView::syncResolutions (bool shouldSyncResolutions) noexcept
 {

@@ -84,6 +84,19 @@ void Renderer::setShadingMode (bool usePhysicallyBasedShading) noexcept
 }
 
 
+void Renderer::setAntiAliasingMode (SMAA::Quality quality) noexcept
+{
+    // Only rebuild the AA if necessary.
+    const auto old = m_smaaQuality;
+    m_smaaQuality   = quality;
+
+    if (old != quality)
+    {
+        buildSMAA();
+    }
+}
+
+
 void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
 {
     // Only change the resolution if it's different from the current value.
@@ -95,6 +108,7 @@ void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
         // We'll need to rebuild the framebuffers due to a resolution changes.
         buildFramebuffers();
         buildUniforms();
+        buildSMAA();
     }
 }
 
@@ -110,21 +124,8 @@ void Renderer::setDisplayResolution (const glm::ivec2& resolution) noexcept
 
 
 bool Renderer::initialise (scene::Context* scene, const glm::ivec2& internalRes, const glm::ivec2& displayRes) noexcept
-{
-    // The following objects have external dependancies:
-    // Framebuffers:
-    //  -   Internal resolution
-    // Uniforms:
-    //  -   Programs
-    //  -   Materials
-    //  -   Framebuffers
-    // Geometry: 
-    //  -   Materials
-    //  -   Instancing buffers
-    // InstanceID vector:
-    //  -   Geometry
-    
-    // Make sure we keep areference to the scene.
+{   
+    // Make sure we keep a reference to the scene.
     m_scene = scene;
 
     // Programs can be built immediately.
@@ -173,6 +174,12 @@ bool Renderer::initialise (scene::Context* scene, const glm::ivec2& internalRes,
         return false;
     }
 
+    // Now that we have our framebuffers we can prepare for antialiasing.
+    if (!buildSMAA())
+    {
+        return false;
+    }
+
     // Finally we've succeeded my lord!
     fillDynamicInstances();
     return true;
@@ -192,6 +199,7 @@ void Renderer::clean() noexcept
     m_gbuffer.clean();
     m_lbuffer.clean();
     m_uniforms.clean();
+    m_smaa.clean();
     m_geometry.clean();
     m_scene                     = nullptr;
     m_resolution.internalWidth  = 0;
@@ -316,7 +324,7 @@ bool Renderer::buildFramebuffers() noexcept
 
     // Now we can initialise the framebuffers.
     return  m_gbuffer.initialise (width, height, gbufferStartingTextureUnit) &&
-            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height);
+            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height, lbufferStartingTextureUnit);
 }
 
 
@@ -333,6 +341,17 @@ bool Renderer::buildUniforms() noexcept
     return true;
 }
 
+
+bool Renderer::buildSMAA() noexcept
+{
+    if (!m_smaa.initialise (m_smaaQuality, m_resolution.internalWidth, m_resolution.internalHeight,
+       smaaStartingTextureUnit, false))
+    {
+        return false;
+    }
+
+    return true;
+}
 
 void Renderer::fillDynamicInstances() noexcept
 {
@@ -427,11 +446,19 @@ void Renderer::render() noexcept
         forwardRender (sceneVAO, actions);
     }
 
-    // Render to the screen.
-    glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
-        0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
-        0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
-        GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    // Render to the screen performing antialiasing if necessary.
+    if (m_smaaQuality != SMAA::Quality::None)
+    {
+        m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer(), &m_gbuffer.getDepthStencilTexture());
+    }
+
+    else
+    {
+        glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
+            0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
+            0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
+            GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    }
 
     // Cleanup.
     m_materials.unbindTextures();

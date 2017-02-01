@@ -208,6 +208,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'">
     <ClCompile>
@@ -222,6 +235,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -236,6 +262,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'">
     <ClCompile>
@@ -250,6 +289,19 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -268,6 +320,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'">
     <ClCompile>
@@ -286,6 +351,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -304,6 +382,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'">
     <ClCompile>
@@ -322,6 +413,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Misc\MyController.hpp" />
@@ -329,6 +433,7 @@
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
     <ClInclude Include="source\MyView.hpp" />
@@ -379,16 +484,24 @@
     <ClInclude Include="source\Utility\TypeTraits.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\ForwardRender.fs.glsl" />
-    <None Include="shaders\FullScreenTriangle.vs.glsl" />
-    <None Include="shaders\PhysicallyBasedShadingDefinitions.glsl" />
-    <None Include="shaders\ReflectionModels.fs.glsl" />
-    <None Include="shaders\Lights.fs.glsl" />
-    <None Include="shaders\LightVolume.vs.glsl" />
-    <None Include="shaders\Geometry.fs.glsl" />
-    <None Include="shaders\Geometry.vs.glsl" />
-    <None Include="shaders\LightingPass.fs.glsl" />
-    <None Include="shaders\MaterialFetcher.fs.glsl" />
+    <None Include="shaders\Shaders\Defines\SMAAFragmentShader.glsl" />
+    <None Include="shaders\Shaders\Defines\SMAAVertexShader.glsl" />
+    <None Include="shaders\Shaders\Rendering\ForwardRender.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\FullScreenTriangle.vs.glsl" />
+    <None Include="shaders\Shaders\Defines\PhysicallyBasedShading.glsl" />
+    <None Include="shaders\Shaders\Rendering\ReflectionModels.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Lights.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightVolume.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightingPass.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\MaterialFetcher.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
@@ -403,6 +516,7 @@
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />

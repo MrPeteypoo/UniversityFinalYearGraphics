@@ -1,0 +1,3 @@
+[submodule "external/include/smaa"]
+	path = external/include/smaa
+url=https://github.com/mbechard/smaa

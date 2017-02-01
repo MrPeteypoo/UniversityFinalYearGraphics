@@ -5,7 +5,7 @@
 
 // Personal headers.
 #include <Rendering/Objects/Framebuffer.hpp>
-#include <Rendering/Objects/Renderbuffer.hpp>
+#include <Rendering/Objects/Texture.hpp>
 
 
 /// <summary>
@@ -33,7 +33,7 @@ class LightBuffer final
         inline const Framebuffer& getFramebuffer() const noexcept   { return m_fbo; }
         
         /// <summary> Gets the renderbuffer containing colour data. </summary>
-        inline const Renderbuffer& getColourBuffer() const noexcept { return m_colour; }
+        inline const Texture2D& getColourBuffer() const noexcept { return m_colour; }
 
 
         /// <summary> 
@@ -45,9 +45,10 @@ class LightBuffer final
         /// <param name="internalFormat"> The data format of the renderbuffer, e.g. GL_RGB8. </param>
         /// <param name="width"> How many pixels wide the Gbuffer should be. </param>
         /// <param name="height"> How many pixels tall the Gbuffer should be. </param>
+        /// <param name="colourTextureUnit"> Which texture unit should be colour texture be bound to. </param>
         /// <returns> Whether the Gbuffer was successfully created or not. </returns>
         bool initialise (const Texture& depthStencilTexture, GLenum internalFormat, 
-            GLsizei width, GLsizei height, GLsizei samples = 0) noexcept;
+            GLsizei width, GLsizei height, GLuint colourTextureUnit) noexcept;
 
         /// <summary> Deletes the Gbuffer, freeing memory to the GPU. </summary>
         void clean() noexcept;
@@ -55,7 +56,7 @@ class LightBuffer final
     private:
 
         Framebuffer     m_fbo       { };    //!< The drawable framebuffer.
-        Renderbuffer    m_colour    { };    //!< The renderbuffer to apply colour onto.
+        Texture2D       m_colour    { };    //!< The colour attachment to output colour to.
 };
 
 #endif // _RENDERING_RENDERER_LIGHT_BUFFER_

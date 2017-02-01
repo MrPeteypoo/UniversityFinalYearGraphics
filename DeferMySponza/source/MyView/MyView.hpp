@@ -43,6 +43,9 @@ class MyView final : public tygra::WindowViewDelegate
         /// <summary> Sets whether the internal resolution should be synchronised with the display. </summary>
         void syncResolutions (bool shouldSyncResolutions) noexcept;
 
+        /// <summary> Sets the quality setting of the antialiasing to be performed. </summary>
+        void setAntiAliasingMode (SMAA::Quality quality) noexcept;
+
         /// <summary> Sets the internal resolution of the renderer, independent of the display window. </summary>
         void setInternalResolution (int width, int height) noexcept;
 		

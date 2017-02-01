@@ -178,36 +178,63 @@
     <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\Geometry.vs.glsl">
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\Geometry.fs.glsl">
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\ForwardRender.fs.glsl">
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\Lights.fs.glsl">
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\MaterialFetcher.fs.glsl">
+    <None Include="shaders\Shaders\Defines\PhysicallyBasedShading.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\ReflectionModels.fs.glsl">
+    <None Include="shaders\Shaders\Rendering\ForwardRender.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\LightingPass.fs.glsl">
+    <None Include="shaders\Shaders\Rendering\FullScreenTriangle.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\LightVolume.vs.glsl">
+    <None Include="shaders\Shaders\Rendering\Geometry.fs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\FullScreenTriangle.vs.glsl">
+    <None Include="shaders\Shaders\Rendering\Geometry.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\PhysicallyBasedShadingDefinitions.glsl">
+    <None Include="shaders\Shaders\Rendering\LightingPass.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Rendering\Lights.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Rendering\LightVolume.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Rendering\MaterialFetcher.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Rendering\ReflectionModels.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.fs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.vs.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Defines\SMAAVertexShader.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Defines\SMAAFragmentShader.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -294,6 +321,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -15,7 +15,7 @@ bool GeometryBuffer::initialise (const GLsizei width, const GLsizei height, cons
     auto positions      = TextureRectangle { };
     auto normals        = TextureRectangle { };
     auto materials      = TextureRectangle { };
-    auto depthStencil   = TextureRectangle { };
+    auto depthStencil   = Texture2D { };
 
     // Attempt to initialise each object.
     if (!(fbo.initialise() && positions.initialise (startingTextureUnit) && normals.initialise (startingTextureUnit + 1) &&

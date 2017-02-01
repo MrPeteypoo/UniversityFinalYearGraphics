@@ -19,7 +19,6 @@ bool Shaders::initialise (const bool usePhysicallyBasedShaders) noexcept
     bool success = true;
     const auto compileShader = [&] (const auto shaderType, const auto& main, auto&&... strings)
     {
-        std::cout << "Compiling '" << main << "'..." << std::endl;
         success = compile (shaderType, main, std::forward<decltype (strings)> (strings)...) && success;
     };
     

@@ -62,6 +62,11 @@ struct TextureBinder final
         glBindTextures (m_unit, 1, 0);
     }
 
+    inline GLuint getTextureUnit() const noexcept 
+    { 
+        return m_unit; 
+    }
+
     private:
 
        const GLuint m_unit { 0 }; //!< The texture unit being bound to.

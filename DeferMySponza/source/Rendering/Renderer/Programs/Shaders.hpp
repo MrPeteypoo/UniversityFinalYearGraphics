@@ -18,6 +18,7 @@
 class Shaders final
 {
     public:
+
         Shaders()                           = default;
         Shaders (Shaders&&)                 = default;
         Shaders& operator= (Shaders&&)      = default;
@@ -55,8 +56,8 @@ class Shaders final
         /// <param name="mainSource"> Where to look for the main source file. </param>
         /// <param name="preProcessorSources"> Any extra source files to be used for the preprocessor. </param>
         /// <returns> Whether the compilation was succesful or not. </returns>
-        template <typename... Args>
-        bool compile (const GLenum type, const std::string& mainSource, Args&& ...preProcessorSources) noexcept;
+        template <typename Source, typename... Args>
+        bool compile (const GLenum type, Source&& mainSource, Args&& ...preProcessorSources) noexcept;
 
         /// <summary> Attempts to find a compiled shader with at the given file location. </summary>
         /// <param name="fileLocation"> The file location of the compiled shader. </param>
@@ -73,30 +74,37 @@ class Shaders final
     private:
 
         /// <summary> Attaches each given source file location to the given shader. </summary>
-        template <typename... Args>
-        bool attachShaderSource (Shader& shader, const std::string& mainSource, 
-            const std::string& file, Args&& ...preProcessorSources) noexcept
+        template <typename Source, typename ExtraSource, typename... Args>
+        bool attachShaderSource (Shader& shader, Source&& mainSource, 
+            ExtraSource&& extraSource, Args&& ...preProcessorSources) noexcept
         {
-            return shader.attachSourceFile (file) ?
-                attachShaderSource (shader, mainSource, std::forward<Args> (preProcessorSources)...) :
+            return shader.attachSource (std::forward<ExtraSource> (extraSource)) ?
+                attachShaderSource (shader, std::forward<Source> (mainSource), std::forward<Args> (preProcessorSources)...) :
                 false;
         }
 
         /// <summary> Attaches each given source file location to the given shader. </summary>
-        bool attachShaderSource (Shader& shader, const std::string& mainSource) noexcept
+        template <typename Source>
+        bool attachShaderSource (Shader& shader, Source&& mainSource) noexcept
         {
-            return shader.attachSourceFile (mainSource);
+            return shader.attachSource (std::forward<Source> (mainSource));
         }
 };
 
-template <typename... Args>
-bool Shaders::compile (const GLenum type, const std::string& mainSource, Args&& ...preProcessorSources) noexcept
+
+// STL headers.
+#include <iostream>
+
+
+template <typename Source, typename... Args>
+bool Shaders::compile (const GLenum type, Source&& mainSource, Args&& ...preProcessorSources) noexcept
 {
     // Make sure we haven't already compiled the file.
     if (isCompiled (mainSource))
     {
         return true;
     }
+    std::cout << "Compiling '" << mainSource << "'..." << std::endl;
 
     // Make sure we can actually create a shader.
     auto shader = Shader {};
@@ -106,7 +114,7 @@ bool Shaders::compile (const GLenum type, const std::string& mainSource, Args&& 
     }
 
     // Attach all the specified source files
-    if (!attachShaderSource (shader, mainSource, std::forward<Args> (preProcessorSources)...))
+    if (!attachShaderSource (shader, std::forward<Source> (mainSource), std::forward<Args> (preProcessorSources)...))
     {
         return false;
     }

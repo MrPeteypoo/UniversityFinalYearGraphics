@@ -19,6 +19,17 @@ class Shader final
 {
     public:
 
+        /// <summary> Represents raw textual source code. </summary>
+        struct RawSource final
+        { 
+            std::string text;
+
+            RawSource (std::string source) 
+                : text (std::move (source))
+            {
+            }
+        };
+
         Shader() noexcept                   = default;
 
         Shader (Shader&&) noexcept;
@@ -55,7 +66,11 @@ class Shader final
         /// <summary> Attempts to attach the file at the given file location as source code. </summary>
         /// <param name="fileLocation"> The file location of the source code. </param>
         /// <returns> Whether the file at the given location could be read. </returns>
-        bool attachSourceFile (const std::string& fileLocation) noexcept;
+        bool attachSource (const std::string& fileLocation) noexcept;
+
+        /// <summary> Attaches the given string as source code. </summary>
+        /// <param name="source"> A string representation of some source code. </param>
+        bool attachSource (RawSource source) noexcept;
 
         /// <summary> Compile the shader as the given shader type with the attached source code files. </summary>
         /// <returns> Whether the shader was successfully compiled. </returns>

@@ -67,7 +67,7 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
     }
 
     // Support physically based and non-physically based shading techniques.
-    #ifdef _PHYSICALLY_BASED_SHADING_       
+    #ifdef PHYSICALLY_BASED_SHADING
         
         // Conductive surfaces absorb light so no diffuse reflection occurs.
         const float diffuseContribution = 1.0 - material.conductivity;
@@ -78,7 +78,7 @@ vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, co
         const float vDotN   = max (dot (v, n), 0.0001);
 
         // Calculate and scale diffuse and specular reflectance.
-        const vec3 diffuse  = diffuseContribution > 0.0 ? 
+        const vec3 diffuse = diffuseContribution > 0.0 ? 
             disneyDiffuse (lDotN, vDotN, hDotV) * diffuseContribution : 
             vec3 (0.0);
 

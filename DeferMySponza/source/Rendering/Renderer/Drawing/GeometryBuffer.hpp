@@ -37,19 +37,19 @@ class GeometryBuffer final
         bool isInitialised() const noexcept;
         
         /// <summary> Gets the drawable framebuffer object, representing the Gbuffer. </summary>
-        inline const Framebuffer& getFramebuffer() const noexcept               { return m_fbo; }
+        inline const Framebuffer& getFramebuffer() const noexcept           { return m_fbo; }
         
         /// <summary> Gets the texture containing position data. </summary>
-        inline const TextureRectangle& getPositionTexture() const noexcept      { return m_positions; }
+        inline const TextureRectangle& getPositionTexture() const noexcept  { return m_positions; }
         
         /// <summary> Gets the texture containing normal data. </summary>
-        inline const TextureRectangle& getNormalTexture() const noexcept        { return m_normals; }
+        inline const TextureRectangle& getNormalTexture() const noexcept    { return m_normals; }
         
         /// <summary> Gets the texture containing material data. </summary>
-        inline const TextureRectangle& getMaterialTexture() const noexcept      { return m_materials; }
+        inline const TextureRectangle& getMaterialTexture() const noexcept  { return m_materials; }
         
         /// <summary> Gets the texture containing depth and stencil data. </summary>
-        inline const TextureRectangle& getDepthStencilTexture() const noexcept  { return m_depthStencil; }
+        inline const Texture2D& getDepthStencilTexture() const noexcept     { return m_depthStencil; }
 
 
         /// <summary> 
@@ -71,7 +71,7 @@ class GeometryBuffer final
         TextureRectangle    m_positions     { }; //!< Contains the 3D position of the every drawn object.
         TextureRectangle    m_normals       { }; //!< Contains the 3D normal from drawn surfaces.
         TextureRectangle    m_materials     { }; //!< Contains the material ID and texture co-ords for drawn objects.
-        TextureRectangle    m_depthStencil  { }; //!< The depth & stencil value of every pixel.
+        Texture2D           m_depthStencil  { }; //!< The depth & stencil value of every pixel. This is a texture 2D so it can be used for SMAA.
 };
 
 #endif // _RENDERING_RENDERER_GEOMETRY_BUFFER_
