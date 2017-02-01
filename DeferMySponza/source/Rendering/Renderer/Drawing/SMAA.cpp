@@ -7,6 +7,10 @@
 
 
 // Personal headers.
+#include <Rendering/Binders/FramebufferBinder.hpp>
+#include <Rendering/Binders/ProgramBinder.hpp>
+#include <Rendering/Binders/TextureBinder.hpp>
+#include <Rendering/Binders/VertexArrayBinder.hpp>
 #include <Rendering/Renderer/Programs/HardCodedShaders.hpp>
 
 
@@ -93,9 +97,49 @@ void SMAA::clean() noexcept
 }
 
 
-void SMAA::run (const FullScreenTriangleVAO& vao, const Texture2D& aliasedTexture, const Framebuffer* output) noexcept
+void SMAA::run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedTexture, const Framebuffer* output) noexcept
 {
+    // Start by setting the program uniforms for the input. The input should always be bound to zero.
+    glProgramUniform1i (m_edgeDetectionPass.getID(), 0, aliasedTexture.getDesiredTextureUnit());
+    glProgramUniform1i (m_blendingPass.getID(), 0, aliasedTexture.getDesiredTextureUnit());
 
+    // Bind globals.
+    const auto vaoBinder    = VertexArrayBinder { triangle.vao };
+    const auto inputBinder  = TextureBinder { aliasedTexture };
+
+    // Perform the edge detection pass.
+    const auto progBinder   = ProgramBinder { m_edgeDetectionPass };
+    const auto fboBinder    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_edgeDetectionFBO.fbo };
+
+    glClearColor (0.f, 0.f, 0.f, 0.f);
+    glClear (GL_COLOR_BUFFER_BIT);
+    glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
+
+    // Perform the weight calculation pass.
+    const auto resultBinder = TextureBinder { m_edgeDetectionFBO.output };
+    const auto areaBinder   = TextureBinder { m_areaTexture };
+    const auto searchBinder = TextureBinder { m_searchTexture };
+    progBinder.bind (m_weightingPass);
+    fboBinder.bind (m_weightingFBO.fbo);
+
+    glClear (GL_COLOR_BUFFER_BIT);
+    glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
+
+    // Finally perform the blending pass.
+    resultBinder.bind (m_weightingFBO.output);
+    progBinder.bind (m_blendingPass);
+    
+    if (output)
+    {
+        fboBinder.bind (*output);
+    }
+
+    else
+    {
+        fboBinder.unbind();
+    }
+
+    glDrawArrays (GL_TRIANGLES, 0, triangle.vertexCount);
 }
 
 

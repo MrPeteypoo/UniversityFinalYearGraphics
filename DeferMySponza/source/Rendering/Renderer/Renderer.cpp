@@ -324,7 +324,7 @@ bool Renderer::buildFramebuffers() noexcept
 
     // Now we can initialise the framebuffers.
     return  m_gbuffer.initialise (width, height, gbufferStartingTextureUnit) &&
-            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_SRGB8_ALPHA8, width, height, lbufferStartingTextureUnit);
+            m_lbuffer.initialise (m_gbuffer.getDepthStencilTexture(), GL_RGBA8, width, height, lbufferStartingTextureUnit);
 }
 
 
@@ -449,15 +449,15 @@ void Renderer::render() noexcept
     // Render to the screen performing antialiasing if necessary.
     if (m_smaaQuality != SMAA::Quality::None)
     {
-        glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
-            0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
-            0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
-            GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer());
     }
 
     else
     {
-        m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer());
+        glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
+            0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
+            0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
+            GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
     // Cleanup.

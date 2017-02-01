@@ -59,7 +59,7 @@ class SMAA final
         /// <param name="vao"> The vao containing a full-screen triangle. </param>
         /// <param name="aliasedTexture"> The input texture to antialias. </param>
         /// <param name="output"> The framebuffer to output to, if null then the output will be the screen. </param>
-        void run (const FullScreenTriangleVAO& vao, const Texture2D& aliasedTexture, 
+        void run (const FullScreenTriangleVAO& triangle, const Texture2D& aliasedTexture, 
             const Framebuffer* output = nullptr) noexcept;
 
     private:
