@@ -72,20 +72,36 @@ class Framebuffer final
         /// <param name="level"> The mipmap level to attach. </param>
         void attachTexture (const Texture& texture, GLenum attachment, bool asDrawBuffer = true, GLint level = 0) noexcept;
 
+        /// <summary> Attaches an individual layer from a texture to the framebuffer. </summary>
+        /// <param name="texture"> The texture to be attached. </param>
+        /// <param name="attachment"> 
+        /// The location where the texture should be attached, e.g GL_COLOR_ATTACHMENT0,
+        /// GL_DEPTH_ATTACHMENT, GL_DEPTH_STENCIL_ATTACHMENT.
+        /// </param>
+        /// <param name="layer"> The layer of the texture to use as an attachment. </param>
+        /// <param name="asDrawBuffer"> Whether the attachment should be added as a draw buffer. </param>
+        /// <param name="level"> The mipmap level to attach. </param>
+        void attachTextureLayer (const Texture& texture, GLenum attachment, GLint layer, 
+            bool asDrawBuffer = true, GLint level = 0) noexcept;
+
         /// <summary> 
         /// Attempts to complete the buffer by specifying draw targets.
         /// </summary>
         /// <returns> Whether the framebuffer is complete and therefore can be used as a framebuffer target. </returns>
         bool complete() noexcept;
 
-        /// <summary> Invalidates every attachment causing their contents to become undefined. </summary>
-        void invalidateAllAttachments() noexcept;
-
     private:
 
         GLuint              m_buffer        { 0 };  //!< The OpenGL ID representing the framebuffer object.
-        std::vector<GLenum> m_attachments   { };    //!< The points at which attachments have been attached, e.g. GL_COLOR_ATTACHMENT0.
         std::vector<GLenum> m_drawBuffers   { };    //!< The draw buffers that should be applied to the framebuffer.
+
+    private:
+
+        /// <summary> Adds the attachment as a draw buffer, enabling it to be written to. </summary>
+        void addDrawBuffer (GLenum attachment) noexcept
+        {
+            m_drawBuffers.push_back (attachment);
+        }
 };
 
 #endif // _RENDERING_OBJECTS_FRAMEBUFFER_
