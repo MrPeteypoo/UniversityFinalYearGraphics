@@ -122,9 +122,9 @@ GLintptr Uniforms::calculateBlockSize() const noexcept
     const auto dirLightBlock    = calculateAlignedSize<decltype (m_directional.data)>();
     const auto pointLightBlock  = calculateAlignedSize<decltype (m_point.data)>();
     const auto spotlightBlock   = calculateAlignedSize<decltype (m_spot.data)>();
-    const auto lightPVBlock     = calculateAlignedSize<decltype (m_lightViews.data)>();
+    const auto lightViewblock   = calculateAlignedSize<decltype (m_lightViews.data)>();
     
-    return sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock + lightPVBlock;
+    return sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock + lightViewblock;
 }
 
 

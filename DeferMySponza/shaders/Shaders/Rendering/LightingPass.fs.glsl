@@ -22,7 +22,8 @@ flat    in  uint    lightIndex;     //!< The index of the light volume being ren
 void setFragmentMaterial (const in vec2 uvCoordinates, const in int materialID);
 vec3 directionalLightContributions (const in vec3 normal, const in vec3 view);
 vec3 pointLightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
-vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
+vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec4 lightSpacePosition, 
+    const in vec3 normal, const in vec3 view);
 
 
 // Forward declarations.
@@ -82,7 +83,7 @@ vec3 pointLightPass (const in vec3 position, const in vec3 normal)
 layout (index = 2) subroutine (LightingPass)
 vec3 spotlightPass (const in vec3 position, const in vec3 normal)
 {
-    return spotlightContribution (lightIndex, position, normal, viewDirection (position));
+    return spotlightContribution (lightIndex, position, lightSpacePos, normal, viewDirection (position));
 }
 
 

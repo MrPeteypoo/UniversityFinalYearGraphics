@@ -109,7 +109,8 @@ vec3 pointLightContribution (const in uint index, const in vec3 position, const 
 /**
     Calculates the lighting contribution of a spotlight at the given index.
 */
-vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view)
+vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 lightSpacePosition,
+    const in vec3 normal, const in vec3 view)
 {
     // Spotlights require a special luminance attenuation and cone attenuation.
     const Spotlight light = spotlights.lights[index];

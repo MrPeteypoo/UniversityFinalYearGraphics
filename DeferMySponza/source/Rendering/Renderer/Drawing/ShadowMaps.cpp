@@ -62,12 +62,17 @@ bool ShadowMaps::initialise (const std::vector<scene::SpotLight>& spotlights, co
     const auto depth        = static_cast<GLsizei> (lights.size());
 
     // Finally allocate memory in the sample before we use the temporary data.
-    maps.allocateImmutableStorage (GL_DEPTH_COMPONENT, resolution, resolution, depth);
+    maps.allocateImmutableStorage (GL_DEPTH_COMPONENT32, resolution, resolution, depth);
+    maps.setParameter (GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    maps.setParameter (GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    maps.setParameter (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    maps.setParameter (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     m_fbo       = std::move (fbo);
     m_maps      = std::move (maps);
     m_lights    = std::move (lights);
     m_ids       = std::move (ids);
+    m_res       = resolution;
     return true;
 }
 
@@ -78,10 +83,11 @@ void ShadowMaps::clean() noexcept
     m_maps.clean();
     m_lights.clear();
     m_ids.clear();
+    m_res = 0;
 }
 
 
-ModifiedRange ShadowMaps::setUniforms (const scene::Context* scene, glm::mat4* pointer, 
+ModifiedRange ShadowMaps::setUniforms (const scene::Context* scene, FullBlock<glm::mat4>* block, 
     GLsizeiptr start) const noexcept
 {
     // Ensure we have a scene and that there are any spotlights to set uniforms for.
@@ -104,12 +110,13 @@ ModifiedRange ShadowMaps::setUniforms (const scene::Context* scene, glm::mat4* p
         if (spotlight.getId() == currentID)
         {
             // Create a view transform from the perspective of the light.
-            const auto position     = util::toGLM (spotlight.getPosition());
-            const auto direction    = util::toGLM (spotlight.getDirection());
-            pointer[currentIndex++] = glm::lookAt (position, position + direction, upDirection);
+            const auto position             = util::toGLM (spotlight.getPosition());
+            const auto direction            = util::toGLM (spotlight.getDirection());
+            const auto projection           = glm::perspective (glm::radians (spotlight.getConeAngleDegrees()), 1.f, 0.01f, spotlight.getRange());
+            block->objects[currentIndex]    = projection * glm::lookAt (position, position + direction, upDirection);
 
             // Increment the ID we're finding.
-            if (currentIndex < shadowCasters)
+            if (++currentIndex < shadowCasters)
             {
                 currentID = m_lights[currentIndex];
             }
@@ -121,5 +128,6 @@ ModifiedRange ShadowMaps::setUniforms (const scene::Context* scene, glm::mat4* p
         }
     }
 
-    return { start, static_cast<GLsizei> (sizeof (*pointer) * currentIndex) };
+    block->count = static_cast<GLuint> (shadowCasters);
+    return { start, static_cast<GLsizei> (sizeof (block->count) + sizeof (glm::mat4x4) * currentIndex) };
 }

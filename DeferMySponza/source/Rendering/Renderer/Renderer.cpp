@@ -40,7 +40,7 @@ struct Renderer::ASyncActions final
     using DynamicObjectAction   = std::future<ModifiedDynamicObjectRanges>;
     using LightVolumeAction     = std::future<ModifiedLightVolumeRanges>;
 
-    Action              sceneUniforms, lightDrawCommands, directionalLights;
+    Action              sceneUniforms, shadowUniforms, lightDrawCommands, directionalLights;
     DynamicObjectAction dynamicObjects;
     LightVolumeAction   pointLights, spotLights;
     
@@ -60,6 +60,7 @@ struct Renderer::ASyncActions final
         };
         
         waitIfValid (sceneUniforms);
+        waitIfValid (shadowUniforms);
         waitIfValid (lightDrawCommands);
         waitIfValid (directionalLights);
         waitIfValid (dynamicObjects);
@@ -118,8 +119,6 @@ void Renderer::setDisplayResolution (const glm::ivec2& resolution) noexcept
     // After updating the resolution we need to update the viewport.
     m_resolution.displayWidth   = resolution.x;
     m_resolution.displayHeight  = resolution.y;
-    
-    glViewport (0, 0, resolution.x, resolution.y);
 }
 
 
@@ -285,7 +284,8 @@ bool Renderer::buildLightBuffers() noexcept
     
     // Now we can initialise the buffers
     if (!(m_lightDrawing.buffer.initialise (drawCommandSize, false, false) && 
-        m_lightTransforms.initialise (transformSize, false, false)))
+        m_lightTransforms.initialise (transformSize, false, false) &&
+        m_shadowMaps.initialise (spot, shadowMapStartingTextureUnit)))
     {
         return false;
     }
@@ -417,9 +417,16 @@ void Renderer::render() noexcept
     actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point); });
     actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, point.size()); });
 
-    // We only need to fill the light draw command buffer if we're doing a deferred render.
     if (m_deferredRender)
     {
+        // Shadows are unsupported in forward rendering mode right now.
+        actions.shadowUniforms = std::async (policy, [&] () 
+        { 
+            auto data = m_uniforms.getWritableLightViewData();
+            return m_shadowMaps.setUniforms (m_scene, data.data, data.offset);
+        });
+        
+        // We only need to fill the light draw command buffer if we're doing a deferred render.
         actions.lightDrawCommands = std::async (policy, [&]() 
         { 
             return updateLightDrawCommands (static_cast<GLuint> (point.size()), static_cast<GLuint> (spot.size())); 
@@ -494,22 +501,18 @@ void Renderer::syncWithGPUIfNecessary() const noexcept
 
 void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
-    // We need to perform a geometry pass to collect the position, normal and material data of every object that's 
-    // visible on-screen.
-    const auto activeProgram        = ProgramBinder { m_programs.geometryPass };
-    const auto activeFramebuffer    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
-
-    // Prepare the fresh frame.
-    PassConfigurator::geometryPass();
+    // Start by generating shadow maps for spotlights in the scene.
+    PassConfigurator::shadowMapPass();
+    const auto activeProgram = ProgramBinder { m_programs.shadowMapPass };
 
     // We only need to update the scene uniforms at this stage.
-    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
-
-    // Now we can render static objects.
     const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
     const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
+    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
+    m_uniforms.notifyModifiedDataRange (actions.shadowUniforms.get());
 
-    staticObjects.drawWithoutBinding();
+    // Generate shadow maps for static objects.
+    m_shadowMaps.generateMaps (true, [&] () { staticObjects.drawWithoutBinding(); });
 
     // We must prepare for drawing dynamic objects.
     sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
@@ -519,7 +522,23 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
     m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
 
-    // Now we can draw the rest of the geometry!
+    // Generate shadow maps for dynamic objects.
+    activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
+    m_shadowMaps.generateMaps (false, [&] () { m_objectDrawing.drawWithoutBinding(); });
+
+    // We need to perform a geometry pass to collect the position, normal and material data of every object that's 
+    // visible on-screen.
+    const auto activeFramebuffer = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
+    activeProgram.bind (m_programs.geometryPass);
+    PassConfigurator::geometryPass();
+    glViewport (0, 0, m_resolution.displayWidth, m_resolution.displayHeight);
+
+    // Draw static objects.
+    sceneVAO.useStaticBuffers();
+    activeIndirectBuffer.bind (staticObjects.buffer.getID());
+    staticObjects.drawWithoutBinding();
+
+    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
     activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
     m_objectDrawing.drawWithoutBinding();
 

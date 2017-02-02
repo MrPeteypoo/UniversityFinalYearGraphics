@@ -17,6 +17,7 @@
 #include <Rendering/Composites/PersistentMappedBuffer.hpp>
 #include <Rendering/Objects/Framebuffer.hpp>
 #include <Rendering/Objects/Texture.hpp>
+#include <Rendering/Renderer/Uniforms/Blocks/FullBlock.hpp>
 
 
 /// <summary> 
@@ -60,10 +61,10 @@ class ShadowMaps final
 
         /// <summary> Sets the light projection-view transforms for shadow mapping. </summary>
         /// <param name="scene"> The scene context containing light data for the current frame. </param>
-        /// <param name="pointer"> A pointer to the start of the data to write to. </param>
+        /// <param name="block"> A pointer to the start of the data to write to. </param>
         /// <param name="start"> A starting offset, used for returning the correct range. </param>
         /// <returns> The range of data which has been modified. </returns>
-        ModifiedRange setUniforms (const scene::Context* scene, glm::mat4* pointer, GLsizeiptr start) const noexcept;
+        ModifiedRange setUniforms (const scene::Context* scene, FullBlock<glm::mat4>* block, GLsizeiptr start) const noexcept;
 
         /// <summary> 
         /// Generates shadow maps based on the given render function. This will change the value of the uniform at 
@@ -85,6 +86,7 @@ class ShadowMaps final
         Texture2DArray  m_maps      { };    //!< Contains every shadow map in the scene.
         Spotlights      m_lights    { };    //!< Contains every shadow-casting light in the scene.
         MapIDs          m_ids       { };    //!< Maps LightIDs to an index in the maps sampler for the shadow map.
+        GLsizei         m_res       { 0 };  //!< The resolution of the shadow maps.
 };
 
 
@@ -94,6 +96,7 @@ void ShadowMaps::generateMaps (const bool clearDepth, const RenderFunc& renderFu
     // We must go through each light, setting the index of the view matrix to use and render the scene.
     const auto fbo      = FramebufferBinder<GL_FRAMEBUFFER> { m_fbo };
     const auto mapCount = static_cast<GLint> (m_lights.size());
+    glViewport (0, 0, m_res, m_res);
 
     for (GLint i { 0 }; i < mapCount; ++i)
     {

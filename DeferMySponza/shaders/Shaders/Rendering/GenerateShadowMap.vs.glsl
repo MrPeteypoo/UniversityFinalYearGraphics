@@ -1,14 +1,5 @@
 #version 450
 
-layout (std140) uniform Scene
-{
-    mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
-    mat4 view;          //!< The view transform representing where the camera is looking.
-
-    vec3 camera;        //!< Contains the position of the camera in world space.
-    vec3 ambience;      //!< The ambient lighting in the scene.
-} scene;
-
 layout (std140) uniform LightViews
 {
     #define LightViewMax 25
@@ -31,7 +22,7 @@ void main()
 {
     // We need the position with a homogeneous value and we need to create the PVM transform.
     const vec4 homogeneousPosition  = vec4 (position, 1.0);
-    const mat4 projectionViewModel  = scene.projection * lightViews.transforms[viewIndex] * mat4 (model);
+    const mat4 projectionViewModel  = lightViews.transforms[viewIndex] * mat4 (model);
 
     // Place the vertex in the correct position on-screen.
     gl_Position = projectionViewModel * homogeneousPosition;

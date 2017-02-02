@@ -77,7 +77,7 @@ class Uniforms final
         Spotlights getWritableSpotlightData() const noexcept                { return m_spot; }
 
         /// <summary> Gets a copy of the pointer and partition offset to modifiable spotlight data. </summary>
-        LightViews getWritableLightPVData() const noexcept                  { return m_lightViews; }
+        LightViews getWritableLightViewData() const noexcept                { return m_lightViews; }
 
 
         /// <summary>

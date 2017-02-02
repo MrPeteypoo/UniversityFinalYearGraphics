@@ -86,8 +86,9 @@ class Renderer final
 
         constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 };         //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
         constexpr static auto lbufferStartingTextureUnit    = GLuint { 4 };         //!< The starting texture unit for the lbuffer, the lbuffer occupies a single unit.
-        constexpr static auto smaaStartingTextureUnit       = GLuint { 5 };         //!< The starting texture unit for the antialiasing textures, occupies three units.
-        constexpr static auto materialsStartingTextureUnit  = GLuint { 8 };         //!< The starting texture unit for the material data.
+        constexpr static auto shadowMapStartingTextureUnit  = GLuint { 5 };         //!< The starting texture unit for the shadow map array.
+        constexpr static auto smaaStartingTextureUnit       = GLuint { 6 };         //!< The starting texture unit for the antialiasing textures, occupies three units.
+        constexpr static auto materialsStartingTextureUnit  = GLuint { 9 };         //!< The starting texture unit for the material data.
         constexpr static auto defaultAA                     = SMAA::Quality::High;  //!< The default value for antialiasing.
 
         struct MeshInstances final

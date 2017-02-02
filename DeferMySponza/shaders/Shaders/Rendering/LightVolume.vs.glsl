@@ -91,7 +91,6 @@ layout (index = 2) subroutine (LightSpacePosition)
 vec4 spotlightSpacePosition (vec4 homogeneousPosition)
 {
     const int viewIndex = spotlights.lights[lightIndex].viewIndex;
-    return viewIndex >= 0 ? 
-        scene.projection * lightViews.transforms[viewIndex] * mat4 (model) * homogeneousPosition : 
+    return viewIndex >= 0 ? lightViews.transforms[viewIndex] * mat4 (model) * homogeneousPosition : 
         homogeneousPosition;
 }
