@@ -433,6 +433,7 @@
     <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
     <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
     <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\ShadowMaps.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
     <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
@@ -489,6 +490,7 @@
     <None Include="shaders\Shaders\Rendering\ForwardRender.fs.glsl" />
     <None Include="shaders\Shaders\Rendering\FullScreenTriangle.vs.glsl" />
     <None Include="shaders\Shaders\Defines\PhysicallyBasedShading.glsl" />
+    <None Include="shaders\Shaders\Rendering\GenerateShadowMap.vs.glsl" />
     <None Include="shaders\Shaders\Rendering\ReflectionModels.fs.glsl" />
     <None Include="shaders\Shaders\Rendering\Lights.fs.glsl" />
     <None Include="shaders\Shaders\Rendering\LightVolume.vs.glsl" />
@@ -516,6 +518,7 @@
     <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
     <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\ShadowMaps.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
     <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />

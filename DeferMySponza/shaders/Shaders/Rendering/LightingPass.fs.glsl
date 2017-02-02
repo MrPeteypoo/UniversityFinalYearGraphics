@@ -9,7 +9,7 @@ layout (std140) uniform Scene
     vec3 ambience;      //!< The ambient lighting in the scene.
 } scene;
 
-uniform sampler2DRect gbufferPositions;  //!< Contains the world position of objects at every pixel.
+uniform sampler2DRect gbufferPositions; //!< Contains the world position of objects at every pixel.
 uniform sampler2DRect gbufferNormals;   //!< Contains the world normal of objects at every pixel.
 uniform sampler2DRect gbufferMaterials; //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 

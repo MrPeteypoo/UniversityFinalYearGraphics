@@ -331,7 +331,7 @@ bool Renderer::buildFramebuffers() noexcept
 bool Renderer::buildUniforms() noexcept
 {
     // Make sure the uniforms build correctly.
-    if (!m_uniforms.initialise (m_gbuffer, m_materials))
+    if (!m_uniforms.initialise (m_gbuffer, m_shadowMaps, m_materials))
     {
         return false;
     }
@@ -567,7 +567,7 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     m_lightDrawing.drawWithoutBinding();
 
     // And finally spotlights.
-    Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubrotuing); 
+    Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubroutine); 
 
     const auto spotlightData = actions.spotLights.get();
     m_uniforms.notifyModifiedDataRange (spotlightData.uniforms);
@@ -727,11 +727,11 @@ ModifiedRange Renderer::updateLightDrawCommands (const GLuint pointLights, const
 ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::DirectionalLight>& lights) noexcept
 {
     auto uniforms = m_uniforms.getWritableDirectionalLightData();
-    return processLightUniforms (uniforms, lights, [] (const scene::DirectionalLight& scene)
+    return processLightUniforms (uniforms, lights, [] (const scene::DirectionalLight& scene, const float intensityScale)
     {
         auto light      = DirectionalLight {};
         light.direction = util::toGLM (scene.getDirection());
-        light.intensity = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
+        light.intensity = util::toGLM (scene.getIntensity()) * intensityScale; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
 
         return light;
     });
@@ -741,12 +741,12 @@ ModifiedRange Renderer::updateDirectionalLights (const std::vector<scene::Direct
 Renderer::ModifiedLightVolumeRanges Renderer::updatePointLights (const std::vector<scene::PointLight>& lights) noexcept
 {
     // We need lambdas for translating scene to uniform information.
-    const auto uniforms = [] (const scene::PointLight& scene)
+    const auto uniforms = [] (const scene::PointLight& scene, const float intensityScale)
     {
         auto light          = PointLight { };
         light.position      = util::toGLM (scene.getPosition());
         light.range         = scene.getRange();
-        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
+        light.intensity     = util::toGLM (scene.getIntensity()) * intensityScale; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
         light.aLinear       = 4.5f / light.range;
         light.aQuadratic    = 75.f / (light.range * light.range);
 
@@ -782,14 +782,14 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
             const size_t transformOffset) noexcept
 {
     // We need lambdas for translating scene to uniform information.
-    const auto uniforms = [] (const scene::SpotLight& scene)
+    const auto uniforms = [] (const scene::SpotLight& scene, const float intensityScale)
     {
         auto light          = Spotlight { };
         light.position      = util::toGLM (scene.getPosition());
         light.coneAngle     = scene.getConeAngleDegrees();
         light.direction     = util::toGLM (scene.getDirection());
         light.range         = scene.getRange();
-        light.intensity     = util::toGLM (scene.getIntensity()) * 1.25f; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
+        light.intensity     = util::toGLM (scene.getIntensity()) * intensityScale; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
         light.aLinear       = 4.5f / light.range;
         light.aQuadratic    = 75.f / (light.range * light.range);
 
