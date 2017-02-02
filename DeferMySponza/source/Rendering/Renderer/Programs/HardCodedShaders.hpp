@@ -19,6 +19,7 @@ const auto SMAAFSDefines    = "content:///Shaders/Defines/SMAAFragmentShader.gls
 
 // Vertex shaders.
 const auto geometryVS               = "content:///Shaders/Rendering/Geometry.vs.glsl"s;
+const auto shadowMapVS              = "content:///Shaders/Rendering/GenerateShadowMap.vs.glsl"s;
 const auto fullScreenTriangleVS     = "content:///Shaders/Rendering/FullScreenTriangle.vs.glsl"s;
 const auto lightVolumeVS            = "content:///Shaders/Rendering/LightVolume.vs.glsl"s;
 const auto edgeDetectionVS          = "content:///Shaders/SMAA/EdgeDetection.vs.glsl"s;

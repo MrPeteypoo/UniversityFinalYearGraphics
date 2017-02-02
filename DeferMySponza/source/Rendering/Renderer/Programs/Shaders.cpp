@@ -23,6 +23,7 @@ bool Shaders::initialise (const bool usePhysicallyBasedShaders) noexcept
     };
     
     compileShader (GL_VERTEX_SHADER, geometryVS);
+    compileShader (GL_VERTEX_SHADER, shadowMapVS);
     compileShader (GL_VERTEX_SHADER, fullScreenTriangleVS);
     compileShader (GL_VERTEX_SHADER, lightVolumeVS);
     
