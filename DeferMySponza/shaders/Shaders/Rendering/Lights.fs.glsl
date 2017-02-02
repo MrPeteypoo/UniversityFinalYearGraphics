@@ -31,10 +31,11 @@ struct Spotlight
 
     vec3    intensity;      //!< The colour and brightness of the light.
     float   concentration;  //!< Effects how focused the light is and how it distributes away from the centre.
-    float   aConstant;      //!< The constant co-efficient for the attenuation formula.
     
+    float   aConstant;      //!< The constant co-efficient for the attenuation formula.
     float   aLinear;        //!< The linear co-efficient for the attenuation formula.
     float   aQuadratic;     //!< The quadratic co-efficient for the attenuation formula.
+    int     viewIndex;      //!< Indicates which view transform to use, if this is -1 then the light doesn't cast a shadow.
 };
 
 layout (std140) uniform DirectionalLights

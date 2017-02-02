@@ -554,6 +554,7 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
 
     // Configure OpenGL and the new program for usage.
     PassConfigurator::lightVolumePass();
+    Programs::setActiveProgramSubroutine (GL_VERTEX_SHADER, Programs::pointLightSubroutine);
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::pointLightSubroutine);
 
     // Update the draw commands, uniforms and transforms.
@@ -567,6 +568,7 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     m_lightDrawing.drawWithoutBinding();
 
     // And finally spotlights.
+    Programs::setActiveProgramSubroutine (GL_VERTEX_SHADER, Programs::spotlightSubroutine); 
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubroutine); 
 
     const auto spotlightData = actions.spotLights.get();
@@ -782,7 +784,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
             const size_t transformOffset) noexcept
 {
     // We need lambdas for translating scene to uniform information.
-    const auto uniforms = [] (const scene::SpotLight& scene, const float intensityScale)
+    const auto uniforms = [&] (const scene::SpotLight& scene, const float intensityScale)
     {
         auto light          = Spotlight { };
         light.position      = util::toGLM (scene.getPosition());
@@ -792,6 +794,7 @@ Renderer::ModifiedLightVolumeRanges Renderer::updateSpotlights (const std::vecto
         light.intensity     = util::toGLM (scene.getIntensity()) * intensityScale; // Fudge factor because the non-PBS light intensities are a bit too low for PBS.
         light.aLinear       = 4.5f / light.range;
         light.aQuadratic    = 75.f / (light.range * light.range);
+        light.viewIndex     = scene.getCastShadow() ? m_shadowMaps[scene.getId()] : -1;
 
         return light;
     };

@@ -14,6 +14,7 @@ uniform sampler2DRect gbufferNormals;   //!< Contains the world normal of object
 uniform sampler2DRect gbufferMaterials; //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 
 flat    in  uint    lightIndex;     //!< The index of the light volume being rendered. 
+        in  vec4    lightSpacePos;  //!< The position of the vertex in light space.
         out vec3    reflectedLight; //!< The light contribution of the lighting pass.
 
 
@@ -25,11 +26,11 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
 
 
 // Forward declarations.
-subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
 vec3 viewDirection (const in vec3 position);
 
 
 // Subroutines.
+subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
 layout (location = 0) subroutine uniform LightingPass lightingPass; //!< Determines whether global, point or spot lighting calculations will occur.
 
 
