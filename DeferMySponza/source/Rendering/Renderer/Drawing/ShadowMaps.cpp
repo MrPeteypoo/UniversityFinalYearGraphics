@@ -67,6 +67,8 @@ bool ShadowMaps::initialise (const std::vector<scene::SpotLight>& spotlights, co
     maps.setParameter (GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     maps.setParameter (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     maps.setParameter (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    maps.setParameter (GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    maps.setParameter (GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
     m_fbo       = std::move (fbo);
     m_maps      = std::move (maps);

@@ -213,10 +213,10 @@ class Renderer final
         void syncWithGPUIfNecessary() const noexcept;
 
         /// <summary> Performs a forward render of the entire scene. </summary>
-        void forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
+        void forwardRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Performs a deferred render of the entire scene. </summary>
-        void deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
+        void deferredRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>
         ModifiedRange updateSceneUniforms() noexcept;

@@ -198,6 +198,7 @@ void Renderer::clean() noexcept
     m_gbuffer.clean();
     m_lbuffer.clean();
     m_uniforms.clean();
+    m_shadowMaps.clean();
     m_smaa.clean();
     m_geometry.clean();
     m_scene                     = nullptr;
@@ -443,14 +444,46 @@ void Renderer::render() noexcept
     // Ensure the VAO is bound.
     const auto vaoBinder = VertexArrayBinder { sceneVAO.vao };
 
+    // Start by generating shadow maps for spotlights in the scene.
+    PassConfigurator::shadowMapPass();
+    ProgramBinder::bind (m_programs.shadowMapPass);
+
+    // We only need to update the scene uniforms at this stage.
+    const auto& staticObjects = m_geometry.getStaticGeometryCommands();
+    BufferBinder<GL_DRAW_INDIRECT_BUFFER>::bind (staticObjects.buffer);
+
+    // Generate shadow maps for static objects.
+    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
+    m_uniforms.notifyModifiedDataRange (actions.shadowUniforms.get());
+    m_shadowMaps.generateMaps (true, [&] () { staticObjects.drawWithoutBinding(); });
+
+    // We must prepare for drawing dynamic objects.
+    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
+
+    const auto objectRanges = actions.dynamicObjects.get();
+    m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
+    m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
+    m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
+
+    // Generate shadow maps for dynamic objects.
+    BufferBinder<GL_DRAW_INDIRECT_BUFFER>::bind (m_objectDrawing.buffer.getID());
+    m_shadowMaps.generateMaps (false, [&] () { m_objectDrawing.drawWithoutBinding(); });
+
+    // Now prepare for rendering the scene again.
+    sceneVAO.useStaticBuffers();
+
+    // Ensure we reset the viewport and bind the shadow maps.
+    const auto shadowMaps = TextureBinder { m_shadowMaps.getShadowMaps() };
+    glViewport (0, 0, m_resolution.displayWidth, m_resolution.displayHeight);
+
     if (m_deferredRender)
     {
-        deferredRender (sceneVAO, actions);
+        deferredRender (staticObjects, sceneVAO, actions);
     }
 
     else
     {
-        forwardRender (sceneVAO, actions);
+        forwardRender (staticObjects, sceneVAO, actions);
     }
 
     // Render to the screen performing antialiasing if necessary.
@@ -499,39 +532,14 @@ void Renderer::syncWithGPUIfNecessary() const noexcept
 }
 
 
-void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept
+void Renderer::deferredRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
-    // Start by generating shadow maps for spotlights in the scene.
-    PassConfigurator::shadowMapPass();
-    const auto activeProgram = ProgramBinder { m_programs.shadowMapPass };
-
-    // We only need to update the scene uniforms at this stage.
-    const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
-    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
-    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
-    m_uniforms.notifyModifiedDataRange (actions.shadowUniforms.get());
-
-    // Generate shadow maps for static objects.
-    m_shadowMaps.generateMaps (true, [&] () { staticObjects.drawWithoutBinding(); });
-
-    // We must prepare for drawing dynamic objects.
-    sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
-
-    const auto objectRanges = actions.dynamicObjects.get();
-    m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
-    m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
-    m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
-
-    // Generate shadow maps for dynamic objects.
-    activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
-    m_shadowMaps.generateMaps (false, [&] () { m_objectDrawing.drawWithoutBinding(); });
-
     // We need to perform a geometry pass to collect the position, normal and material data of every object that's 
     // visible on-screen.
-    const auto activeFramebuffer = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
-    activeProgram.bind (m_programs.geometryPass);
+    const auto activeFramebuffer    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
+    const auto activeProgram        = ProgramBinder { m_programs.geometryPass };
+    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer.getID() };
     PassConfigurator::geometryPass();
-    glViewport (0, 0, m_resolution.displayWidth, m_resolution.displayHeight);
 
     // Draw static objects.
     sceneVAO.useStaticBuffers();
@@ -573,7 +581,6 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
 
     // Configure OpenGL and the new program for usage.
     PassConfigurator::lightVolumePass();
-    Programs::setActiveProgramSubroutine (GL_VERTEX_SHADER, Programs::pointLightSubroutine);
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::pointLightSubroutine);
 
     // Update the draw commands, uniforms and transforms.
@@ -587,7 +594,6 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
     m_lightDrawing.drawWithoutBinding();
 
     // And finally spotlights.
-    Programs::setActiveProgramSubroutine (GL_VERTEX_SHADER, Programs::spotlightSubroutine); 
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubroutine); 
 
     const auto spotlightData = actions.spotLights.get();
@@ -600,7 +606,7 @@ void Renderer::deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexce
 }
 
 
-void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept
+void Renderer::forwardRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
     // We need to use the purpose-made forward render program.
     const auto activeProgram = ProgramBinder { m_programs.forwardRender };
@@ -612,24 +618,17 @@ void Renderer::forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcep
     PassConfigurator::forwardRender();
 
     // Unfortunately forward rendering doesn't benefit from multi-threading too much so we have to synchronise early.
-    m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
     m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
     m_uniforms.notifyModifiedDataRange (actions.pointLights.get().uniforms);
     m_uniforms.notifyModifiedDataRange (actions.spotLights.get().uniforms);
     
     // Now we can render static objects.
-    const auto& staticObjects       = m_geometry.getStaticGeometryCommands();
     const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
 
     staticObjects.drawWithoutBinding();
 
     // Prepare for dynamic objects.
     sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
-
-    const auto objectRanges = actions.dynamicObjects.get();
-    m_objectDrawing.buffer.notifyModifiedDataRange (objectRanges.drawCommands);
-    m_objectMaterialIDs.notifyModifiedDataRange (objectRanges.materialIDs);
-    m_objectTransforms.notifyModifiedDataRange (objectRanges.transforms);
 
     // Now we can draw!
     activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
@@ -653,9 +652,10 @@ ModifiedRange Renderer::updateSceneUniforms() noexcept
     scene.data->projection = glm::perspective (glm::radians (camera.getVerticalFieldOfViewInDegrees()), aspectRatio, 
         camera.getNearPlaneDistance(), camera.getFarPlaneDistance());
 
-    scene.data->view        = glm::lookAt (camPosition, camPosition + camDirection, upDirection);
-    scene.data->camera      = camPosition;
-    scene.data->ambience    = util::toGLM (m_scene->getAmbientLightIntensity());
+    scene.data->view            = glm::lookAt (camPosition, camPosition + camDirection, upDirection);
+    scene.data->camera          = camPosition;
+    scene.data->ambience        = util::toGLM (m_scene->getAmbientLightIntensity());
+    scene.data->shadowMapSize   = m_shadowMaps.getResolution();
 
     return { scene.offset, sizeof (Scene) };
 }

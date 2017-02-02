@@ -62,9 +62,68 @@ layout (std140) uniform Spotlights
     Spotlight   lights[SpotlightsMax];  //!< A collection of light data.
 } spotlights;
 
+layout (std140) uniform LightViews
+{
+    #define LightViewMax 25
+    
+    uint    count;                      //!< How many transforms exist.
+    mat4    transforms[LightViewMax];   //!< A collection of light view transforms.
+} lightViews;
+
+layout (std140) uniform Scene
+{
+    mat4    projection;     //!< The projection transform which establishes the perspective of the vertex.
+    mat4    view;           //!< The view transform representing where the camera is looking.
+
+    vec3    camera;         //!< Contains the position of the camera in world space.
+    int     shadowMapRes;   //!< How many pixels wide/tall the shadow maps are.
+    vec3    ambience;       //!< The ambient lighting in the scene.
+} scene;
+
+
+// Uniforms.
+uniform sampler2DArrayShadow shadowMaps; //!< Contains shadow maps for every spotlight in the scene.
+
 
 // Externals.
-vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, const in vec3 E);
+vec3 calculateReflectance (const in vec3 l, const in vec3 n, const in vec3 v, const in vec3 e);
+
+
+/**
+    Calculates a shadowing factor to apply to the light at the current pixel.
+    http://ogldev.atspace.co.uk/www/tutorial42/tutorial42.html
+*/
+float spotlightShadow (const in vec3 position, const in int viewIndex)
+{
+    // Determine the position in light-space.
+    const vec4 lightSpace   = lightViews.transforms[viewIndex] * vec4 (position, 1.0);
+    const vec3 projection   = lightSpace.xyz / lightSpace.w;
+    const vec3 samplePoint  = vec3 (0.5 * projection.x + 0.5, 0.5 * projection.y + 0.5, viewIndex);
+
+    // Now we can determine the depth of the surface
+    const float bias    = 0.00001;
+    const float depth   = 0.5 * projection.z + 0.5 - bias;
+    
+    // Finally we can use percentage-closer filtering to create a shadow gradient. We use 16 sample points.
+    const float offset  = 1.0 / scene.shadowMapRes;
+    const int   samples = 16;
+    const int   start   = -(samples / 4 - 2);
+    const int   end     = -start;
+
+    float edgeFiltering = 0.0;
+    for (int y = start; y <= end; y++) 
+    {
+        for (int x = start; x <= end; x++) 
+        {
+            const vec3 offsets  = vec3 (x * offset, y * offset, 0.0);
+            vec4 shadowSample   = vec4 (samplePoint + offsets, depth);
+            edgeFiltering       += texture (shadowMaps, shadowSample);
+        }
+    }
+
+    const float shadowStrength = 0.2;
+    return shadowStrength + (edgeFiltering / (samples * 2));
+}
 
 
 /**
@@ -109,8 +168,7 @@ vec3 pointLightContribution (const in uint index, const in vec3 position, const 
 /**
     Calculates the lighting contribution of a spotlight at the given index.
 */
-vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 lightSpacePosition,
-    const in vec3 normal, const in vec3 view)
+vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view)
 {
     // Spotlights require a special luminance attenuation and cone attenuation.
     const Spotlight light = spotlights.lights[index];
@@ -132,8 +190,11 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
     const float halfAngle   = light.coneAngle / 2.0;
     const float coneCutOff  = lightAngle <= halfAngle ? smoothstep (1.0, 0.75, lightAngle / halfAngle) : 0.0;
 
+    // We need some shadow attenuation.
+    const float shadowing = light.viewIndex > -1 ? spotlightShadow (position, light.viewIndex) : 1.0;
+
     // Scale the intensity accordingly.
-    const vec3 E = light.intensity * luminance * coneCutOff;
+    const vec3 E = light.intensity * luminance * coneCutOff * shadowing;
     
     return calculateReflectance (l, normal, view, E);
 }

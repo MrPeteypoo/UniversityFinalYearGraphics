@@ -2,11 +2,12 @@
 
 layout (std140) uniform Scene
 {
-    mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
-    mat4 view;          //!< The view transform representing where the camera is looking.
+    mat4    projection;     //!< The projection transform which establishes the perspective of the vertex.
+    mat4    view;           //!< The view transform representing where the camera is looking.
 
-    vec3 camera;        //!< Contains the position of the camera in world space.
-    vec3 ambience;      //!< The ambient lighting in the scene.
+    vec3    camera;         //!< Contains the position of the camera in world space.
+    int     shadowMapRes;   //!< How many pixels wide/tall the shadow maps are.
+    vec3    ambience;       //!< The ambient lighting in the scene.
 } scene;
 
 uniform sampler2DRect gbufferPositions; //!< Contains the world position of objects at every pixel.
@@ -14,7 +15,6 @@ uniform sampler2DRect gbufferNormals;   //!< Contains the world normal of object
 uniform sampler2DRect gbufferMaterials; //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 
 flat    in  uint    lightIndex;     //!< The index of the light volume being rendered. 
-        in  vec4    lightSpacePos;  //!< The position of the vertex in light space.
         out vec3    reflectedLight; //!< The light contribution of the lighting pass.
 
 
@@ -22,8 +22,7 @@ flat    in  uint    lightIndex;     //!< The index of the light volume being ren
 void setFragmentMaterial (const in vec2 uvCoordinates, const in int materialID);
 vec3 directionalLightContributions (const in vec3 normal, const in vec3 view);
 vec3 pointLightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
-vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec4 lightSpacePosition, 
-    const in vec3 normal, const in vec3 view);
+vec3 spotlightContribution (const in uint index, const in vec3 position, const in vec3 normal, const in vec3 view);
 
 
 // Forward declarations.
@@ -83,7 +82,7 @@ vec3 pointLightPass (const in vec3 position, const in vec3 normal)
 layout (index = 2) subroutine (LightingPass)
 vec3 spotlightPass (const in vec3 position, const in vec3 normal)
 {
-    return spotlightContribution (lightIndex, position, lightSpacePos, normal, viewDirection (position));
+    return spotlightContribution (lightIndex, position, normal, viewDirection (position));
 }
 
 

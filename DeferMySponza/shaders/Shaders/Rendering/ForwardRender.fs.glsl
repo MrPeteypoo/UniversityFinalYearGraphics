@@ -14,11 +14,12 @@ struct Material
 
 layout (std140) uniform Scene
 {
-    mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
-    mat4 view;          //!< The view transform representing where the camera is looking.
+    mat4    projection;     //!< The projection transform which establishes the perspective of the vertex.
+    mat4    view;           //!< The view transform representing where the camera is looking.
 
-    vec3 camera;        //!< Contains the position of the camera in world space.
-    vec3 ambience;      //!< The ambient lighting in the scene.
+    vec3    camera;         //!< Contains the position of the camera in world space.
+    int     shadowMapRes;   //!< How many pixels wide/tall the shadow maps are.
+    vec3    ambience;       //!< The ambient lighting in the scene.
 } scene;
 
         in  vec3    worldPosition;  //!< The fragments position vector in world space.

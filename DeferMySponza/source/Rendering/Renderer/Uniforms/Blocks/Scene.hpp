@@ -21,11 +21,12 @@
 /// </summary>
 struct Scene final
 {
-    glm::mat4               projection; //!< The projection matrix used during the rendering of the entire frame.
-    glm::mat4               view;       //!< The view matrix from the current cameras position and direction.
+    glm::mat4               projection;     //!< The projection matrix used during the rendering of the entire frame.
+    glm::mat4               view;           //!< The view matrix from the current cameras position and direction.
 
-    AlignedItem<glm::vec3>  camera;     //!< The world-space position of the camera.
-    AlignedItem<glm::vec3>  ambience;   //!< The ambient colour of the scene.
+    glm::vec3               camera;         //!< The world-space position of the camera.
+    GLint                   shadowMapSize;  //!< The resolution of the shadow maps.
+    AlignedItem<glm::vec3>  ambience;       //!< The ambient colour of the scene.
 };
 
 

@@ -36,23 +36,18 @@ layout (std140) uniform LightViews
 
 layout (std140) uniform Scene
 {
-    mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
-    mat4 view;          //!< The view transform representing where the camera is looking.
+    mat4    projection;     //!< The projection transform which establishes the perspective of the vertex.
+    mat4    view;           //!< The view transform representing where the camera is looking.
 
-    vec3 camera;        //!< Contains the position of the camera in world space.
-    vec3 ambience;      //!< The ambient lighting in the scene.
+    vec3    camera;         //!< Contains the position of the camera in world space.
+    int     shadowMapRes;   //!< How many pixels wide/tall the shadow maps are.
+    vec3    ambience;       //!< The ambient lighting in the scene.
 } scene;
 
 layout (location = 0)   in  vec3    position;       //!< The local position of the current vertex.
 layout (location = 1)   in  mat4x3  model;          //!< The model transform representing the position and rotation of the object in world space.
 
 flat                    out uint    lightIndex;     //!< The instance ID maps directly to the index of the light.
-                        out vec4    lightSpacePos;  //!< The position of the vertex in light space.
-
-
-// Subroutines.
-subroutine vec4 LightSpacePosition (vec4 homogeneousPosition);
-layout (location = 0) subroutine uniform LightSpacePosition lightSpacePosition; //!< Determines whether point or spot lighting calculations will occur.
 
 
 /**
@@ -60,37 +55,13 @@ layout (location = 0) subroutine uniform LightSpacePosition lightSpacePosition; 
 */
 void main()
 {
+    // Handle the light index.
+    lightIndex = gl_InstanceID;
+
     // We need the position with a homogeneous value and we need to create the PVM transform.
     const vec4 homogeneousPosition  = vec4 (position, 1.0);
     const mat4 projectionViewModel  = scene.projection * scene.view * mat4 (model);
 
-    // Handle the light index.
-    lightIndex      = gl_InstanceID;
-    lightSpacePos   = lightSpacePosition (homogeneousPosition);
-
     // Place the vertex in the correct position on-screen.
     gl_Position = projectionViewModel * homogeneousPosition;
-}
-
-
-layout (index = 0) subroutine (LightSpacePosition)
-vec4 globalLightSpacePosition (vec4 homogeneousPosition)
-{
-    return homogeneousPosition;
-}
-
-
-layout (index = 1) subroutine (LightSpacePosition)
-vec4 pointlightSpacePosition (vec4 homogeneousPosition)
-{
-    return homogeneousPosition;
-}
-
-
-layout (index = 2) subroutine (LightSpacePosition)
-vec4 spotlightSpacePosition (vec4 homogeneousPosition)
-{
-    const int viewIndex = spotlights.lights[lightIndex].viewIndex;
-    return viewIndex >= 0 ? lightViews.transforms[viewIndex] * mat4 (model) * homogeneousPosition : 
-        homogeneousPosition;
 }

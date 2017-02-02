@@ -40,7 +40,13 @@ class ShadowMaps final
         GLint operator[] (const scene::LightId lightID) const noexcept;
 
         /// <summary> Returns the texture unit used for shadow maps. </summary>
-        auto getShadowMapTextureUnit() const noexcept { return m_maps.getDesiredTextureUnit(); }
+        auto getShadowMapTextureUnit() const noexcept   { return m_maps.getDesiredTextureUnit(); }
+
+        /// <summary> Gets the 2D array containing shadow maps. </summary>
+        const Texture& getShadowMaps() const noexcept   { return m_maps; };
+        
+        /// <summary> Gets the resolution of the shadow maps. </summary>
+        GLsizei getResolution() const noexcept          { return m_res; };
 
         /// <summary> Checkes if the object is initialised. </summary>
         bool isInitialised() const noexcept;
@@ -77,7 +83,7 @@ class ShadowMaps final
 
     private:
 
-        constexpr static auto maxResolution = 8192; //!< The maximum resolution of the shadow maps.
+        constexpr static auto maxResolution = 2048; //!< The maximum resolution of the shadow maps.
 
         using Spotlights    = std::vector<scene::LightId>;
         using MapIDs        = std::unordered_map<scene::LightId, GLint>;
