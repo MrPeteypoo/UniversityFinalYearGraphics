@@ -3,6 +3,7 @@
 
 // Personal headers.
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
+#include <Rendering/Renderer/Drawing/ShadowMaps.hpp>
 #include <Rendering/Renderer/Materials/Materials.hpp>
 #include <Rendering/Renderer/Programs/Programs.hpp>
 #include <Rendering/Renderer/Uniforms/Blocks/Scene.hpp>
@@ -16,7 +17,8 @@
 GLint Uniforms::alignment = 0;
 
 
-bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials& materials) noexcept
+bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const ShadowMaps& maps, 
+    const Materials& materials) noexcept
 {
     // Ensure we have a correct alignment value.
     glGetIntegerv (GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
@@ -35,7 +37,7 @@ bool Uniforms::initialise (const GeometryBuffer& geometryBuffer, const Materials
 
     // Don't forget to bind the blocks to the current partition.
     bindBlocksToPartition (0);
-    retrieveSamplerData (m_samplers, geometryBuffer, materials);
+    retrieveSamplerData (m_samplers, geometryBuffer, maps, materials);
 
     // Success!
     return true;
@@ -50,6 +52,8 @@ void Uniforms::clean() noexcept
     m_directional   = decltype (m_directional) { };
     m_point         = decltype (m_point) { };
     m_spot          = decltype (m_spot) { };
+    m_lightViews    = decltype (m_lightViews) { };
+    m_samplers      = decltype (m_samplers) { };
 }
 
 
@@ -80,11 +84,13 @@ void Uniforms::bindUniformsToPrograms (const Programs& programs) const noexcept
         bindBlockToProgram (program, DirectionalLights::blockBinding);
         bindBlockToProgram (program, PointLights::blockBinding);
         bindBlockToProgram (program, Spotlights::blockBinding);
+        bindBlockToProgram (program, LightViews::blockBinding);
 
         // Bind the individual uniforms.
         bindSampler (program, m_samplers.gbufferPositions);
         bindSampler (program, m_samplers.gbufferNormals);
         bindSampler (program, m_samplers.gbufferMaterials);
+        bindSampler (program, m_samplers.shadowMaps);
         bindSampler (program, m_samplers.materials);
 
         // And finally the texture arrays.
@@ -116,20 +122,24 @@ GLintptr Uniforms::calculateBlockSize() const noexcept
     const auto dirLightBlock    = calculateAlignedSize<decltype (m_directional.data)>();
     const auto pointLightBlock  = calculateAlignedSize<decltype (m_point.data)>();
     const auto spotlightBlock   = calculateAlignedSize<decltype (m_spot.data)>();
+    const auto lightViewblock   = calculateAlignedSize<decltype (m_lightViews.data)>();
     
-    return sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock;
+    return sceneBlock + dirLightBlock + pointLightBlock + spotlightBlock + lightViewblock;
 }
 
 
-void Uniforms::retrieveSamplerData (Samplers& samplers, 
-            const GeometryBuffer& gbuffer, const Materials& materials) const noexcept
+void Uniforms::retrieveSamplerData (Samplers& samplers, const GeometryBuffer& gbuffer, 
+    const ShadowMaps& maps, const Materials& materials) const noexcept
 {
     // Retrieve the gbuffer data.
     samplers.gbufferPositions.unit  = gbuffer.getPositionTexture().getDesiredTextureUnit();
     samplers.gbufferNormals.unit    = gbuffer.getNormalTexture().getDesiredTextureUnit();
     samplers.gbufferMaterials.unit  = gbuffer.getMaterialTexture().getDesiredTextureUnit();
 
-    // Retrieve the sampler data.
+    // Retrieve the shadow map data.
+    samplers.shadowMaps.unit        = maps.getShadowMapTextureUnit();
+
+    // Retrieve the material data.
     samplers.materials.unit         = materials.getMaterialTextureUnit();
     samplers.textures.unit          = materials.getTextureArrayStartingUnit();
     samplers.textureSamplerCount    = materials.getTextureArrayCount();
@@ -171,6 +181,7 @@ void Uniforms::resetBlockData (const size_t partition) noexcept
     setBlockData (m_directional,    m_scene.offset          + calculateAlignedSize<decltype (m_scene.data)>());
     setBlockData (m_point,          m_directional.offset    + calculateAlignedSize<decltype (m_directional.data)>());
     setBlockData (m_spot,           m_point.offset          + calculateAlignedSize<decltype (m_point.data)>());
+    setBlockData (m_lightViews,     m_spot.offset           + calculateAlignedSize<decltype (m_spot.data)>());
 }
 
 
@@ -186,9 +197,9 @@ void Uniforms::rebindDynamicBlocks() const noexcept
     constexpr auto index = Scene::blockBinding;
     
     // Construct the parameters we need for glBindBuffersRange().
-    const GLuint    buffers[]  = { buffer, buffer, buffer, buffer };
-    const GLintptr  offsets[]  = { m_scene.offset, m_directional.offset, m_point.offset, m_spot.offset };
-    const GLintptr  sizes[]    = { sizeof (*m_scene.data), sizeof (*m_directional.data), sizeof (*m_point.data), sizeof (*m_spot.data) };
+    const GLuint    buffers[]  = { buffer, buffer, buffer, buffer, buffer };
+    const GLintptr  offsets[]  = { m_scene.offset, m_directional.offset, m_point.offset, m_spot.offset, m_lightViews.offset };
+    const GLintptr  sizes[]    = { sizeof (*m_scene.data), sizeof (*m_directional.data), sizeof (*m_point.data), sizeof (*m_spot.data), sizeof (*m_lightViews.data) };
 
     // Ensure we have valid sizes.
     assert (sizeof (buffers) / sizeof (GLuint) == count && 

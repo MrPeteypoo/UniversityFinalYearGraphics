@@ -18,6 +18,9 @@ class PassConfigurator final
         /// <summary> Prepares OpenGL for a forward rendering an entire frame. </summary>
         static void forwardRender() noexcept;
 
+        /// <summary> Prepares OpenGL for shadow mapping. </summary>
+        static void shadowMapPass() noexcept;
+
         /// <summary> Prepares OpenGL for the geometry pass. </summary>
         static void geometryPass() noexcept;
 

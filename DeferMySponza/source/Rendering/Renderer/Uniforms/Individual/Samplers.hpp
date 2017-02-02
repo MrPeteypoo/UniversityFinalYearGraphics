@@ -31,6 +31,7 @@ struct Samplers final
     Sampler gbufferNormals      { 0, "gbufferNormals" };    //!< A texture rectangle containing world normals of objects.
     Sampler gbufferMaterials    { 0, "gbufferMaterials" };  //!< A texture rectangle containing texture co-ordinates and material IDs of objects.
 
+    Sampler shadowMaps          { 0, "shadowMaps" };        //!< A 2D texture array containing shadow maps.
     Sampler materials           { 0, "materials" };         //!< A texture buffer containing every material in the scene.
     Sampler textures            { 0, "textures" };          //!< An array of textures containing texture maps.
     GLsizei textureSamplerCount { 0 };                      //!< The number of texture arrays in the "textures" sampler.

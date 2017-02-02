@@ -24,7 +24,6 @@ Framebuffer& Framebuffer::operator= (Framebuffer&& move) noexcept
         clean();
 
         m_buffer        = move.m_buffer;
-        m_attachments   = std::move (move.m_attachments);
         m_drawBuffers   = std::move (move.m_drawBuffers);
         move.m_buffer   = 0U;
     }
@@ -48,7 +47,6 @@ bool Framebuffer::initialise() noexcept
     // Ensure we don't leak.
     clean();
     m_buffer = buffer;
-    m_attachments.reserve (8);
     m_drawBuffers.reserve (8);
 
     return true;
@@ -61,7 +59,7 @@ void Framebuffer::clean() noexcept
     {
         glDeleteFramebuffers (1, &m_buffer);
         m_buffer = 0U;
-        m_attachments.clear();
+        m_drawBuffers.clear();
     }
 }
 
@@ -69,11 +67,10 @@ void Framebuffer::clean() noexcept
 void Framebuffer::attachRenderbuffer (const Renderbuffer& renderbuffer, GLenum attachment, bool asDrawBuffer) noexcept
 {
     glNamedFramebufferRenderbuffer (m_buffer, attachment, GL_RENDERBUFFER, renderbuffer.getID());
-    m_attachments.push_back (attachment);
     
     if (asDrawBuffer)
     {
-        m_drawBuffers.push_back (attachment);
+        addDrawBuffer (attachment);
     }
 }
 
@@ -82,11 +79,23 @@ void Framebuffer::attachTexture (const Texture& texture, GLenum attachment, bool
 {
     // Add the texture as an attachment.
     glNamedFramebufferTexture (m_buffer, attachment, texture.getID(), level);
-    m_attachments.push_back (attachment);
     
     if (asDrawBuffer)
     {
-        m_drawBuffers.push_back (attachment);
+        addDrawBuffer (attachment);
+    }
+}
+
+
+void Framebuffer::attachTextureLayer (const Texture& texture, GLenum attachment, GLint layer, 
+    bool asDrawBuffer, GLint level) noexcept
+{
+    // Add the texture as an attachment.
+    glNamedFramebufferTextureLayer (m_buffer, attachment, texture.getID(), level, layer);
+    
+    if (asDrawBuffer)
+    {
+        addDrawBuffer (attachment);
     }
 }
 
@@ -98,10 +107,4 @@ bool Framebuffer::complete() noexcept
 
     // Ensure the status is valid.
     return glCheckNamedFramebufferStatus (m_buffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
-}
-
-
-void Framebuffer::invalidateAllAttachments() noexcept
-{
-    glInvalidateNamedFramebufferData (m_buffer, static_cast<GLsizei> (m_attachments.size()), m_attachments.data());
 }

@@ -18,6 +18,7 @@
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
 #include <Rendering/Renderer/Drawing/LightBuffer.hpp>
 #include <Rendering/Renderer/Drawing/Resolution.hpp>
+#include <Rendering/Renderer/Drawing/ShadowMaps.hpp>
 #include <Rendering/Renderer/Drawing/SMAA.hpp>
 #include <Rendering/Renderer/Geometry/Geometry.hpp>
 #include <Rendering/Renderer/Materials/Materials.hpp>
@@ -85,8 +86,9 @@ class Renderer final
 
         constexpr static auto gbufferStartingTextureUnit    = GLuint { 0 };         //!< The starting texture unit for the gbuffer, the gbuffer occupies three units.
         constexpr static auto lbufferStartingTextureUnit    = GLuint { 4 };         //!< The starting texture unit for the lbuffer, the lbuffer occupies a single unit.
-        constexpr static auto smaaStartingTextureUnit       = GLuint { 5 };         //!< The starting texture unit for the antialiasing textures, occupies three units.
-        constexpr static auto materialsStartingTextureUnit  = GLuint { 8 };         //!< The starting texture unit for the material data.
+        constexpr static auto shadowMapStartingTextureUnit  = GLuint { 5 };         //!< The starting texture unit for the shadow map array.
+        constexpr static auto smaaStartingTextureUnit       = GLuint { 6 };         //!< The starting texture unit for the antialiasing textures, occupies three units.
+        constexpr static auto materialsStartingTextureUnit  = GLuint { 9 };         //!< The starting texture unit for the material data.
         constexpr static auto defaultAA                     = SMAA::Quality::High;  //!< The default value for antialiasing.
 
         struct MeshInstances final
@@ -129,6 +131,7 @@ class Renderer final
         Programs            m_programs          { };            //!< Stores the programs used in different rendering passes.
 
         DrawableObjects     m_dynamics          { };            //!< A collection of dynamic mesh instances that need drawing.
+        ShadowMaps          m_shadowMaps        { };            //!< Used to produce shadow maps for spotlights in the scene.
         Materials           m_materials         { };            //!< Contains every material in the scene, used for filling instancing data for dynamic objects.
         
         DrawCommands        m_objectDrawing     { };            //!< Draw commands for dynamic objects.
@@ -210,10 +213,10 @@ class Renderer final
         void syncWithGPUIfNecessary() const noexcept;
 
         /// <summary> Performs a forward render of the entire scene. </summary>
-        void forwardRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
+        void forwardRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Performs a deferred render of the entire scene. </summary>
-        void deferredRender (SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
+        void deferredRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept;
 
         /// <summary> Updates the scene uniforms such as the camera position, ambient lighting and matrices. </summary>
         ModifiedRange updateSceneUniforms() noexcept;
@@ -315,9 +318,11 @@ ModifiedRange Renderer::processLightUniforms (UniformBlock& uniforms, const Ligh
     const auto count = static_cast<GLuint> (lights.size());
     uniforms.data->count = count;
 
+    // Fudge the brightness because the lights aren't really designed for PBS.
+    const auto intensityScale = m_pbs ? 1.35f : 1.f;
     for (GLuint i { 0 }; i < count; ++i)
     {
-        uniforms.data->objects[i] = func (lights[i]);
+        uniforms.data->objects[i] = func (lights[i], intensityScale);
     }
 
     // We need to know the size of the data we've written to.
@@ -338,11 +343,13 @@ Renderer::ModifiedLightVolumeRanges Renderer::processLightVolumes (UniformBlock&
     // Set the count and iterate through each light.
     const auto count = static_cast<GLuint> (lights.size());
     uniforms.data->count = count;
-
+    
+    // Fudge the brightness because the lights aren't really designed for PBS.
+    const auto intensityScale = m_pbs ? 1.35f : 1.f;
     for (GLuint i { 0 }; i < count; ++i)
     {
         const auto& sceneLight          = lights[i];
-        uniforms.data->objects[i]       = uniFunc (sceneLight);
+        uniforms.data->objects[i]       = uniFunc (sceneLight, intensityScale);
         transforms[transformOffset + i] = transFunc (sceneLight);
     }
 

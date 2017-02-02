@@ -15,11 +15,12 @@
 
 
 // Forward declarations.
-struct DirectionalLight;
 class GeometryBuffer; 
 class Materials;
 class Program;
+class ShadowMaps;
 struct Programs;
+struct DirectionalLight;
 struct PointLight;
 struct Scene;
 struct Spotlight;
@@ -50,6 +51,7 @@ class Uniforms final
         using DirectionalLights = Data<FullBlock<DirectionalLight>, 1>;
         using PointLights       = Data<FullBlock<PointLight>,       2>;
         using Spotlights        = Data<FullBlock<Spotlight>,        3>;
+        using LightViews        = Data<FullBlock<glm::mat4>,        4>;
 
     public:
 
@@ -74,6 +76,9 @@ class Uniforms final
         /// <summary> Gets a copy of the pointer and partition offset to modifiable spotlight data. </summary>
         Spotlights getWritableSpotlightData() const noexcept                { return m_spot; }
 
+        /// <summary> Gets a copy of the pointer and partition offset to modifiable spotlight data. </summary>
+        LightViews getWritableLightViewData() const noexcept                { return m_lightViews; }
+
 
         /// <summary>
         /// Attempts to initialise the uniform buffer by allocating enough memory for each uniform block. Also fills
@@ -81,9 +86,11 @@ class Uniforms final
         /// bound partition to zero. Successive calls will not modify the object if initialisation fails.
         /// </summary>
         /// <param name="geometryBuffer"> Used to map the gbuffer textures to the correct sampler. </param>
+        /// <param name="maps"> Used to map the shadow map array to the correct correct sampler. </param>
         /// <param name="materials"> Used to map the texture arrays to the correct samplers. </param>
         /// <returns> Whether initialisation was successful. </returns>
-        bool initialise (const GeometryBuffer& geometryBuffer, const Materials& materials) noexcept;
+        bool initialise (const GeometryBuffer& geometryBuffer, const ShadowMaps& maps, 
+            const Materials& materials) noexcept;
 
         /// <summary> Cleans every stored object, freeing memory for the GPU. </summary>
         void clean() noexcept;
@@ -114,6 +121,7 @@ class Uniforms final
         DirectionalLights   m_directional;  //!< Contains the parameters of every directional light in the scene.
         PointLights         m_point;        //!< Contains the parameters of many point lights in the scene.
         Spotlights          m_spot;         //!< Contains the parameters of many spotlights in the scene.
+        LightViews          m_lightViews;   //!< Contains view matrices for shadow mapped lights.
         Samplers            m_samplers;     //!< Contains the data required to set uniform samplers.
 
         types::PMB          m_blocks;       //!< A multi-buffered uniform buffer object containing uniform block data.
@@ -125,6 +133,7 @@ class Uniforms final
             { DirectionalLights::blockBinding,  "DirectionalLights" },
             { PointLights::blockBinding,        "PointLights" },
             { Spotlights::blockBinding,         "Spotlights" },
+            { LightViews::blockBinding,         "LightViews" }
         };
         
         static GLint alignment; //!< How many bytes the uniform buffer blocks must be aligned to.
@@ -139,8 +148,8 @@ class Uniforms final
         GLintptr calculateAlignedSize() const noexcept;
 
         /// <summary> Sets the data of each sampler to match the given gbuffer and materials objects. </summary>
-        void retrieveSamplerData (Samplers& samplers, 
-            const GeometryBuffer& gbuffer, const Materials& materials) const noexcept;
+        void retrieveSamplerData (Samplers& samplers, const GeometryBuffer& gbuffer, const ShadowMaps& maps, 
+            const Materials& materials) const noexcept;
 
         /// <summary> Binds an individual block to an individual program. </summary>
         void bindBlockToProgram (const Program& program, const GLuint blockBinding) const noexcept;

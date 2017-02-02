@@ -25,13 +25,27 @@ void PassConfigurator::forwardRender() noexcept
 }
 
 
-void PassConfigurator::geometryPass() noexcept
+void PassConfigurator::shadowMapPass() noexcept
 {
     // We need to perform the depth test and write the data.
     glEnable (GL_DEPTH_TEST);
     glDepthMask (GL_TRUE);
     glDepthFunc (GL_LEQUAL);
+    glClearDepth (GLdouble { 1 });
 
+    // Cull the back faces of rendered geometry.
+    glEnable (GL_CULL_FACE);
+    glCullFace (GL_BACK);
+
+    // We don't need anything else.
+    glDisable (GL_STENCIL_TEST);
+    glDisable (GL_BLEND);
+    glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+}
+
+
+void PassConfigurator::geometryPass() noexcept
+{
     // Ensure we always draw.
     glEnable (GL_STENCIL_TEST);
     glStencilFunc (GL_ALWAYS, 0, ~0);
@@ -41,12 +55,7 @@ void PassConfigurator::geometryPass() noexcept
     glDisable (GL_BLEND);
     glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    // Cull the back faces of rendered geometry.
-    glEnable (GL_CULL_FACE);
-    glCullFace (GL_BACK);
-
     // Clear the stored depth and stencil values.
-    glClearDepth (GLdouble { 1 });
     glClearStencil (skyStencilValue);
     glClear (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

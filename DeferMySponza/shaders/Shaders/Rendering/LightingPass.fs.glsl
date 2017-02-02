@@ -2,14 +2,15 @@
 
 layout (std140) uniform Scene
 {
-    mat4 projection;    //!< The projection transform which establishes the perspective of the vertex.
-    mat4 view;          //!< The view transform representing where the camera is looking.
+    mat4    projection;     //!< The projection transform which establishes the perspective of the vertex.
+    mat4    view;           //!< The view transform representing where the camera is looking.
 
-    vec3 camera;        //!< Contains the position of the camera in world space.
-    vec3 ambience;      //!< The ambient lighting in the scene.
+    vec3    camera;         //!< Contains the position of the camera in world space.
+    int     shadowMapRes;   //!< How many pixels wide/tall the shadow maps are.
+    vec3    ambience;       //!< The ambient lighting in the scene.
 } scene;
 
-uniform sampler2DRect gbufferPositions;  //!< Contains the world position of objects at every pixel.
+uniform sampler2DRect gbufferPositions; //!< Contains the world position of objects at every pixel.
 uniform sampler2DRect gbufferNormals;   //!< Contains the world normal of objects at every pixel.
 uniform sampler2DRect gbufferMaterials; //!< Contains the texture co-ordinate and material ID of objects at every pixel.
 
@@ -25,11 +26,11 @@ vec3 spotlightContribution (const in uint index, const in vec3 position, const i
 
 
 // Forward declarations.
-subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
 vec3 viewDirection (const in vec3 position);
 
 
 // Subroutines.
+subroutine vec3 LightingPass (const in vec3 position, const in vec3 normal);
 layout (location = 0) subroutine uniform LightingPass lightingPass; //!< Determines whether global, point or spot lighting calculations will occur.
 
 

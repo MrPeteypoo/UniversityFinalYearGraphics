@@ -181,6 +181,9 @@
     <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Renderer\Drawing\ShadowMaps.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl">
@@ -235,6 +238,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\Shaders\Defines\SMAAFragmentShader.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\Shaders\Rendering\GenerateShadowMap.vs.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -324,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer\Drawing\ShadowMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

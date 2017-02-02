@@ -13,15 +13,18 @@
 bool Programs::initialise (const Shaders& shaders) noexcept
 {
     // Create temporary objects.
-    Program geo, global, light, forward;
+    Program shadow, geo, global, light, forward;
 
     // Initialise each temporary object.
-    if (!(geo.initialise() && global.initialise() && light.initialise() && forward.initialise()))
+    if (!(shadow.initialise() && geo.initialise() && global.initialise() && light.initialise() && 
+        forward.initialise()))
     {
         return false;
     }
 
     // Attach the requires shaders to each program.
+    shadow.attachShader (shaders.find (shadowMapVS));
+
     geo.attachShader (shaders.find (geometryVS));
     geo.attachShader (shaders.find (geometryFS));
 
@@ -53,6 +56,7 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     };
 
     // Check they link properly.
+    linkProgram (shadow, "ShadowMapPass");
     linkProgram (geo, "GeometryPass");
     linkProgram (global, "GlobalLightPass");
     linkProgram (light, "LightingPass");
@@ -64,6 +68,7 @@ bool Programs::initialise (const Shaders& shaders) noexcept
     }
 
     // We've successfully compiled each program.
+    shadowMapPass   = std::move (shadow);
     geometryPass    = std::move (geo);
     globalLightPass = std::move (global);
     lightingPass    = std::move (light);

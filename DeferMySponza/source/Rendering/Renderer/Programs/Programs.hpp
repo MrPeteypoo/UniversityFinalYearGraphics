@@ -18,8 +18,9 @@ struct Programs final
 {
     constexpr static auto globalLightSubroutine = GLuint { 0 }; //!< The subroutine index for the lighting pass programs to apply global lighting.
     constexpr static auto pointLightSubroutine  = GLuint { 1 }; //!< The subroutine index for the lighting pass programs to apply point lighting.
-    constexpr static auto spotlightSubrotuing   = GLuint { 2 }; //!< The subroutine index for the lighting pass programs to apply spotlighting.
+    constexpr static auto spotlightSubroutine   = GLuint { 2 }; //!< The subroutine index for the lighting pass programs to apply spotlighting.
 
+    Program shadowMapPass   { };    //!< A depth-pass used for shadow mapping.
     Program geometryPass    { };    //!< Basic shaders which construct the scene with ambient lighting.
     Program globalLightPass { };    //!< Provides a global light pass with an oversized triangle.
     Program lightingPass    { };    //!< Point and spotlight passes based on a subroutine.
@@ -69,6 +70,7 @@ struct Programs final
     template <typename Func>
     void performActionOnPrograms (const Func& func) const noexcept
     {
+        func (shadowMapPass);
         func (geometryPass);
         func (globalLightPass);
         func (lightingPass);
@@ -78,13 +80,12 @@ struct Programs final
     template <typename Func>
     void performActionOnPrograms (const Func& func) noexcept
     {
+        func (shadowMapPass);
         func (geometryPass);
         func (globalLightPass);
         func (lightingPass);
         func (forwardRender);
     }
-
-
 };
 
 #endif // _RENDERING_PROGRAMS_
