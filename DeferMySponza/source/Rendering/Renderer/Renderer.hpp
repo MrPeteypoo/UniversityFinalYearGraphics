@@ -15,6 +15,7 @@
 // Personal headers.
 #include <Rendering/Objects/Buffer.hpp>
 #include <Rendering/Objects/Sync.hpp>
+#include <Rendering/Objects/Query.hpp>
 #include <Rendering/Renderer/Drawing/GeometryBuffer.hpp>
 #include <Rendering/Renderer/Drawing/LightBuffer.hpp>
 #include <Rendering/Renderer/Drawing/Resolution.hpp>
@@ -42,6 +43,20 @@ class Renderer final
         Renderer (const Renderer&)                  = delete;
         Renderer& operator= (const Renderer&)       = delete;
 
+        /// <summary> Gets how many times the GPU had to be manually flushed. </summary>
+        GLuint getSyncCount() const noexcept                        { return m_syncCount; }
+
+        /// <summary> Gets the total number of rendered frames. </summary>
+        GLuint getFrameCount() const noexcept                       { return m_frames; }
+
+        /// <summary> Gets the accumulated time taken to render every frame (ms). </summary>
+        float getTotalFrameTime() const noexcept                    { return m_totalTime; }
+
+        /// <summary> Get the minimum amount of time taken to render a frame (ms). </summary>
+        float getMinFrameTime() const noexcept                      { return m_minTime; }
+
+        /// <summary> Get the maximum amount of time taken to render a frame (ms). </summary>
+        float getMaxFrameTime() const noexcept                      { return m_maxTime; }
 
         /// <summary> Sets whether the rendering should use multiple threads or not. </summary>
         void setThreadingMode (bool useMultipleThreads) noexcept    { m_multiThreaded = useMultipleThreads; }
@@ -54,6 +69,9 @@ class Renderer final
 
         /// <summary> Sets the quality setting of the antialiasing to be performed. </summary>
         void setAntiAliasingMode (SMAA::Quality quality) noexcept;
+
+        /// <summary> Resets calculated frame timings to zero. </summary>
+        void resetFrameTimings() noexcept;
 
         /// <summary> Sets the resolution of the off-screen rendering buffers. </summary>
         void setInternalResolution (const glm::ivec2& resolution) noexcept;
@@ -89,7 +107,7 @@ class Renderer final
         constexpr static auto shadowMapStartingTextureUnit  = GLuint { 5 };         //!< The starting texture unit for the shadow map array.
         constexpr static auto smaaStartingTextureUnit       = GLuint { 6 };         //!< The starting texture unit for the antialiasing textures, occupies three units.
         constexpr static auto materialsStartingTextureUnit  = GLuint { 9 };         //!< The starting texture unit for the material data.
-        constexpr static auto defaultAA                     = SMAA::Quality::High;  //!< The default value for antialiasing.
+        constexpr static auto defaultAA                     = SMAA::Quality::Ultra; //!< The default value for antialiasing.
 
         struct MeshInstances final
         {
@@ -125,6 +143,7 @@ class Renderer final
         using DrawableObjects   = std::vector<MeshInstances>;
         using DrawCommands      = MultiDrawCommands<types::PMB>;
         using SyncObjects       = std::array<Sync, types::multiBuffering>;
+        using QueryObjects      = std::array<Query, types::multiBuffering>;
                 
         scene::Context*     m_scene             { };            //!< Used to render the scene from the correct viewpoint.
         Uniforms            m_uniforms          { };            //!< Uniform data which is accessible to any program that requests it.
@@ -151,11 +170,18 @@ class Renderer final
         
         size_t              m_partition         { 0 };          //!< The buffer partition to use when rendering the current frame.
         SyncObjects         m_syncs             { };            //!< Contains sync objects for each level of buffering, allows us to manually synchronise with the GPU if needed.
+        QueryObjects        m_queries           { };            //!< A collection of query objects used to check how long each frame took to complete.
        
         bool                m_deferredRender    { true };       //!< Whether a deferred or forward render should be performed.
         bool                m_multiThreaded     { true };       //!< Whether the renderer should be multi-threaded or not.
         bool                m_pbs               { true };       //!< Whether physically based shaders should be used.
         SMAA::Quality       m_smaaQuality       { defaultAA };  //!< The current quality setting for SMAA.
+
+        GLuint              m_syncCount         { 0 };          //!< How many times we've had to manually synchronise the GPU with the CPU.
+        GLuint              m_frames            { 0 };          //!< How many frames have been renderered.
+        GLfloat             m_totalTime         { 0 };          //!< The total time elapsed for all frames.
+        GLfloat             m_minTime           { 0 };          //!< The minimum amount of time for a frame to render.
+        GLfloat             m_maxTime           { 0 };          //!< The maximum amount of time for a frame to render.
 
     private:
 
@@ -210,7 +236,7 @@ class Renderer final
         void fillDynamicInstances() noexcept;
 
         /// <summary> Checks the sync object of the current partition and waits if it hasn't already fired. </summary>
-        void syncWithGPUIfNecessary() const noexcept;
+        void syncWithGPUIfNecessary() noexcept;
 
         /// <summary> Performs a forward render of the entire scene. </summary>
         void forwardRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept;

@@ -32,17 +32,19 @@ void MyController::windowControlWillStart(tygra::Window * window)
 	std::cout << std::endl;
     std::cout << "Real-Time Graphics :: DeferMySponza" << std::endl;
     std::cout << "  Press F1 to toggle an animated camera" << std::endl;
-    std::cout << "  Press F2 to turn off antialiasing." << std::endl;
+    std::cout << "  Press F2 to turn off antialiasing" << std::endl;
     std::cout << "  Press F3 to set antialiasing to low" << std::endl;
     std::cout << "  Press F4 to set antialiasing to medium" << std::endl;
-    std::cout << "  Press F5 to set antialiasing to high (default)" << std::endl;
-    std::cout << "  Press F6 to set antialiasing to ultra" << std::endl;
+    std::cout << "  Press F5 to set antialiasing to high" << std::endl;
+    std::cout << "  Press F6 to set antialiasing to ultra (default)" << std::endl;
     std::cout << "  Press F7 to use lambert + blinn-phong shading" << std::endl;
     std::cout << "  Press F8 to use physically-based shading (default)" << std::endl;
     std::cout << "  Press F9 to activate forward rendering" << std::endl;
     std::cout << "  Press F10 to activate deferred rendering (default)" << std::endl;
     std::cout << "  Press F11 to activate single-threaded mode" << std::endl;
     std::cout << "  Press F12 to activate multi-threaded mode (default)" << std::endl;
+    std::cout << "  Press Tab to toggle the display of frame timings" << std::endl;
+    scene_->toggleCameraAnimation();
 }
 
 void MyController::windowControlDidStop(tygra::Window * window)
@@ -155,6 +157,9 @@ void MyController::windowControlKeyboardChanged(tygra::Window * window,
         break;
     case tygra::kWindowKeyF12:
         view_->setThreadingMode (true);
+        break;
+    case tygra::kWindowKeyTab:
+        view_->toggleFPSDisplay();
         break;
     }
 }

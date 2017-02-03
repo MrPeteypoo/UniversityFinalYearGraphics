@@ -13,6 +13,7 @@ void PassConfigurator::forwardRender() noexcept
 
     // We don't need blending at all.
     glDisable (GL_BLEND);
+    glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     // Ensure we only draw the front faces of objects.
     glEnable (GL_CULL_FACE);

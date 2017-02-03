@@ -8,6 +8,9 @@
 
 
 // Engine headers.
+#ifdef _NVTX
+#include <nvToolsExt.h>
+#endif
 #include <glm/gtc/matrix_transform.hpp>
 #include <scene/scene.hpp>
 
@@ -98,6 +101,16 @@ void Renderer::setAntiAliasingMode (SMAA::Quality quality) noexcept
 }
 
 
+void Renderer::resetFrameTimings() noexcept
+{
+    m_syncCount = 0;
+    m_frames    = 0;
+    m_totalTime = 0.f;
+    m_minTime   = std::numeric_limits<decltype (m_minTime)>::max();
+    m_maxTime   = std::numeric_limits<decltype (m_maxTime)>::min();
+}
+
+
 void Renderer::setInternalResolution (const glm::ivec2& resolution) noexcept
 {
     // Only change the resolution if it's different from the current value.
@@ -126,6 +139,9 @@ bool Renderer::initialise (scene::Context* scene, const glm::ivec2& internalRes,
 {   
     // Make sure we keep a reference to the scene.
     m_scene = scene;
+
+    // Ensure we initialise the query objects!
+    std::for_each (m_queries, [] (auto& query) { query.initialise (GL_TIME_ELAPSED); });
 
     // Programs can be built immediately.
     if (!buildPrograms())
@@ -208,6 +224,8 @@ void Renderer::clean() noexcept
     m_resolution.displayHeight  = 0;
     m_deferredRender            = true;
     std::for_each (m_syncs, [] (auto& sync) { sync.clean(); });
+    std::for_each (m_queries, [] (auto& query) { query.clean(); });
+    resetFrameTimings();
 }
 
 
@@ -394,13 +412,45 @@ void Renderer::fillDynamicInstances() noexcept
 
 void Renderer::render() noexcept
 {
+    #ifdef _NVTX
+        nvtxRangePush (L"Entire Draw");
+        nvtxRangePush (L"Checking Fence Sync");
+    #endif
+
     // We must ensure that we aren't writing to data which the GPU is currently reading from. We must avoid this race
     // condition by checking if the most recent frame that used the current partition has finished accessing the
     // memory.
     syncWithGPUIfNecessary();
 
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Frame Times");
+    #endif
+
+    // Ensure we keep track of how long this frame took.
+    auto& query = m_queries[m_partition];
+    if (m_frames++ > types::multiBuffering)
+    {
+        const auto result   = query.resultAsUInt (false) / 1'000'000.f;
+        m_minTime           = result < m_minTime != 0.f ? result : m_minTime;
+        m_maxTime           = result > m_maxTime ? result : m_maxTime;
+        m_totalTime         += result;
+    }
+
+    query.begin();
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Switching UBO Partition");
+    #endif
+
     // Now we can set the correct partition on the uniforms.
     m_uniforms.bindBlocksToPartition (m_partition);
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Starting Multi-threading");
+    #endif
 
     // We need to retrieve light data before we can render.
     const auto& directional = m_scene->getAllDirectionalLights();
@@ -417,16 +467,14 @@ void Renderer::render() noexcept
     actions.directionalLights   = std::async (policy, [&]() { return updateDirectionalLights (directional); });
     actions.pointLights         = std::async (policy, [&]() { return updatePointLights (point); });
     actions.spotLights          = std::async (policy, [&]() { return updateSpotlights (spot, point.size()); });
+    actions.shadowUniforms      = std::async (policy, [&]() 
+    { 
+        auto data = m_uniforms.getWritableLightViewData();
+        return m_shadowMaps.setUniforms (m_scene, data.data, data.offset);
+    });
 
     if (m_deferredRender)
     {
-        // Shadows are unsupported in forward rendering mode right now.
-        actions.shadowUniforms = std::async (policy, [&] () 
-        { 
-            auto data = m_uniforms.getWritableLightViewData();
-            return m_shadowMaps.setUniforms (m_scene, data.data, data.offset);
-        });
-        
         // We only need to fill the light draw command buffer if we're doing a deferred render.
         actions.lightDrawCommands = std::async (policy, [&]() 
         { 
@@ -434,8 +482,19 @@ void Renderer::render() noexcept
         });
     }
 
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Binding Textures");
+    #endif
+
     // Now perform universal rendering actions. Start by ensuring each material texture unit is bound.
     m_materials.bindTextures();
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Shadow Pass");
+        nvtxRangePush (L"Preparing for Static Objects");
+    #endif
 
     // We need to configure the scene VAO for rendering static objects.
     auto& sceneVAO = m_geometry.getSceneVAO();
@@ -452,10 +511,26 @@ void Renderer::render() noexcept
     const auto& staticObjects = m_geometry.getStaticGeometryCommands();
     BufferBinder<GL_DRAW_INDIRECT_BUFFER>::bind (staticObjects.buffer);
 
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Scene and Shadow UBO Blocks");
+    #endif
+
     // Generate shadow maps for static objects.
     m_uniforms.notifyModifiedDataRange (actions.sceneUniforms.get());
     m_uniforms.notifyModifiedDataRange (actions.shadowUniforms.get());
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Static Object Shadow Pass");
+    #endif
+
     m_shadowMaps.generateMaps (true, [&] () { staticObjects.drawWithoutBinding(); });
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Preparing for Dynamic Objects");
+    #endif
 
     // We must prepare for drawing dynamic objects.
     sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
@@ -467,7 +542,19 @@ void Renderer::render() noexcept
 
     // Generate shadow maps for dynamic objects.
     BufferBinder<GL_DRAW_INDIRECT_BUFFER>::bind (m_objectDrawing.buffer.getID());
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Dynamic Object Shadow Pass");
+    #endif
+
     m_shadowMaps.generateMaps (false, [&] () { m_objectDrawing.drawWithoutBinding(); });
+
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+        nvtxRangePush (L"Binding Shadow Maps");
+    #endif
 
     // Now prepare for rendering the scene again.
     sceneVAO.useStaticBuffers();
@@ -478,30 +565,57 @@ void Renderer::render() noexcept
 
     if (m_deferredRender)
     {
+        #ifdef _NVTX
+            nvtxRangePop();
+            nvtxRangePush (L"Deferred Render");
+        #endif
+
         deferredRender (staticObjects, sceneVAO, actions);
     }
 
     else
     {
+        #ifdef _NVTX
+            nvtxRangePop();
+            nvtxRangePush (L"Forward Render");
+        #endif
+
         forwardRender (staticObjects, sceneVAO, actions);
     }
 
     // Render to the screen performing antialiasing if necessary.
     if (m_smaaQuality != SMAA::Quality::None)
     {
+
+        #ifdef _NVTX
+            nvtxRangePop();
+            nvtxRangePush (L"SMAA");
+        #endif
+
         m_smaa.run (m_geometry.getTriangleVAO(), m_lbuffer.getColourBuffer(), &m_gbuffer.getDepthStencilTexture());
     }
 
     else
     {
+        #ifdef _NVTX
+            nvtxRangePop();
+            nvtxRangePush (L"Blitting Screen");
+        #endif
+
         glBlitNamedFramebuffer (m_lbuffer.getFramebuffer().getID(), 0,
             0, 0, m_resolution.internalWidth, m_resolution.internalHeight,
             0, 0, m_resolution.displayWidth, m_resolution.displayHeight, 
             GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Cleanup");
+    #endif
+
     // Cleanup.
     m_materials.unbindTextures();
+    query.end();
 
     // Prepare for the next frame, the fence sync only allows the given parameters.
     if (!m_syncs[m_partition].initialise())
@@ -510,10 +624,15 @@ void Renderer::render() noexcept
     }
 
     ++m_partition %= multiBuffering;
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+    #endif        
 }
 
 
-void Renderer::syncWithGPUIfNecessary() const noexcept
+void Renderer::syncWithGPUIfNecessary() noexcept
 {
     // Don't attempt to wait if the sync object hasn't been initialised.
     auto& sync = m_syncs[m_partition];
@@ -523,10 +642,19 @@ void Renderer::syncWithGPUIfNecessary() const noexcept
         // Don't force a wait if we don't need to.
         if (!sync.checkIfSignalled())
         {
+            #ifdef _NVTX
+                nvtxRangePush (L"Forcing Flush");
+            #endif
+
             // We have to force a wait so we don't cause a data race.
             constexpr auto oneSecond = std::chrono::duration_cast<std::chrono::nanoseconds> (1s).count();
             const auto result = sync.waitForSignal (true, oneSecond);
+            ++m_syncCount;
             assert (result);
+
+            #ifdef _NVTX
+                nvtxRangePop();
+            #endif
         }
     }
 }
@@ -534,21 +662,53 @@ void Renderer::syncWithGPUIfNecessary() const noexcept
 
 void Renderer::deferredRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
+    #ifdef _NVTX
+        nvtxRangePush (L"Binding Program/Framebuffer/Indirect");
+    #endif
+        
     // We need to perform a geometry pass to collect the position, normal and material data of every object that's 
     // visible on-screen.
-    const auto activeFramebuffer    = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
     const auto activeProgram        = ProgramBinder { m_programs.geometryPass };
+    const auto activeFramebuffer    = FramebufferBinder<GL_FRAMEBUFFER> { m_gbuffer.getFramebuffer() };
     const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer.getID() };
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Geometry Pass");
+        nvtxRangePush (L"Preparing for Geometry Pass");
+    #endif
+
     PassConfigurator::geometryPass();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Static Object Geometry");
+    #endif
 
     // Draw static objects.
-    sceneVAO.useStaticBuffers();
-    activeIndirectBuffer.bind (staticObjects.buffer.getID());
     staticObjects.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Preparing for Dynamic Objects");
+    #endif
 
     sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
     activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Dynamic Object Geometry");
+    #endif
+
     m_objectDrawing.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+        nvtxRangePush (L"Global Light Pass");
+        nvtxRangePush (L"Preparing for Global Light Pass");
+    #endif
 
     // The geometry pass has completed. We need to prepare for a global lighting pass, this will require using an 
     // oversized triangle to perform a full-screen lighting pass.
@@ -564,12 +724,29 @@ void Renderer::deferredRender (const MultiDrawCommands<Buffer>& staticObjects, S
     const auto gbufferPosition  = TextureBinder (m_gbuffer.getPositionTexture());
     const auto gbufferNormals   = TextureBinder (m_gbuffer.getNormalTexture());
     const auto gbufferMaterials = TextureBinder (m_gbuffer.getMaterialTexture());
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Directional Lights");
+    #endif
 
     // Now all we need is for the directional light data thread to complete.
     m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Apply Global Lighting");
+    #endif
 
     // Finally draw a full-screen triangle and global lighting will be applied.
     glDrawArrays (GL_TRIANGLES, 0, FullScreenTriangleVAO::vertexCount);
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+        nvtxRangePush (L"Point Light Pass");
+        nvtxRangePush (L"Preparing for Light Volume Pass");
+    #endif
 
     // Move on to point llights. This will require binding a different program, VAO and indirect buffer.
     activeProgram.bind (m_programs.lightingPass);
@@ -582,16 +759,38 @@ void Renderer::deferredRender (const MultiDrawCommands<Buffer>& staticObjects, S
     // Configure OpenGL and the new program for usage.
     PassConfigurator::lightVolumePass();
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::pointLightSubroutine);
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Light Draw Commands");
+    #endif
 
     // Update the draw commands, uniforms and transforms.
     m_lightDrawing.buffer.notifyModifiedDataRange (actions.lightDrawCommands.get());
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Point Light Uniforms and Transforms");
+    #endif
 
     const auto pointLightData = actions.pointLights.get();
     m_uniforms.notifyModifiedDataRange (pointLightData.uniforms);
     m_lightTransforms.notifyModifiedDataRange (pointLightData.transforms);
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Apply Point Lighting");
+    #endif
 
     // Now draw the point lights.
     m_lightDrawing.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+        nvtxRangePush (L"Spotlight Pass");
+        nvtxRangePush (L"Updating Spotlight Uniforms and Transforms");
+    #endif
 
     // And finally spotlights.
     Programs::setActiveProgramSubroutine (GL_FRAGMENT_SHADER, Programs::spotlightSubroutine); 
@@ -599,40 +798,81 @@ void Renderer::deferredRender (const MultiDrawCommands<Buffer>& staticObjects, S
     const auto spotlightData = actions.spotLights.get();
     m_uniforms.notifyModifiedDataRange (spotlightData.uniforms);
     m_lightTransforms.notifyModifiedDataRange (spotlightData.transforms);
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Apply Spotlighting");
+    #endif
 
     // Draw the spotlights.
     m_lightDrawing.incrementOffset();
     m_lightDrawing.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePop();
+    #endif
 }
 
 
 void Renderer::forwardRender (const MultiDrawCommands<Buffer>& staticObjects, SceneVAO& sceneVAO, ASyncActions& actions) noexcept
 {
-    // We need to use the purpose-made forward render program.
-    const auto activeProgram = ProgramBinder { m_programs.forwardRender };
+    #ifdef _NVTX
+        nvtxRangePush (L"Binding Program/Framebuffer/Indirect");
+    #endif
 
-    // Ensure we bind the off-screen light buffer.
-    const auto activeFramebuffer = FramebufferBinder<GL_DRAW_FRAMEBUFFER> { m_lbuffer.getFramebuffer() };
+    // We need to use the purpose-made forward render program and write straight into the light buffer.
+    const auto activeProgram        = ProgramBinder { m_programs.forwardRender };
+    const auto activeFramebuffer    = FramebufferBinder<GL_FRAMEBUFFER> { m_lbuffer.getFramebuffer() };
+    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Preparing for Forward Render");
+    #endif
 
     // Prepare the fresh frame.
     PassConfigurator::forwardRender();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Updating Light Uniforms");
+    #endif
 
     // Unfortunately forward rendering doesn't benefit from multi-threading too much so we have to synchronise early.
     m_uniforms.notifyModifiedDataRange (actions.directionalLights.get());
     m_uniforms.notifyModifiedDataRange (actions.pointLights.get().uniforms);
     m_uniforms.notifyModifiedDataRange (actions.spotLights.get().uniforms);
     
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Drawing Static Objects");
+    #endif
+    
     // Now we can render static objects.
-    const auto activeIndirectBuffer = BufferBinder<GL_DRAW_INDIRECT_BUFFER> { staticObjects.buffer };
-
     staticObjects.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Preparing for Dynamic Objects");
+    #endif
 
     // Prepare for dynamic objects.
     sceneVAO.useDynamicBuffers<multiBuffering> (m_partition);
 
     // Now we can draw!
     activeIndirectBuffer.bind (m_objectDrawing.buffer.getID());
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+        nvtxRangePush (L"Drawing Dynamic Objects");
+    #endif
+
     m_objectDrawing.drawWithoutBinding();
+    
+    #ifdef _NVTX
+        nvtxRangePop();
+    #endif
 }
 
 

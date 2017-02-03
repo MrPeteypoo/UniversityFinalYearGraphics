@@ -3,6 +3,10 @@
 #if !defined    _MY_VIEW_
 #define         _MY_VIEW_
 
+// STL headers.
+#include <chrono>
+
+
 // Engine headers.
 #include <scene/scene_fwd.hpp>
 #include <tygra/WindowViewDelegate.hpp>
@@ -48,12 +52,19 @@ class MyView final : public tygra::WindowViewDelegate
 
         /// <summary> Sets the internal resolution of the renderer, independent of the display window. </summary>
         void setInternalResolution (int width, int height) noexcept;
+
+        /// <summary> Toggles the display of frame timings. </summary>
+        void toggleFPSDisplay () noexcept { m_displayFPS = !m_displayFPS; }
 		
     private:
 
+        using Time = std::chrono::high_resolution_clock::time_point;
+
         scene::Context* m_scene             { nullptr };    //!< The currently used scene pointer.
         Renderer        m_renderer          { };            //!< Renders the scene using OpenGL 4.5.
+        bool            m_displayFPS        { false };      //!< Whether the FPS should be reported.
         bool            m_syncResolutions   { true };       //!< Synchronise the internal and display resolutions.
+        Time            m_lastFPSDisplay    { };            //!< When the FPS was last displayed.
         int             m_displayWidth      { 640 };        //!< The amount of pixels wide for the display resolution.
         int             m_displayHeight     { 480 };        //!< The amount of pixels tall for the display resolution.
 

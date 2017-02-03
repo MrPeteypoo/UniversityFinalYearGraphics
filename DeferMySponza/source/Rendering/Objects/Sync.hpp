@@ -35,7 +35,7 @@ class Sync final
         /// <summary> 
         /// Attempt to create the sync object as a fence. Successive calls will only modify the object if successful.
         /// </summary>
-        /// <returns> Whether the buffer was successfully created or not. </returns>
+        /// <returns> Whether the sync was successfully created or not. </returns>
         bool initialise() noexcept;
 
         /// <summary> 

@@ -184,6 +184,9 @@
     <ClInclude Include="source\Rendering\Renderer\Drawing\ShadowMaps.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Rendering\Objects\Query.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl">
@@ -333,6 +336,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\Renderer\Drawing\ShadowMaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Objects\Query.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
