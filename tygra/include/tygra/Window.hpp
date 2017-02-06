@@ -172,7 +172,7 @@ private:
     static Window * main_window_;
     static const int MAX_GAMEPADS = 2;
     static const int MAX_GAMEPAD_AXES = 8;
-    static const int MAX_GAMEPAD_BUTTONS = 12;
+    static const int MAX_GAMEPAD_BUTTONS = 14;
     struct GamepadState
     {
         float axis[MAX_GAMEPAD_AXES];

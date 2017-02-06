@@ -1,0 +1,53 @@
+#include "SceneVAO.hpp"
+
+
+// Namespaces
+using namespace types;
+
+
+void SceneVAO::configureAttributes() noexcept
+{
+    // Enable each attribute.
+    vao.setAttributeStatus (positionAttributeIndex, true);
+    vao.setAttributeStatus (normalAttributeIndex, true);
+    vao.setAttributeStatus (texturePointAttributeIndex, true);
+    vao.setAttributeStatus (materialIDAttributeIndex, true);
+    vao.setAttributeStatus (modelTransformAttributeIndex, modelTransformAttributeCount, true);
+
+    // Vertex information is interleaved in the same buffer.
+    vao.setAttributeBufferBinding (positionAttributeIndex, meshesBufferIndex);
+    vao.setAttributeBufferBinding (normalAttributeIndex, meshesBufferIndex);
+    vao.setAttributeBufferBinding (texturePointAttributeIndex, meshesBufferIndex);
+    
+    // Use static buffers by default for instance data.
+    useStaticBuffers();
+
+    // We must interleave the vertex information.
+    vao.setAttributeFormat (positionAttributeIndex, VertexArray::AttributeLayout::Float32,
+                            3, GL_FLOAT, 0);
+    vao.setAttributeFormat (normalAttributeIndex, VertexArray::AttributeLayout::Float32,
+                            3, GL_FLOAT, sizeof (glm::vec3));
+    vao.setAttributeFormat (texturePointAttributeIndex, VertexArray::AttributeLayout::Float32,
+                            2, GL_FLOAT, sizeof (glm::vec3) * 2);
+
+    // The material ID should be stored as an integer.
+    vao.setAttributeFormat (materialIDAttributeIndex, VertexArray::AttributeLayout::Integer,
+                            1, GL_INT, 0);
+
+    // The model transform must be added as multiple separate columns.
+    constexpr auto componentCount   = GLint { sizeof (glm::vec3) / sizeof (GLfloat) };
+    constexpr auto attributeStride  = GLuint { componentCount * sizeof (GLfloat) };
+    vao.setAttributeFormat (modelTransformAttributeIndex, modelTransformAttributeCount, attributeStride, 
+                            VertexArray::AttributeLayout::Float32, componentCount, GL_FLOAT, 0);
+}
+
+
+void SceneVAO::useStaticBuffers() noexcept
+{
+    // Material IDs require a single attribute.
+    vao.setAttributeBufferBinding (materialIDAttributeIndex, staticMaterialIDsBufferIndex);
+
+    // Model transforms are a 4x3 matrix.
+    vao.setAttributeBufferBinding (modelTransformAttributeIndex, modelTransformAttributeCount, 
+        staticTransformsBufferIndex);
+}

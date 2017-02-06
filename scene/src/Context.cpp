@@ -112,32 +112,35 @@ bool Context::readFile(std::string filepath)
         instance.setStatic(instance.getMeshId() != 300);
     }
 
-    int redShapes[] = { 35, 36, 37, 38, 39, 40, 41, 42, 69, 70, 71, 72, 73, 74,
-        75, 76, 77, 78, 79 };
+    int redShapes[] = { 35, 36, 37, 38, 39, 40, 41, 42, };
+    int blueShapes[] = { 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79 };
     int greenShapes[] = { 8, 19, 31, 33, 54, 57, 67, 68, 66, 80 };
     int yellowShapes[] = { 4, 5, 6, 7, 23, 24, 25, 26, 27, 28, 29, 30, 44, 45,
         46, 47, 48, 49, 50, 51, 52, 53 };
     int happyShapes[] = { 82 };
     int bunnyShapes[] = { 81 };
     int dragonShapes[] = { 83 };
-    int *shapes[6] = { redShapes, greenShapes, yellowShapes,
+    int *shapes[7] = { redShapes, blueShapes, greenShapes, yellowShapes,
         happyShapes, bunnyShapes, dragonShapes };
     int numberOfShapes[] = {
         sizeof(redShapes) / sizeof(int),
+        sizeof(blueShapes) / sizeof(int),
         sizeof(greenShapes) / sizeof(int),
         sizeof(yellowShapes) / sizeof(int),
         sizeof(happyShapes) / sizeof(int),
         sizeof(bunnyShapes) / sizeof(int),
         sizeof(dragonShapes) / sizeof(int) };
-    Vector3 diffuse_colours[6] = {
+    Vector3 diffuse_colours[7] = {
         Vector3(1.f, 0.33f, 0.f),
+        Vector3(0.f, 0.33f, 1.f),
         Vector3(0.2f, 0.8f, 0.2f),
         Vector3(0.8f, 0.8f, 0.2f),
         Vector3(0.8f, 0.4f, 0.4f),
         Vector3(0.4f, 0.8f, 0.4f),
         Vector3(0.4f, 0.4f, 0.8f)
     };
-    Vector3 specular_colours[6] = {
+    Vector3 specular_colours[7] = {
+        Vector3(0, 0, 0),
         Vector3(0, 0, 0),
         Vector3(1, 1, 1),
         Vector3(0.8f, 0.8f, 0.2f),
@@ -145,11 +148,11 @@ bool Context::readFile(std::string filepath)
         Vector3(0.4f, 0.8f, 0.4f),
         Vector3(0.4f, 0.4f, 0.8f)
     };
-    float shininess[6] = { 0.f, 64.f, 128.f, 64.f, 0.f, 0.f };
+    float shininess[7] = { 0.f, 0.f, 64.f, 128.f, 64.f, 0.f, 0.f };
     Material new_material(200);
     new_material.setDiffuseColour(Vector3(0.8f, 0.8f, 0.8f));
     materials_.push_back(new_material);
-    for (int j = 0; j<6; ++j) {
+    for (int j = 0; j<7; ++j) {
         Material new_material(200 + j + 1);
         new_material.setDiffuseColour(diffuse_colours[j]);
         new_material.setSpecularColour(specular_colours[j]);

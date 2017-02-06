@@ -1,0 +1,545 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug NVTX|Win32">
+      <Configuration>Debug NVTX</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug NVTX|x64">
+      <Configuration>Debug NVTX</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release NVTX|Win32">
+      <Configuration>Release NVTX</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release NVTX|x64">
+      <Configuration>Release NVTX</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D566A96F-AAB8-4703-BC82-E64C53F3A16C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>DeferMySponza</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="tdk.props" />
+    <Import Project="tygra.props" />
+    <Import Project="tsl.props" />
+    <Import Project="scene.props" />
+    <Import Project="tcf.props" />
+    <Import Project="tdk.pub.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_NVTX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug NVTX|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_NVTX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_NVTX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release NVTX|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>TGL_TARGET_GL_4_5;_NVTX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>source;$(TdkIncSubPath);$(TdkSolutionBuildDir)$(TdkIncSubPath);$(TdkPackagesDir)$(TdkIncSubPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+        %(Command)
+        echo tdk.pubs post-build ...
+        xcopy /I /Y "$(SolutionDir)external\include\smaa\SMAA.hlsl" "$(TdkPubDir)Shaders\SMAA\" 
+        xcopy /E /I /Y "$(TdkSolutionBuildDir)$(TdkBinSubPath)*" "$(TdkPubDir)"
+        xcopy /E /I /Y "$(TdkContentDir)*" "$(TdkPubDir)"
+        erase "$(TdkPubDir)*.pdb"
+        echo _AUTO_GENERATED_DO_NOT_EDIT_ &gt; "$(TdkPubDir)_AUTO_GENERATED_DO_NOT_EDIT_"
+        ver &gt; nul
+        echo ... done
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Misc\MyController.hpp" />
+    <ClInclude Include="source\Rendering\Binders\ProgramBinder.hpp" />
+    <ClInclude Include="source\Rendering\Composites\DrawCommands.hpp" />
+    <ClInclude Include="source\Rendering\Composites\SamplerBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Query.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Sync.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\ShadowMaps.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\SMAA.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Vertex.hpp" />
+    <ClInclude Include="source\MyView.hpp" />
+    <ClInclude Include="source\Rendering\Binders\VertexArrayBinder.hpp" />
+    <ClInclude Include="source\Rendering\Composites\PersistentMappedBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\VertexArray.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\LightingVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Mesh.hpp" />
+    <ClInclude Include="source\MyView\MyView.hpp" />
+    <ClInclude Include="source\Rendering\Binders\BufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\FramebufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\RenderbufferBinder.hpp" />
+    <ClInclude Include="source\Rendering\Binders\TextureBinder.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Buffer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\GeometryBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\LightBuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Framebuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Renderbuffer.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Texture.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\PassConfigurator.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Geometry.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\Internals\Internals.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Geometry\SceneVAO.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Internals.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Internals\Material.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Materials\Materials.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\HardCodedShaders.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Program.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\Programs.hpp" />
+    <ClInclude Include="source\Rendering\Objects\Shader.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Programs\Shaders.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Drawing\Resolution.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Renderer.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\FullBlock.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Individual\Samplers.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\AlignedItem.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Uniforms.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\DirectionalLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\PointLight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Blocks\Scene.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Uniforms\Components\Spotlight.hpp" />
+    <ClInclude Include="source\Rendering\Renderer\Types.hpp" />
+    <ClInclude Include="source\Utility\Algorithm.hpp" />
+    <ClInclude Include="source\Utility\Maths.hpp" />
+    <ClInclude Include="source\Utility\OpenGL\Textures.hpp" />
+    <ClInclude Include="source\Utility\Scene.hpp" />
+    <ClInclude Include="source\Utility\TSL.hpp" />
+    <ClInclude Include="source\Utility\TypeTraits.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\Shaders\Defines\SMAAFragmentShader.glsl" />
+    <None Include="shaders\Shaders\Defines\SMAAVertexShader.glsl" />
+    <None Include="shaders\Shaders\Rendering\ForwardRender.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\FullScreenTriangle.vs.glsl" />
+    <None Include="shaders\Shaders\Defines\PhysicallyBasedShading.glsl" />
+    <None Include="shaders\Shaders\Rendering\GenerateShadowMap.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\ReflectionModels.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Lights.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightVolume.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\Geometry.vs.glsl" />
+    <None Include="shaders\Shaders\Rendering\LightingPass.fs.glsl" />
+    <None Include="shaders\Shaders\Rendering\MaterialFetcher.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\BlendingWeightCalculation.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\EdgeDetection.vs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.fs.glsl" />
+    <None Include="shaders\Shaders\SMAA\NeighborhoodBlending.vs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\Misc\MyController.cpp" />
+    <ClCompile Include="source\MyView\MyView.cpp" />
+    <ClCompile Include="source\Rendering\Composites\SamplerBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Buffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Framebuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Query.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Renderbuffer.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Sync.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Texture.cpp" />
+    <ClCompile Include="source\Rendering\Objects\VertexArray.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\PassConfigurator.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Program.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\ShadowMaps.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\SMAA.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\FullScreenTriangleVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\Geometry.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\LightingVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Geometry\SceneVAO.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Internals\Internals.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Materials\Materials.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Programs\Programs.cpp" />
+    <ClCompile Include="source\Rendering\Objects\Shader.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Programs\Shaders.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\GeometryBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Drawing\LightBuffer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Renderer.cpp" />
+    <ClCompile Include="source\Rendering\Renderer\Uniforms\Uniforms.cpp" />
+    <ClCompile Include="source\Utility\OpenGL\Textures.cpp" />
+    <ClCompile Include="source\Utility\Scene.cpp" />
+    <ClCompile Include="source\Utility\TSL.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
